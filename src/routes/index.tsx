@@ -37,7 +37,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Dashboard · Ascent Event & Innovation Platform" },
       {
         property: "og:description",
-        content: "Track events, competitions, registrations, revenue and evaluations in one console.",
+        content:
+          "Track events, competitions, registrations, revenue and evaluations in one console.",
       },
     ],
   }),
@@ -46,11 +47,29 @@ export const Route = createFileRoute("/")({
 
 const stats = [
   { label: "Total events", value: "486", delta: 8.9, hint: "vs last year", icon: CalendarDays },
-  { label: "Active competitions", value: "64", delta: 5.2, hint: "12 closing this week", icon: Trophy },
-  { label: "Registrations", value: "42,800", delta: 14.6, hint: "this cycle", icon: ClipboardCheck },
+  {
+    label: "Active competitions",
+    value: "64",
+    delta: 5.2,
+    hint: "12 closing this week",
+    icon: Trophy,
+  },
+  {
+    label: "Registrations",
+    value: "42,800",
+    delta: 14.6,
+    hint: "this cycle",
+    icon: ClipboardCheck,
+  },
   { label: "Revenue (MTD)", value: "$108,600", delta: 12.4, hint: "vs last month", icon: Wallet },
   { label: "Certificates issued", value: "18,420", delta: 24.1, icon: Award },
-  { label: "Pending evaluations", value: "88", delta: -6.4, hint: "SLA 48 hours", icon: FileCheck2 },
+  {
+    label: "Pending evaluations",
+    value: "88",
+    delta: -6.4,
+    hint: "SLA 48 hours",
+    icon: FileCheck2,
+  },
   { label: "Capacity filled", value: "81%", progress: 81, icon: CalendarDays },
   { label: "Upcoming events", value: "17", hint: "next 30 days", icon: CalendarDays },
 ];

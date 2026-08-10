@@ -8,9 +8,15 @@ export const Route = createFileRoute("/analytics/revenue")({
   head: () => ({
     meta: [
       { title: "Revenue analytics · Ascent Platform" },
-      { name: "description", content: "Revenue, plan mix and monetisation performance across tenants." },
+      {
+        name: "description",
+        content: "Revenue, plan mix and monetisation performance across tenants.",
+      },
       { property: "og:title", content: "Revenue analytics · Ascent Platform" },
-      { property: "og:description", content: "Revenue, plan mix and monetisation performance across tenants." },
+      {
+        property: "og:description",
+        content: "Revenue, plan mix and monetisation performance across tenants.",
+      },
     ],
   }),
   component: RevenueAnalyticsPage,
@@ -36,10 +42,18 @@ function RevenueAnalyticsPage() {
       </div>
       <div className="grid gap-6 xl:grid-cols-2">
         <SectionCard title="Revenue trend" description="Last 7 months">
-          <TrendAreaChart data={registrationTrend} xKey="month" series={[{ key: "revenue", label: "Revenue" }]} />
+          <TrendAreaChart
+            data={registrationTrend}
+            xKey="month"
+            series={[{ key: "revenue", label: "Revenue" }]}
+          />
         </SectionCard>
         <SectionCard title="Revenue by plan" description="Current cycle">
-          <GroupedBarChart data={revenueByPlan} xKey="plan" series={[{ key: "revenue", label: "Revenue" }]} />
+          <GroupedBarChart
+            data={revenueByPlan}
+            xKey="plan"
+            series={[{ key: "revenue", label: "Revenue" }]}
+          />
         </SectionCard>
       </div>
     </>

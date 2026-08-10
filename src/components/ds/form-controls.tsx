@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -90,7 +97,8 @@ export function MultiSelect({
                     <span
                       className={cn(
                         "mr-2 grid h-4 w-4 place-items-center rounded border border-input",
-                        value.includes(option) && "border-primary bg-primary text-primary-foreground",
+                        value.includes(option) &&
+                          "border-primary bg-primary text-primary-foreground",
                       )}
                     >
                       {value.includes(option) ? <Check className="h-3 w-3" /> : null}
@@ -182,7 +190,10 @@ export function TimePicker({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn("w-full justify-start gap-2 font-normal", !value && "text-muted-foreground")}
+            className={cn(
+              "w-full justify-start gap-2 font-normal",
+              !value && "text-muted-foreground",
+            )}
           >
             <Clock className="h-4 w-4" />
             {value ?? "Select time"}

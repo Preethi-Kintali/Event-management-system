@@ -96,18 +96,12 @@ export function DataTable<T extends { id: string }>({
 
   const toggleRow = (id: string) => {
     if (!onSelectedChange) return;
-    onSelectedChange(
-      selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id],
-    );
+    onSelectedChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
   };
 
   const toggleSort = (key: string) =>
     setSort((prev) =>
-      prev?.key === key
-        ? prev.dir === "asc"
-          ? { key, dir: "desc" }
-          : null
-        : { key, dir: "asc" },
+      prev?.key === key ? (prev.dir === "asc" ? { key, dir: "desc" } : null) : { key, dir: "asc" },
     );
 
   if (error) {

@@ -80,7 +80,11 @@ export function ListPageTemplate<T extends { id: string }>({
     if (query.trim()) {
       const q = query.toLowerCase();
       next = next.filter((row) =>
-        searchKeys.some((key) => String(row[key] ?? "").toLowerCase().includes(q)),
+        searchKeys.some((key) =>
+          String(row[key] ?? "")
+            .toLowerCase()
+            .includes(q),
+        ),
       );
     }
     if (status !== "all" && statusKey) {

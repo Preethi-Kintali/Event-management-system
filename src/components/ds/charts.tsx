@@ -46,13 +46,7 @@ const tooltipStyle = {
   labelStyle: { color: "var(--color-muted-foreground)", fontSize: "11px" },
 };
 
-function ChartFrame({
-  children,
-  height,
-}: {
-  children: React.ReactElement;
-  height: number;
-}) {
+function ChartFrame({ children, height }: { children: React.ReactElement; height: number }) {
   const hydrated = useHydrated();
   if (!hydrated) return <ChartSkeleton height={height} />;
   return (

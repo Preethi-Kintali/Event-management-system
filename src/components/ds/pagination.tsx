@@ -18,9 +18,7 @@ export function DataPagination({
   const from = (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, totalItems);
   const pages = Array.from({ length: totalPages }).map((_, i) => i + 1);
-  const visible = pages.filter(
-    (p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1,
-  );
+  const visible = pages.filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1);
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-border px-4 py-3 sm:flex sm:justify-between">

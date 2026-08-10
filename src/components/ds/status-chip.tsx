@@ -18,7 +18,7 @@ const labels: Record<string, string> = {
 };
 
 export function StatusChip({ status, className }: { status: string; className?: string }) {
-  const tone = tones[status] ?? tones['draft'];
+  const tone = tones[status] ?? tones["draft"];
   const label = labels[status] ?? status.charAt(0).toUpperCase() + status.slice(1);
 
   return (
@@ -47,7 +47,7 @@ export function SeverityChip({ severity }: { severity: string }) {
     <span
       className={cn(
         "inline-flex items-center rounded-md border px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide",
-        map[severity] ?? map['info'],
+        map[severity] ?? map["info"],
       )}
     >
       {severity}

@@ -62,7 +62,10 @@ export function DetailsPageTemplate({
             </TabsContent>
 
             <TabsContent value="activity" className="mt-4">
-              <SectionCard title="Activity timeline" description="Every state change on this record">
+              <SectionCard
+                title="Activity timeline"
+                description="Every state change on this record"
+              >
                 <Timeline items={timeline} />
               </SectionCard>
             </TabsContent>

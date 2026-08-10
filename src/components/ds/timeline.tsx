@@ -4,7 +4,13 @@ import { cn } from "@/lib/utils";
 export function Timeline({
   items,
 }: {
-  items: { id: string; title: string; detail: string; time: string; state: "done" | "current" | "upcoming" }[];
+  items: {
+    id: string;
+    title: string;
+    detail: string;
+    time: string;
+    state: "done" | "current" | "upcoming";
+  }[];
 }) {
   return (
     <ol className="relative space-y-6 pl-7">
