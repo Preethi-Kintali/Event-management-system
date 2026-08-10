@@ -113,8 +113,8 @@ const sections = [
     label: "System",
     items: [
       { title: "Integrations", url: "/integrations", icon: Network },
-      { title: "Security", url: "/audit-logs", icon: ScrollText },
-      { title: "Developer Administration", url: "/developer-admin", icon: TerminalSquare },
+      { title: "Security", url: "/security", icon: ShieldCheck },
+      { title: "Developer Admin", url: "/developer", icon: TerminalSquare },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
   },

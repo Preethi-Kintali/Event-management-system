@@ -21,6 +21,13 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SponsorsRouteImport } from './routes/sponsors'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as VolunteersRouteImport } from './routes/volunteers'
+import { Route as AiCopilotIndexRouteImport } from './routes/ai-copilot.index'
+import { Route as AiCopilotAssistantRouteImport } from './routes/ai-copilot.assistant'
+import { Route as AiCopilotEmailRouteImport } from './routes/ai-copilot.email'
+import { Route as AiCopilotEventDescriptionRouteImport } from './routes/ai-copilot.event-description'
+import { Route as AiCopilotRecommendationsRouteImport } from './routes/ai-copilot.recommendations'
+import { Route as AiCopilotReportsRouteImport } from './routes/ai-copilot.reports'
+import { Route as AiCopilotRubricRouteImport } from './routes/ai-copilot.rubric'
 import { Route as AiValidationIndexRouteImport } from './routes/ai-validation.index'
 import { Route as AiValidationIdRouteImport } from './routes/ai-validation.$id'
 import { Route as AiValidationQueueRouteImport } from './routes/ai-validation.queue'
@@ -47,6 +54,14 @@ import { Route as CommunityMessagesRouteImport } from './routes/community.messag
 import { Route as CommunityNetworkingRouteImport } from './routes/community.networking'
 import { Route as CompetitionsIndexRouteImport } from './routes/competitions.index'
 import { Route as CompetitionsIdRouteImport } from './routes/competitions.$id'
+import { Route as DeveloperIndexRouteImport } from './routes/developer.index'
+import { Route as DeveloperApiRouteImport } from './routes/developer.api'
+import { Route as DeveloperApiKeysRouteImport } from './routes/developer.api-keys'
+import { Route as DeveloperCronRouteImport } from './routes/developer.cron'
+import { Route as DeveloperDeploymentsRouteImport } from './routes/developer.deployments'
+import { Route as DeveloperHealthRouteImport } from './routes/developer.health'
+import { Route as DeveloperLogsRouteImport } from './routes/developer.logs'
+import { Route as DeveloperQueuesRouteImport } from './routes/developer.queues'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as EventsNewRouteImport } from './routes/events.new'
@@ -55,6 +70,12 @@ import { Route as FeedbackIndexRouteImport } from './routes/feedback.index'
 import { Route as FeedbackIdRouteImport } from './routes/feedback.$id'
 import { Route as FeedbackAnalyticsRouteImport } from './routes/feedback.analytics'
 import { Route as FeedbackListRouteImport } from './routes/feedback.list'
+import { Route as IntegrationsIndexRouteImport } from './routes/integrations.index'
+import { Route as IntegrationsIdRouteImport } from './routes/integrations.$id'
+import { Route as IntegrationsApiKeysRouteImport } from './routes/integrations.api-keys'
+import { Route as IntegrationsConnectedRouteImport } from './routes/integrations.connected'
+import { Route as IntegrationsMarketplaceRouteImport } from './routes/integrations.marketplace'
+import { Route as IntegrationsWebhooksRouteImport } from './routes/integrations.webhooks'
 import { Route as LearningIndexRouteImport } from './routes/learning.index'
 import { Route as LearningResourcesRouteImport } from './routes/learning.resources'
 import { Route as LearningWorkshopsRouteImport } from './routes/learning.workshops'
@@ -65,6 +86,12 @@ import { Route as PlatformAdminLicensesRouteImport } from './routes/platform-adm
 import { Route as PlatformAdminOrganizationsRouteImport } from './routes/platform-admin.organizations'
 import { Route as PlatformAdminPermissionsRouteImport } from './routes/platform-admin.permissions'
 import { Route as PlatformAdminSubscriptionsRouteImport } from './routes/platform-admin.subscriptions'
+import { Route as SecurityIndexRouteImport } from './routes/security.index'
+import { Route as SecurityAlertsRouteImport } from './routes/security.alerts'
+import { Route as SecurityAuthenticationRouteImport } from './routes/security.authentication'
+import { Route as SecurityComplianceRouteImport } from './routes/security.compliance'
+import { Route as SecurityEventsRouteImport } from './routes/security.events'
+import { Route as SecuritySessionsRouteImport } from './routes/security.sessions'
 import { Route as SubmissionsIndexRouteImport } from './routes/submissions.index'
 import { Route as SubmissionsIdRouteImport } from './routes/submissions.$id'
 import { Route as TeamsIndexRouteImport } from './routes/teams.index'
@@ -74,6 +101,12 @@ import { Route as WinnersIdRouteImport } from './routes/winners.$id'
 import { Route as WinnersListRouteImport } from './routes/winners.list'
 import { Route as WinnersPrizesRouteImport } from './routes/winners.prizes'
 import { Route as WinnersSelectionRouteImport } from './routes/winners.selection'
+import { Route as WorkflowsIndexRouteImport } from './routes/workflows.index'
+import { Route as WorkflowsIdRouteImport } from './routes/workflows.$id'
+import { Route as WorkflowsExecutionsRouteImport } from './routes/workflows.executions'
+import { Route as WorkflowsListRouteImport } from './routes/workflows.list'
+import { Route as WorkflowsNewRouteImport } from './routes/workflows.new'
+import { Route as WorkflowsTemplatesRouteImport } from './routes/workflows.templates'
 import { Route as CommunicationCampaignsIndexRouteImport } from './routes/communication.campaigns.index'
 import { Route as CommunicationCampaignsNewRouteImport } from './routes/communication.campaigns.new'
 import { Route as CommunityDiscussionsIndexRouteImport } from './routes/community.discussions.index'
@@ -141,6 +174,43 @@ const UsersRoute = UsersRouteImport.update({
 const VolunteersRoute = VolunteersRouteImport.update({
   id: '/volunteers',
   path: '/volunteers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCopilotIndexRoute = AiCopilotIndexRouteImport.update({
+  id: '/ai-copilot/',
+  path: '/ai-copilot/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCopilotAssistantRoute = AiCopilotAssistantRouteImport.update({
+  id: '/ai-copilot/assistant',
+  path: '/ai-copilot/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCopilotEmailRoute = AiCopilotEmailRouteImport.update({
+  id: '/ai-copilot/email',
+  path: '/ai-copilot/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCopilotEventDescriptionRoute =
+  AiCopilotEventDescriptionRouteImport.update({
+    id: '/ai-copilot/event-description',
+    path: '/ai-copilot/event-description',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AiCopilotRecommendationsRoute =
+  AiCopilotRecommendationsRouteImport.update({
+    id: '/ai-copilot/recommendations',
+    path: '/ai-copilot/recommendations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AiCopilotReportsRoute = AiCopilotReportsRouteImport.update({
+  id: '/ai-copilot/reports',
+  path: '/ai-copilot/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCopilotRubricRoute = AiCopilotRubricRouteImport.update({
+  id: '/ai-copilot/rubric',
+  path: '/ai-copilot/rubric',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiValidationIndexRoute = AiValidationIndexRouteImport.update({
@@ -273,6 +343,46 @@ const CompetitionsIdRoute = CompetitionsIdRouteImport.update({
   path: '/competitions/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeveloperIndexRoute = DeveloperIndexRouteImport.update({
+  id: '/developer/',
+  path: '/developer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperApiRoute = DeveloperApiRouteImport.update({
+  id: '/developer/api',
+  path: '/developer/api',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperApiKeysRoute = DeveloperApiKeysRouteImport.update({
+  id: '/developer/api-keys',
+  path: '/developer/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperCronRoute = DeveloperCronRouteImport.update({
+  id: '/developer/cron',
+  path: '/developer/cron',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperDeploymentsRoute = DeveloperDeploymentsRouteImport.update({
+  id: '/developer/deployments',
+  path: '/developer/deployments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperHealthRoute = DeveloperHealthRouteImport.update({
+  id: '/developer/health',
+  path: '/developer/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperLogsRoute = DeveloperLogsRouteImport.update({
+  id: '/developer/logs',
+  path: '/developer/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperQueuesRoute = DeveloperQueuesRouteImport.update({
+  id: '/developer/queues',
+  path: '/developer/queues',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
@@ -311,6 +421,36 @@ const FeedbackAnalyticsRoute = FeedbackAnalyticsRouteImport.update({
 const FeedbackListRoute = FeedbackListRouteImport.update({
   id: '/feedback/list',
   path: '/feedback/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsIndexRoute = IntegrationsIndexRouteImport.update({
+  id: '/integrations/',
+  path: '/integrations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsIdRoute = IntegrationsIdRouteImport.update({
+  id: '/integrations/$id',
+  path: '/integrations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsApiKeysRoute = IntegrationsApiKeysRouteImport.update({
+  id: '/integrations/api-keys',
+  path: '/integrations/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsConnectedRoute = IntegrationsConnectedRouteImport.update({
+  id: '/integrations/connected',
+  path: '/integrations/connected',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsMarketplaceRoute = IntegrationsMarketplaceRouteImport.update({
+  id: '/integrations/marketplace',
+  path: '/integrations/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsWebhooksRoute = IntegrationsWebhooksRouteImport.update({
+  id: '/integrations/webhooks',
+  path: '/integrations/webhooks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearningIndexRoute = LearningIndexRouteImport.update({
@@ -367,6 +507,36 @@ const PlatformAdminSubscriptionsRoute =
     path: '/platform-admin/subscriptions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const SecurityIndexRoute = SecurityIndexRouteImport.update({
+  id: '/security/',
+  path: '/security/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityAlertsRoute = SecurityAlertsRouteImport.update({
+  id: '/security/alerts',
+  path: '/security/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityAuthenticationRoute = SecurityAuthenticationRouteImport.update({
+  id: '/security/authentication',
+  path: '/security/authentication',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityComplianceRoute = SecurityComplianceRouteImport.update({
+  id: '/security/compliance',
+  path: '/security/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityEventsRoute = SecurityEventsRouteImport.update({
+  id: '/security/events',
+  path: '/security/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecuritySessionsRoute = SecuritySessionsRouteImport.update({
+  id: '/security/sessions',
+  path: '/security/sessions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmissionsIndexRoute = SubmissionsIndexRouteImport.update({
   id: '/submissions/',
   path: '/submissions/',
@@ -410,6 +580,36 @@ const WinnersPrizesRoute = WinnersPrizesRouteImport.update({
 const WinnersSelectionRoute = WinnersSelectionRouteImport.update({
   id: '/winners/selection',
   path: '/winners/selection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsIdRoute = WorkflowsIdRouteImport.update({
+  id: '/workflows/$id',
+  path: '/workflows/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsExecutionsRoute = WorkflowsExecutionsRouteImport.update({
+  id: '/workflows/executions',
+  path: '/workflows/executions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsListRoute = WorkflowsListRouteImport.update({
+  id: '/workflows/list',
+  path: '/workflows/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsNewRoute = WorkflowsNewRouteImport.update({
+  id: '/workflows/new',
+  path: '/workflows/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsTemplatesRoute = WorkflowsTemplatesRouteImport.update({
+  id: '/workflows/templates',
+  path: '/workflows/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunicationCampaignsIndexRoute =
@@ -469,6 +669,12 @@ export interface FileRoutesByFullPath {
   '/sponsors': typeof SponsorsRoute
   '/users': typeof UsersRoute
   '/volunteers': typeof VolunteersRoute
+  '/ai-copilot/assistant': typeof AiCopilotAssistantRoute
+  '/ai-copilot/email': typeof AiCopilotEmailRoute
+  '/ai-copilot/event-description': typeof AiCopilotEventDescriptionRoute
+  '/ai-copilot/recommendations': typeof AiCopilotRecommendationsRoute
+  '/ai-copilot/reports': typeof AiCopilotReportsRoute
+  '/ai-copilot/rubric': typeof AiCopilotRubricRoute
   '/ai-validation/$id': typeof AiValidationIdRoute
   '/ai-validation/queue': typeof AiValidationQueueRoute
   '/analytics/participation': typeof AnalyticsParticipationRoute
@@ -488,12 +694,24 @@ export interface FileRoutesByFullPath {
   '/community/messages': typeof CommunityMessagesRoute
   '/community/networking': typeof CommunityNetworkingRoute
   '/competitions/$id': typeof CompetitionsIdRoute
+  '/developer/api': typeof DeveloperApiRoute
+  '/developer/api-keys': typeof DeveloperApiKeysRoute
+  '/developer/cron': typeof DeveloperCronRoute
+  '/developer/deployments': typeof DeveloperDeploymentsRoute
+  '/developer/health': typeof DeveloperHealthRoute
+  '/developer/logs': typeof DeveloperLogsRoute
+  '/developer/queues': typeof DeveloperQueuesRoute
   '/events/$id': typeof EventsIdRoute
   '/events/new': typeof EventsNewRoute
   '/events/schedule': typeof EventsScheduleRoute
   '/feedback/$id': typeof FeedbackIdRoute
   '/feedback/analytics': typeof FeedbackAnalyticsRoute
   '/feedback/list': typeof FeedbackListRoute
+  '/integrations/$id': typeof IntegrationsIdRoute
+  '/integrations/api-keys': typeof IntegrationsApiKeysRoute
+  '/integrations/connected': typeof IntegrationsConnectedRoute
+  '/integrations/marketplace': typeof IntegrationsMarketplaceRoute
+  '/integrations/webhooks': typeof IntegrationsWebhooksRoute
   '/learning/resources': typeof LearningResourcesRoute
   '/learning/workshops': typeof LearningWorkshopsRoute
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
@@ -502,12 +720,23 @@ export interface FileRoutesByFullPath {
   '/platform-admin/organizations': typeof PlatformAdminOrganizationsRoute
   '/platform-admin/permissions': typeof PlatformAdminPermissionsRoute
   '/platform-admin/subscriptions': typeof PlatformAdminSubscriptionsRoute
+  '/security/alerts': typeof SecurityAlertsRoute
+  '/security/authentication': typeof SecurityAuthenticationRoute
+  '/security/compliance': typeof SecurityComplianceRoute
+  '/security/events': typeof SecurityEventsRoute
+  '/security/sessions': typeof SecuritySessionsRoute
   '/submissions/$id': typeof SubmissionsIdRoute
   '/teams/$id': typeof TeamsIdRoute
   '/winners/$id': typeof WinnersIdRoute
   '/winners/list': typeof WinnersListRoute
   '/winners/prizes': typeof WinnersPrizesRoute
   '/winners/selection': typeof WinnersSelectionRoute
+  '/workflows/$id': typeof WorkflowsIdRoute
+  '/workflows/executions': typeof WorkflowsExecutionsRoute
+  '/workflows/list': typeof WorkflowsListRoute
+  '/workflows/new': typeof WorkflowsNewRoute
+  '/workflows/templates': typeof WorkflowsTemplatesRoute
+  '/ai-copilot/': typeof AiCopilotIndexRoute
   '/ai-validation/': typeof AiValidationIndexRoute
   '/attendance/': typeof AttendanceIndexRoute
   '/badges/': typeof BadgesIndexRoute
@@ -515,13 +744,17 @@ export interface FileRoutesByFullPath {
   '/communication/': typeof CommunicationIndexRoute
   '/community/': typeof CommunityIndexRoute
   '/competitions/': typeof CompetitionsIndexRoute
+  '/developer/': typeof DeveloperIndexRoute
   '/events/': typeof EventsIndexRoute
   '/feedback/': typeof FeedbackIndexRoute
+  '/integrations/': typeof IntegrationsIndexRoute
   '/learning/': typeof LearningIndexRoute
   '/platform-admin/': typeof PlatformAdminIndexRoute
+  '/security/': typeof SecurityIndexRoute
   '/submissions/': typeof SubmissionsIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/winners/': typeof WinnersIndexRoute
+  '/workflows/': typeof WorkflowsIndexRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
@@ -544,6 +777,12 @@ export interface FileRoutesByTo {
   '/sponsors': typeof SponsorsRoute
   '/users': typeof UsersRoute
   '/volunteers': typeof VolunteersRoute
+  '/ai-copilot/assistant': typeof AiCopilotAssistantRoute
+  '/ai-copilot/email': typeof AiCopilotEmailRoute
+  '/ai-copilot/event-description': typeof AiCopilotEventDescriptionRoute
+  '/ai-copilot/recommendations': typeof AiCopilotRecommendationsRoute
+  '/ai-copilot/reports': typeof AiCopilotReportsRoute
+  '/ai-copilot/rubric': typeof AiCopilotRubricRoute
   '/ai-validation/$id': typeof AiValidationIdRoute
   '/ai-validation/queue': typeof AiValidationQueueRoute
   '/analytics/participation': typeof AnalyticsParticipationRoute
@@ -563,12 +802,24 @@ export interface FileRoutesByTo {
   '/community/messages': typeof CommunityMessagesRoute
   '/community/networking': typeof CommunityNetworkingRoute
   '/competitions/$id': typeof CompetitionsIdRoute
+  '/developer/api': typeof DeveloperApiRoute
+  '/developer/api-keys': typeof DeveloperApiKeysRoute
+  '/developer/cron': typeof DeveloperCronRoute
+  '/developer/deployments': typeof DeveloperDeploymentsRoute
+  '/developer/health': typeof DeveloperHealthRoute
+  '/developer/logs': typeof DeveloperLogsRoute
+  '/developer/queues': typeof DeveloperQueuesRoute
   '/events/$id': typeof EventsIdRoute
   '/events/new': typeof EventsNewRoute
   '/events/schedule': typeof EventsScheduleRoute
   '/feedback/$id': typeof FeedbackIdRoute
   '/feedback/analytics': typeof FeedbackAnalyticsRoute
   '/feedback/list': typeof FeedbackListRoute
+  '/integrations/$id': typeof IntegrationsIdRoute
+  '/integrations/api-keys': typeof IntegrationsApiKeysRoute
+  '/integrations/connected': typeof IntegrationsConnectedRoute
+  '/integrations/marketplace': typeof IntegrationsMarketplaceRoute
+  '/integrations/webhooks': typeof IntegrationsWebhooksRoute
   '/learning/resources': typeof LearningResourcesRoute
   '/learning/workshops': typeof LearningWorkshopsRoute
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
@@ -577,12 +828,23 @@ export interface FileRoutesByTo {
   '/platform-admin/organizations': typeof PlatformAdminOrganizationsRoute
   '/platform-admin/permissions': typeof PlatformAdminPermissionsRoute
   '/platform-admin/subscriptions': typeof PlatformAdminSubscriptionsRoute
+  '/security/alerts': typeof SecurityAlertsRoute
+  '/security/authentication': typeof SecurityAuthenticationRoute
+  '/security/compliance': typeof SecurityComplianceRoute
+  '/security/events': typeof SecurityEventsRoute
+  '/security/sessions': typeof SecuritySessionsRoute
   '/submissions/$id': typeof SubmissionsIdRoute
   '/teams/$id': typeof TeamsIdRoute
   '/winners/$id': typeof WinnersIdRoute
   '/winners/list': typeof WinnersListRoute
   '/winners/prizes': typeof WinnersPrizesRoute
   '/winners/selection': typeof WinnersSelectionRoute
+  '/workflows/$id': typeof WorkflowsIdRoute
+  '/workflows/executions': typeof WorkflowsExecutionsRoute
+  '/workflows/list': typeof WorkflowsListRoute
+  '/workflows/new': typeof WorkflowsNewRoute
+  '/workflows/templates': typeof WorkflowsTemplatesRoute
+  '/ai-copilot': typeof AiCopilotIndexRoute
   '/ai-validation': typeof AiValidationIndexRoute
   '/attendance': typeof AttendanceIndexRoute
   '/badges': typeof BadgesIndexRoute
@@ -590,13 +852,17 @@ export interface FileRoutesByTo {
   '/communication': typeof CommunicationIndexRoute
   '/community': typeof CommunityIndexRoute
   '/competitions': typeof CompetitionsIndexRoute
+  '/developer': typeof DeveloperIndexRoute
   '/events': typeof EventsIndexRoute
   '/feedback': typeof FeedbackIndexRoute
+  '/integrations': typeof IntegrationsIndexRoute
   '/learning': typeof LearningIndexRoute
   '/platform-admin': typeof PlatformAdminIndexRoute
+  '/security': typeof SecurityIndexRoute
   '/submissions': typeof SubmissionsIndexRoute
   '/teams': typeof TeamsIndexRoute
   '/winners': typeof WinnersIndexRoute
+  '/workflows': typeof WorkflowsIndexRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
@@ -620,6 +886,12 @@ export interface FileRoutesById {
   '/sponsors': typeof SponsorsRoute
   '/users': typeof UsersRoute
   '/volunteers': typeof VolunteersRoute
+  '/ai-copilot/assistant': typeof AiCopilotAssistantRoute
+  '/ai-copilot/email': typeof AiCopilotEmailRoute
+  '/ai-copilot/event-description': typeof AiCopilotEventDescriptionRoute
+  '/ai-copilot/recommendations': typeof AiCopilotRecommendationsRoute
+  '/ai-copilot/reports': typeof AiCopilotReportsRoute
+  '/ai-copilot/rubric': typeof AiCopilotRubricRoute
   '/ai-validation/$id': typeof AiValidationIdRoute
   '/ai-validation/queue': typeof AiValidationQueueRoute
   '/analytics/participation': typeof AnalyticsParticipationRoute
@@ -639,12 +911,24 @@ export interface FileRoutesById {
   '/community/messages': typeof CommunityMessagesRoute
   '/community/networking': typeof CommunityNetworkingRoute
   '/competitions/$id': typeof CompetitionsIdRoute
+  '/developer/api': typeof DeveloperApiRoute
+  '/developer/api-keys': typeof DeveloperApiKeysRoute
+  '/developer/cron': typeof DeveloperCronRoute
+  '/developer/deployments': typeof DeveloperDeploymentsRoute
+  '/developer/health': typeof DeveloperHealthRoute
+  '/developer/logs': typeof DeveloperLogsRoute
+  '/developer/queues': typeof DeveloperQueuesRoute
   '/events/$id': typeof EventsIdRoute
   '/events/new': typeof EventsNewRoute
   '/events/schedule': typeof EventsScheduleRoute
   '/feedback/$id': typeof FeedbackIdRoute
   '/feedback/analytics': typeof FeedbackAnalyticsRoute
   '/feedback/list': typeof FeedbackListRoute
+  '/integrations/$id': typeof IntegrationsIdRoute
+  '/integrations/api-keys': typeof IntegrationsApiKeysRoute
+  '/integrations/connected': typeof IntegrationsConnectedRoute
+  '/integrations/marketplace': typeof IntegrationsMarketplaceRoute
+  '/integrations/webhooks': typeof IntegrationsWebhooksRoute
   '/learning/resources': typeof LearningResourcesRoute
   '/learning/workshops': typeof LearningWorkshopsRoute
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
@@ -653,12 +937,23 @@ export interface FileRoutesById {
   '/platform-admin/organizations': typeof PlatformAdminOrganizationsRoute
   '/platform-admin/permissions': typeof PlatformAdminPermissionsRoute
   '/platform-admin/subscriptions': typeof PlatformAdminSubscriptionsRoute
+  '/security/alerts': typeof SecurityAlertsRoute
+  '/security/authentication': typeof SecurityAuthenticationRoute
+  '/security/compliance': typeof SecurityComplianceRoute
+  '/security/events': typeof SecurityEventsRoute
+  '/security/sessions': typeof SecuritySessionsRoute
   '/submissions/$id': typeof SubmissionsIdRoute
   '/teams/$id': typeof TeamsIdRoute
   '/winners/$id': typeof WinnersIdRoute
   '/winners/list': typeof WinnersListRoute
   '/winners/prizes': typeof WinnersPrizesRoute
   '/winners/selection': typeof WinnersSelectionRoute
+  '/workflows/$id': typeof WorkflowsIdRoute
+  '/workflows/executions': typeof WorkflowsExecutionsRoute
+  '/workflows/list': typeof WorkflowsListRoute
+  '/workflows/new': typeof WorkflowsNewRoute
+  '/workflows/templates': typeof WorkflowsTemplatesRoute
+  '/ai-copilot/': typeof AiCopilotIndexRoute
   '/ai-validation/': typeof AiValidationIndexRoute
   '/attendance/': typeof AttendanceIndexRoute
   '/badges/': typeof BadgesIndexRoute
@@ -666,13 +961,17 @@ export interface FileRoutesById {
   '/communication/': typeof CommunicationIndexRoute
   '/community/': typeof CommunityIndexRoute
   '/competitions/': typeof CompetitionsIndexRoute
+  '/developer/': typeof DeveloperIndexRoute
   '/events/': typeof EventsIndexRoute
   '/feedback/': typeof FeedbackIndexRoute
+  '/integrations/': typeof IntegrationsIndexRoute
   '/learning/': typeof LearningIndexRoute
   '/platform-admin/': typeof PlatformAdminIndexRoute
+  '/security/': typeof SecurityIndexRoute
   '/submissions/': typeof SubmissionsIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/winners/': typeof WinnersIndexRoute
+  '/workflows/': typeof WorkflowsIndexRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
@@ -697,6 +996,12 @@ export interface FileRouteTypes {
     | '/sponsors'
     | '/users'
     | '/volunteers'
+    | '/ai-copilot/assistant'
+    | '/ai-copilot/email'
+    | '/ai-copilot/event-description'
+    | '/ai-copilot/recommendations'
+    | '/ai-copilot/reports'
+    | '/ai-copilot/rubric'
     | '/ai-validation/$id'
     | '/ai-validation/queue'
     | '/analytics/participation'
@@ -716,12 +1021,24 @@ export interface FileRouteTypes {
     | '/community/messages'
     | '/community/networking'
     | '/competitions/$id'
+    | '/developer/api'
+    | '/developer/api-keys'
+    | '/developer/cron'
+    | '/developer/deployments'
+    | '/developer/health'
+    | '/developer/logs'
+    | '/developer/queues'
     | '/events/$id'
     | '/events/new'
     | '/events/schedule'
     | '/feedback/$id'
     | '/feedback/analytics'
     | '/feedback/list'
+    | '/integrations/$id'
+    | '/integrations/api-keys'
+    | '/integrations/connected'
+    | '/integrations/marketplace'
+    | '/integrations/webhooks'
     | '/learning/resources'
     | '/learning/workshops'
     | '/platform-admin/audit-logs'
@@ -730,12 +1047,23 @@ export interface FileRouteTypes {
     | '/platform-admin/organizations'
     | '/platform-admin/permissions'
     | '/platform-admin/subscriptions'
+    | '/security/alerts'
+    | '/security/authentication'
+    | '/security/compliance'
+    | '/security/events'
+    | '/security/sessions'
     | '/submissions/$id'
     | '/teams/$id'
     | '/winners/$id'
     | '/winners/list'
     | '/winners/prizes'
     | '/winners/selection'
+    | '/workflows/$id'
+    | '/workflows/executions'
+    | '/workflows/list'
+    | '/workflows/new'
+    | '/workflows/templates'
+    | '/ai-copilot/'
     | '/ai-validation/'
     | '/attendance/'
     | '/badges/'
@@ -743,13 +1071,17 @@ export interface FileRouteTypes {
     | '/communication/'
     | '/community/'
     | '/competitions/'
+    | '/developer/'
     | '/events/'
     | '/feedback/'
+    | '/integrations/'
     | '/learning/'
     | '/platform-admin/'
+    | '/security/'
     | '/submissions/'
     | '/teams/'
     | '/winners/'
+    | '/workflows/'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
     | '/feedback/surveys/new'
@@ -772,6 +1104,12 @@ export interface FileRouteTypes {
     | '/sponsors'
     | '/users'
     | '/volunteers'
+    | '/ai-copilot/assistant'
+    | '/ai-copilot/email'
+    | '/ai-copilot/event-description'
+    | '/ai-copilot/recommendations'
+    | '/ai-copilot/reports'
+    | '/ai-copilot/rubric'
     | '/ai-validation/$id'
     | '/ai-validation/queue'
     | '/analytics/participation'
@@ -791,12 +1129,24 @@ export interface FileRouteTypes {
     | '/community/messages'
     | '/community/networking'
     | '/competitions/$id'
+    | '/developer/api'
+    | '/developer/api-keys'
+    | '/developer/cron'
+    | '/developer/deployments'
+    | '/developer/health'
+    | '/developer/logs'
+    | '/developer/queues'
     | '/events/$id'
     | '/events/new'
     | '/events/schedule'
     | '/feedback/$id'
     | '/feedback/analytics'
     | '/feedback/list'
+    | '/integrations/$id'
+    | '/integrations/api-keys'
+    | '/integrations/connected'
+    | '/integrations/marketplace'
+    | '/integrations/webhooks'
     | '/learning/resources'
     | '/learning/workshops'
     | '/platform-admin/audit-logs'
@@ -805,12 +1155,23 @@ export interface FileRouteTypes {
     | '/platform-admin/organizations'
     | '/platform-admin/permissions'
     | '/platform-admin/subscriptions'
+    | '/security/alerts'
+    | '/security/authentication'
+    | '/security/compliance'
+    | '/security/events'
+    | '/security/sessions'
     | '/submissions/$id'
     | '/teams/$id'
     | '/winners/$id'
     | '/winners/list'
     | '/winners/prizes'
     | '/winners/selection'
+    | '/workflows/$id'
+    | '/workflows/executions'
+    | '/workflows/list'
+    | '/workflows/new'
+    | '/workflows/templates'
+    | '/ai-copilot'
     | '/ai-validation'
     | '/attendance'
     | '/badges'
@@ -818,13 +1179,17 @@ export interface FileRouteTypes {
     | '/communication'
     | '/community'
     | '/competitions'
+    | '/developer'
     | '/events'
     | '/feedback'
+    | '/integrations'
     | '/learning'
     | '/platform-admin'
+    | '/security'
     | '/submissions'
     | '/teams'
     | '/winners'
+    | '/workflows'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
     | '/feedback/surveys/new'
@@ -847,6 +1212,12 @@ export interface FileRouteTypes {
     | '/sponsors'
     | '/users'
     | '/volunteers'
+    | '/ai-copilot/assistant'
+    | '/ai-copilot/email'
+    | '/ai-copilot/event-description'
+    | '/ai-copilot/recommendations'
+    | '/ai-copilot/reports'
+    | '/ai-copilot/rubric'
     | '/ai-validation/$id'
     | '/ai-validation/queue'
     | '/analytics/participation'
@@ -866,12 +1237,24 @@ export interface FileRouteTypes {
     | '/community/messages'
     | '/community/networking'
     | '/competitions/$id'
+    | '/developer/api'
+    | '/developer/api-keys'
+    | '/developer/cron'
+    | '/developer/deployments'
+    | '/developer/health'
+    | '/developer/logs'
+    | '/developer/queues'
     | '/events/$id'
     | '/events/new'
     | '/events/schedule'
     | '/feedback/$id'
     | '/feedback/analytics'
     | '/feedback/list'
+    | '/integrations/$id'
+    | '/integrations/api-keys'
+    | '/integrations/connected'
+    | '/integrations/marketplace'
+    | '/integrations/webhooks'
     | '/learning/resources'
     | '/learning/workshops'
     | '/platform-admin/audit-logs'
@@ -880,12 +1263,23 @@ export interface FileRouteTypes {
     | '/platform-admin/organizations'
     | '/platform-admin/permissions'
     | '/platform-admin/subscriptions'
+    | '/security/alerts'
+    | '/security/authentication'
+    | '/security/compliance'
+    | '/security/events'
+    | '/security/sessions'
     | '/submissions/$id'
     | '/teams/$id'
     | '/winners/$id'
     | '/winners/list'
     | '/winners/prizes'
     | '/winners/selection'
+    | '/workflows/$id'
+    | '/workflows/executions'
+    | '/workflows/list'
+    | '/workflows/new'
+    | '/workflows/templates'
+    | '/ai-copilot/'
     | '/ai-validation/'
     | '/attendance/'
     | '/badges/'
@@ -893,13 +1287,17 @@ export interface FileRouteTypes {
     | '/communication/'
     | '/community/'
     | '/competitions/'
+    | '/developer/'
     | '/events/'
     | '/feedback/'
+    | '/integrations/'
     | '/learning/'
     | '/platform-admin/'
+    | '/security/'
     | '/submissions/'
     | '/teams/'
     | '/winners/'
+    | '/workflows/'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
     | '/feedback/surveys/new'
@@ -923,6 +1321,12 @@ export interface RootRouteChildren {
   SponsorsRoute: typeof SponsorsRoute
   UsersRoute: typeof UsersRoute
   VolunteersRoute: typeof VolunteersRoute
+  AiCopilotAssistantRoute: typeof AiCopilotAssistantRoute
+  AiCopilotEmailRoute: typeof AiCopilotEmailRoute
+  AiCopilotEventDescriptionRoute: typeof AiCopilotEventDescriptionRoute
+  AiCopilotRecommendationsRoute: typeof AiCopilotRecommendationsRoute
+  AiCopilotReportsRoute: typeof AiCopilotReportsRoute
+  AiCopilotRubricRoute: typeof AiCopilotRubricRoute
   AiValidationIdRoute: typeof AiValidationIdRoute
   AiValidationQueueRoute: typeof AiValidationQueueRoute
   AnalyticsParticipationRoute: typeof AnalyticsParticipationRoute
@@ -942,12 +1346,24 @@ export interface RootRouteChildren {
   CommunityMessagesRoute: typeof CommunityMessagesRoute
   CommunityNetworkingRoute: typeof CommunityNetworkingRoute
   CompetitionsIdRoute: typeof CompetitionsIdRoute
+  DeveloperApiRoute: typeof DeveloperApiRoute
+  DeveloperApiKeysRoute: typeof DeveloperApiKeysRoute
+  DeveloperCronRoute: typeof DeveloperCronRoute
+  DeveloperDeploymentsRoute: typeof DeveloperDeploymentsRoute
+  DeveloperHealthRoute: typeof DeveloperHealthRoute
+  DeveloperLogsRoute: typeof DeveloperLogsRoute
+  DeveloperQueuesRoute: typeof DeveloperQueuesRoute
   EventsIdRoute: typeof EventsIdRoute
   EventsNewRoute: typeof EventsNewRoute
   EventsScheduleRoute: typeof EventsScheduleRoute
   FeedbackIdRoute: typeof FeedbackIdRoute
   FeedbackAnalyticsRoute: typeof FeedbackAnalyticsRoute
   FeedbackListRoute: typeof FeedbackListRoute
+  IntegrationsIdRoute: typeof IntegrationsIdRoute
+  IntegrationsApiKeysRoute: typeof IntegrationsApiKeysRoute
+  IntegrationsConnectedRoute: typeof IntegrationsConnectedRoute
+  IntegrationsMarketplaceRoute: typeof IntegrationsMarketplaceRoute
+  IntegrationsWebhooksRoute: typeof IntegrationsWebhooksRoute
   LearningResourcesRoute: typeof LearningResourcesRoute
   LearningWorkshopsRoute: typeof LearningWorkshopsRoute
   PlatformAdminAuditLogsRoute: typeof PlatformAdminAuditLogsRoute
@@ -956,12 +1372,23 @@ export interface RootRouteChildren {
   PlatformAdminOrganizationsRoute: typeof PlatformAdminOrganizationsRoute
   PlatformAdminPermissionsRoute: typeof PlatformAdminPermissionsRoute
   PlatformAdminSubscriptionsRoute: typeof PlatformAdminSubscriptionsRoute
+  SecurityAlertsRoute: typeof SecurityAlertsRoute
+  SecurityAuthenticationRoute: typeof SecurityAuthenticationRoute
+  SecurityComplianceRoute: typeof SecurityComplianceRoute
+  SecurityEventsRoute: typeof SecurityEventsRoute
+  SecuritySessionsRoute: typeof SecuritySessionsRoute
   SubmissionsIdRoute: typeof SubmissionsIdRoute
   TeamsIdRoute: typeof TeamsIdRoute
   WinnersIdRoute: typeof WinnersIdRoute
   WinnersListRoute: typeof WinnersListRoute
   WinnersPrizesRoute: typeof WinnersPrizesRoute
   WinnersSelectionRoute: typeof WinnersSelectionRoute
+  WorkflowsIdRoute: typeof WorkflowsIdRoute
+  WorkflowsExecutionsRoute: typeof WorkflowsExecutionsRoute
+  WorkflowsListRoute: typeof WorkflowsListRoute
+  WorkflowsNewRoute: typeof WorkflowsNewRoute
+  WorkflowsTemplatesRoute: typeof WorkflowsTemplatesRoute
+  AiCopilotIndexRoute: typeof AiCopilotIndexRoute
   AiValidationIndexRoute: typeof AiValidationIndexRoute
   AttendanceIndexRoute: typeof AttendanceIndexRoute
   BadgesIndexRoute: typeof BadgesIndexRoute
@@ -969,13 +1396,17 @@ export interface RootRouteChildren {
   CommunicationIndexRoute: typeof CommunicationIndexRoute
   CommunityIndexRoute: typeof CommunityIndexRoute
   CompetitionsIndexRoute: typeof CompetitionsIndexRoute
+  DeveloperIndexRoute: typeof DeveloperIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   FeedbackIndexRoute: typeof FeedbackIndexRoute
+  IntegrationsIndexRoute: typeof IntegrationsIndexRoute
   LearningIndexRoute: typeof LearningIndexRoute
   PlatformAdminIndexRoute: typeof PlatformAdminIndexRoute
+  SecurityIndexRoute: typeof SecurityIndexRoute
   SubmissionsIndexRoute: typeof SubmissionsIndexRoute
   TeamsIndexRoute: typeof TeamsIndexRoute
   WinnersIndexRoute: typeof WinnersIndexRoute
+  WorkflowsIndexRoute: typeof WorkflowsIndexRoute
   CommunicationCampaignsNewRoute: typeof CommunicationCampaignsNewRoute
   CommunityDiscussionsIdRoute: typeof CommunityDiscussionsIdRoute
   FeedbackSurveysNewRoute: typeof FeedbackSurveysNewRoute
@@ -1070,6 +1501,55 @@ declare module '@tanstack/react-router' {
       path: '/volunteers'
       fullPath: '/volunteers'
       preLoaderRoute: typeof VolunteersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/': {
+      id: '/ai-copilot/'
+      path: '/ai-copilot'
+      fullPath: '/ai-copilot/'
+      preLoaderRoute: typeof AiCopilotIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/assistant': {
+      id: '/ai-copilot/assistant'
+      path: '/ai-copilot/assistant'
+      fullPath: '/ai-copilot/assistant'
+      preLoaderRoute: typeof AiCopilotAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/email': {
+      id: '/ai-copilot/email'
+      path: '/ai-copilot/email'
+      fullPath: '/ai-copilot/email'
+      preLoaderRoute: typeof AiCopilotEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/event-description': {
+      id: '/ai-copilot/event-description'
+      path: '/ai-copilot/event-description'
+      fullPath: '/ai-copilot/event-description'
+      preLoaderRoute: typeof AiCopilotEventDescriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/recommendations': {
+      id: '/ai-copilot/recommendations'
+      path: '/ai-copilot/recommendations'
+      fullPath: '/ai-copilot/recommendations'
+      preLoaderRoute: typeof AiCopilotRecommendationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/reports': {
+      id: '/ai-copilot/reports'
+      path: '/ai-copilot/reports'
+      fullPath: '/ai-copilot/reports'
+      preLoaderRoute: typeof AiCopilotReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-copilot/rubric': {
+      id: '/ai-copilot/rubric'
+      path: '/ai-copilot/rubric'
+      fullPath: '/ai-copilot/rubric'
+      preLoaderRoute: typeof AiCopilotRubricRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-validation/': {
@@ -1254,6 +1734,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompetitionsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developer/': {
+      id: '/developer/'
+      path: '/developer'
+      fullPath: '/developer/'
+      preLoaderRoute: typeof DeveloperIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/api': {
+      id: '/developer/api'
+      path: '/developer/api'
+      fullPath: '/developer/api'
+      preLoaderRoute: typeof DeveloperApiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/api-keys': {
+      id: '/developer/api-keys'
+      path: '/developer/api-keys'
+      fullPath: '/developer/api-keys'
+      preLoaderRoute: typeof DeveloperApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/cron': {
+      id: '/developer/cron'
+      path: '/developer/cron'
+      fullPath: '/developer/cron'
+      preLoaderRoute: typeof DeveloperCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/deployments': {
+      id: '/developer/deployments'
+      path: '/developer/deployments'
+      fullPath: '/developer/deployments'
+      preLoaderRoute: typeof DeveloperDeploymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/health': {
+      id: '/developer/health'
+      path: '/developer/health'
+      fullPath: '/developer/health'
+      preLoaderRoute: typeof DeveloperHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/logs': {
+      id: '/developer/logs'
+      path: '/developer/logs'
+      fullPath: '/developer/logs'
+      preLoaderRoute: typeof DeveloperLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer/queues': {
+      id: '/developer/queues'
+      path: '/developer/queues'
+      fullPath: '/developer/queues'
+      preLoaderRoute: typeof DeveloperQueuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
@@ -1308,6 +1844,48 @@ declare module '@tanstack/react-router' {
       path: '/feedback/list'
       fullPath: '/feedback/list'
       preLoaderRoute: typeof FeedbackListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/': {
+      id: '/integrations/'
+      path: '/integrations'
+      fullPath: '/integrations/'
+      preLoaderRoute: typeof IntegrationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/$id': {
+      id: '/integrations/$id'
+      path: '/integrations/$id'
+      fullPath: '/integrations/$id'
+      preLoaderRoute: typeof IntegrationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/api-keys': {
+      id: '/integrations/api-keys'
+      path: '/integrations/api-keys'
+      fullPath: '/integrations/api-keys'
+      preLoaderRoute: typeof IntegrationsApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/connected': {
+      id: '/integrations/connected'
+      path: '/integrations/connected'
+      fullPath: '/integrations/connected'
+      preLoaderRoute: typeof IntegrationsConnectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/marketplace': {
+      id: '/integrations/marketplace'
+      path: '/integrations/marketplace'
+      fullPath: '/integrations/marketplace'
+      preLoaderRoute: typeof IntegrationsMarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations/webhooks': {
+      id: '/integrations/webhooks'
+      path: '/integrations/webhooks'
+      fullPath: '/integrations/webhooks'
+      preLoaderRoute: typeof IntegrationsWebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learning/': {
@@ -1380,6 +1958,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlatformAdminSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/security/': {
+      id: '/security/'
+      path: '/security'
+      fullPath: '/security/'
+      preLoaderRoute: typeof SecurityIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security/alerts': {
+      id: '/security/alerts'
+      path: '/security/alerts'
+      fullPath: '/security/alerts'
+      preLoaderRoute: typeof SecurityAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security/authentication': {
+      id: '/security/authentication'
+      path: '/security/authentication'
+      fullPath: '/security/authentication'
+      preLoaderRoute: typeof SecurityAuthenticationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security/compliance': {
+      id: '/security/compliance'
+      path: '/security/compliance'
+      fullPath: '/security/compliance'
+      preLoaderRoute: typeof SecurityComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security/events': {
+      id: '/security/events'
+      path: '/security/events'
+      fullPath: '/security/events'
+      preLoaderRoute: typeof SecurityEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security/sessions': {
+      id: '/security/sessions'
+      path: '/security/sessions'
+      fullPath: '/security/sessions'
+      preLoaderRoute: typeof SecuritySessionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submissions/': {
       id: '/submissions/'
       path: '/submissions'
@@ -1441,6 +2061,48 @@ declare module '@tanstack/react-router' {
       path: '/winners/selection'
       fullPath: '/winners/selection'
       preLoaderRoute: typeof WinnersSelectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/': {
+      id: '/workflows/'
+      path: '/workflows'
+      fullPath: '/workflows/'
+      preLoaderRoute: typeof WorkflowsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/$id': {
+      id: '/workflows/$id'
+      path: '/workflows/$id'
+      fullPath: '/workflows/$id'
+      preLoaderRoute: typeof WorkflowsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/executions': {
+      id: '/workflows/executions'
+      path: '/workflows/executions'
+      fullPath: '/workflows/executions'
+      preLoaderRoute: typeof WorkflowsExecutionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/list': {
+      id: '/workflows/list'
+      path: '/workflows/list'
+      fullPath: '/workflows/list'
+      preLoaderRoute: typeof WorkflowsListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/new': {
+      id: '/workflows/new'
+      path: '/workflows/new'
+      fullPath: '/workflows/new'
+      preLoaderRoute: typeof WorkflowsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows/templates': {
+      id: '/workflows/templates'
+      path: '/workflows/templates'
+      fullPath: '/workflows/templates'
+      preLoaderRoute: typeof WorkflowsTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/communication/campaigns/': {
@@ -1515,6 +2177,12 @@ const rootRouteChildren: RootRouteChildren = {
   SponsorsRoute: SponsorsRoute,
   UsersRoute: UsersRoute,
   VolunteersRoute: VolunteersRoute,
+  AiCopilotAssistantRoute: AiCopilotAssistantRoute,
+  AiCopilotEmailRoute: AiCopilotEmailRoute,
+  AiCopilotEventDescriptionRoute: AiCopilotEventDescriptionRoute,
+  AiCopilotRecommendationsRoute: AiCopilotRecommendationsRoute,
+  AiCopilotReportsRoute: AiCopilotReportsRoute,
+  AiCopilotRubricRoute: AiCopilotRubricRoute,
   AiValidationIdRoute: AiValidationIdRoute,
   AiValidationQueueRoute: AiValidationQueueRoute,
   AnalyticsParticipationRoute: AnalyticsParticipationRoute,
@@ -1534,12 +2202,24 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityMessagesRoute: CommunityMessagesRoute,
   CommunityNetworkingRoute: CommunityNetworkingRoute,
   CompetitionsIdRoute: CompetitionsIdRoute,
+  DeveloperApiRoute: DeveloperApiRoute,
+  DeveloperApiKeysRoute: DeveloperApiKeysRoute,
+  DeveloperCronRoute: DeveloperCronRoute,
+  DeveloperDeploymentsRoute: DeveloperDeploymentsRoute,
+  DeveloperHealthRoute: DeveloperHealthRoute,
+  DeveloperLogsRoute: DeveloperLogsRoute,
+  DeveloperQueuesRoute: DeveloperQueuesRoute,
   EventsIdRoute: EventsIdRoute,
   EventsNewRoute: EventsNewRoute,
   EventsScheduleRoute: EventsScheduleRoute,
   FeedbackIdRoute: FeedbackIdRoute,
   FeedbackAnalyticsRoute: FeedbackAnalyticsRoute,
   FeedbackListRoute: FeedbackListRoute,
+  IntegrationsIdRoute: IntegrationsIdRoute,
+  IntegrationsApiKeysRoute: IntegrationsApiKeysRoute,
+  IntegrationsConnectedRoute: IntegrationsConnectedRoute,
+  IntegrationsMarketplaceRoute: IntegrationsMarketplaceRoute,
+  IntegrationsWebhooksRoute: IntegrationsWebhooksRoute,
   LearningResourcesRoute: LearningResourcesRoute,
   LearningWorkshopsRoute: LearningWorkshopsRoute,
   PlatformAdminAuditLogsRoute: PlatformAdminAuditLogsRoute,
@@ -1548,12 +2228,23 @@ const rootRouteChildren: RootRouteChildren = {
   PlatformAdminOrganizationsRoute: PlatformAdminOrganizationsRoute,
   PlatformAdminPermissionsRoute: PlatformAdminPermissionsRoute,
   PlatformAdminSubscriptionsRoute: PlatformAdminSubscriptionsRoute,
+  SecurityAlertsRoute: SecurityAlertsRoute,
+  SecurityAuthenticationRoute: SecurityAuthenticationRoute,
+  SecurityComplianceRoute: SecurityComplianceRoute,
+  SecurityEventsRoute: SecurityEventsRoute,
+  SecuritySessionsRoute: SecuritySessionsRoute,
   SubmissionsIdRoute: SubmissionsIdRoute,
   TeamsIdRoute: TeamsIdRoute,
   WinnersIdRoute: WinnersIdRoute,
   WinnersListRoute: WinnersListRoute,
   WinnersPrizesRoute: WinnersPrizesRoute,
   WinnersSelectionRoute: WinnersSelectionRoute,
+  WorkflowsIdRoute: WorkflowsIdRoute,
+  WorkflowsExecutionsRoute: WorkflowsExecutionsRoute,
+  WorkflowsListRoute: WorkflowsListRoute,
+  WorkflowsNewRoute: WorkflowsNewRoute,
+  WorkflowsTemplatesRoute: WorkflowsTemplatesRoute,
+  AiCopilotIndexRoute: AiCopilotIndexRoute,
   AiValidationIndexRoute: AiValidationIndexRoute,
   AttendanceIndexRoute: AttendanceIndexRoute,
   BadgesIndexRoute: BadgesIndexRoute,
@@ -1561,13 +2252,17 @@ const rootRouteChildren: RootRouteChildren = {
   CommunicationIndexRoute: CommunicationIndexRoute,
   CommunityIndexRoute: CommunityIndexRoute,
   CompetitionsIndexRoute: CompetitionsIndexRoute,
+  DeveloperIndexRoute: DeveloperIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   FeedbackIndexRoute: FeedbackIndexRoute,
+  IntegrationsIndexRoute: IntegrationsIndexRoute,
   LearningIndexRoute: LearningIndexRoute,
   PlatformAdminIndexRoute: PlatformAdminIndexRoute,
+  SecurityIndexRoute: SecurityIndexRoute,
   SubmissionsIndexRoute: SubmissionsIndexRoute,
   TeamsIndexRoute: TeamsIndexRoute,
   WinnersIndexRoute: WinnersIndexRoute,
+  WorkflowsIndexRoute: WorkflowsIndexRoute,
   CommunicationCampaignsNewRoute: CommunicationCampaignsNewRoute,
   CommunityDiscussionsIdRoute: CommunityDiscussionsIdRoute,
   FeedbackSurveysNewRoute: FeedbackSurveysNewRoute,
