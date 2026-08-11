@@ -1,117 +1,78 @@
-🚀 Ascent Platform
+# 🚀 Ascent Platform
 
-Enterprise Event, Competition & Innovation Management Platform
+> Enterprise Event, Competition & Innovation Management Platform
 
 Ascent is a modern, enterprise-grade platform for managing events, competitions, participants, teams, submissions, evaluations, organizations, certificates, attendance, and innovation programs.
 
 The platform is designed with a scalable multi-tenant architecture and supports role-based access control, secure authentication, PostgreSQL persistence, and a reusable enterprise UI system.
 
-✨ Features
+---
 
-🏢 Platform Administration
+## ✨ Features
 
-Organization management
+### 🏢 Platform Administration
+- Organization management
+- User management
+- Role & permission management
+- Subscription management
+- Audit logging
+- Platform configuration
 
-User management
+### 🎯 Event Management
+- Event creation and management
+- Competition management
+- Registration management
+- Team management
+- Submission management
+- Event scheduling
 
-Role & permission management
+### 🧑‍⚖️ Evaluation & Event Operations
+- Judge management
+- Judge-to-competition assignment
+- Submission evaluation
+- Scoring and evaluation tracking
+- Mentor management
+- Team mentor assignment
+- Volunteer management
+- Event volunteer scheduling
+- Attendance sessions
+- Check-in / check-out
+- Attendance analytics
 
-Subscription management
+### 🏆 Certificates
+- Certificate management
+- Certificate issuance
+- Certificate verification
+- Certificate revocation
+- Certificate analytics
 
-Audit logging
+### 🤖 Advanced Platform Features
+- AI Validation
+- AI Copilot
+- Communication Center
+- Workflow Automation
+- Integration Hub
+- Analytics & BI
+- Reports
+- Notifications
+- Security & Compliance
+- Developer Administration
+- Community & Networking
+- Learning & Resource Center
+- Badges & Achievements
+- Winner Management
+- Recruitment
+- Sponsor Management
 
-Platform configuration
+> Advanced modules are progressively being migrated from mock UI implementations to real backend integrations.
 
-🎯 Event Management
+---
 
-Event creation and management
-
-Competition management
-
-Registration management
-
-Team management
-
-Submission management
-
-Event scheduling
-
-🧑‍⚖️ Evaluation & Event Operations
-
-Judge management
-
-Judge-to-competition assignment
-
-Submission evaluation
-
-Scoring and evaluation tracking
-
-Mentor management
-
-Team mentor assignment
-
-Volunteer management
-
-Event volunteer scheduling
-
-Attendance sessions
-
-Check-in / check-out
-
-Attendance analytics
-
-🏆 Certificates
-
-Certificate management
-
-Certificate issuance
-
-Certificate verification
-
-Certificate revocation
-
-Certificate analytics
-
-🤖 Advanced Platform Features
-
-AI Validation
-
-AI Copilot
-
-Communication Center
-
-Workflow Automation
-
-Integration Hub
-
-Analytics & BI
-
-Reports
-
-Notifications
-
-Security & Compliance
-
-Developer Administration
-
-Community & Networking
-
-Learning & Resource Center
-
-Badges & Achievements
-
-Winner Management
-
-Recruitment
-
-Sponsor Management
-
-Advanced modules are progressively being migrated from mock UI implementations to real backend integrations.
-
-🏗️ Architecture
+# 🏗️ Architecture
 
 Ascent follows a modular full-stack architecture.
 
+```text
 ┌──────────────────────────────────────────────┐
 │                  Client                      │
 │                                              │
@@ -148,75 +109,57 @@ Ascent follows a modular full-stack architecture.
 │ Attendance / Certificates                    │
 │ Audit Logs                                   │
 └──────────────────────────────────────────────┘
+```
 
-🛠️ Technology Stack
+---
 
-Frontend
+# 🛠️ Technology Stack
 
-React 19
+## Frontend
 
-TypeScript
+- React 19
+- TypeScript
+- Vite
+- TanStack Router
+- TanStack Query
+- Tailwind CSS
+- shadcn/ui
+- Radix UI
+- React Hook Form
+- Zod
+- Recharts
+- Lucide React
+- Framer Motion
 
-Vite
+## Backend
 
-TanStack Router
+- Node.js
+- Express
+- TypeScript
+- JWT
+- bcrypt
+- Zod
+- Helmet
+- express-rate-limit
+- CORS
 
-TanStack Query
+## Database
 
-Tailwind CSS
+- PostgreSQL
+- Prisma ORM
 
-shadcn/ui
+## Development
 
-Radix UI
+- Git
+- GitHub
+- npm
+- tsx
 
-React Hook Form
+---
 
-Zod
+# 📁 Project Structure
 
-Recharts
-
-Lucide React
-
-Framer Motion
-
-Backend
-
-Node.js
-
-Express
-
-TypeScript
-
-JWT
-
-bcrypt
-
-Zod
-
-Helmet
-
-express-rate-limit
-
-CORS
-
-Database
-
-PostgreSQL
-
-Prisma ORM
-
-Development
-
-Git
-
-GitHub
-
-npm
-
-tsx
-
-📁 Project Structure
-
+```text
 ascent-platform/
 │
 ├── src/
@@ -283,13 +226,17 @@ ascent-platform/
 ├── tsconfig.json
 ├── components.json
 └── README.md
+```
 
-🔐 Authentication
+---
+
+# 🔐 Authentication
 
 The platform uses JWT-based authentication.
 
 Authentication flow:
 
+```text
 User
  │
  ▼
@@ -307,17 +254,21 @@ Frontend
  │
  ▼
 Authenticated API Requests
+```
 
 Passwords are never stored as plaintext.
 
-Passwords are hashed using bcrypt.
+Passwords are hashed using `bcrypt`.
 
-🛡️ Role-Based Access Control
+---
+
+# 🛡️ Role-Based Access Control
 
 Ascent uses granular permission-based RBAC.
 
 Example permissions:
 
+```text
 events.read
 events.create
 events.update
@@ -338,10 +289,13 @@ certificates.revoke
 
 organization.manage
 platform.manage
+```
 
 The backend verifies permissions before allowing protected operations.
 
-🏢 Multi-Tenancy
+---
+
+# 🏢 Multi-Tenancy
 
 Ascent is designed as a multi-tenant platform.
 
@@ -349,10 +303,13 @@ Each organization has isolated data.
 
 Requests contain the organization context through:
 
+```http
 x-organization-id
+```
 
 The request flow is:
 
+```text
 JWT Authentication
        ↓
 Tenant Resolution
@@ -368,73 +325,79 @@ Repository
 Prisma
        ↓
 PostgreSQL
+```
 
-Repositories enforce organizationId filtering to prevent cross-organization data access.
+Repositories enforce `organizationId` filtering to prevent cross-organization data access.
 
-🔒 Security
+---
+
+# 🔒 Security
 
 Security features include:
 
-JWT authentication
-
-bcrypt password hashing
-
-Role-based permissions
-
-Tenant isolation
-
-Helmet security headers
-
-CORS restrictions
-
-Rate limiting
-
-Zod request validation
-
-Audit logging
-
-Protected API routes
-
-Sensitive field filtering
+- JWT authentication
+- bcrypt password hashing
+- Role-based permissions
+- Tenant isolation
+- Helmet security headers
+- CORS restrictions
+- Rate limiting
+- Zod request validation
+- Audit logging
+- Protected API routes
+- Sensitive field filtering
 
 Sensitive information such as passwords, tokens and secrets is not returned through API responses or audit metadata.
 
-🌐 API
+---
+
+# 🌐 API
 
 Base URL:
 
+```text
 http://localhost:3000/api/v1
+```
 
-Health
+## Health
 
+```http
 GET /api/v1/health
+```
 
-Authentication
+## Authentication
 
+```http
 POST /api/v1/auth/register
 POST /api/v1/auth/login
 POST /api/v1/auth/logout
 GET  /api/v1/auth/me
+```
 
-Organizations
+## Organizations
 
+```http
 GET    /api/v1/organizations
 POST   /api/v1/organizations
 GET    /api/v1/organizations/:id
 PATCH  /api/v1/organizations/:id
 DELETE /api/v1/organizations/:id
+```
 
-Users
+## Users
 
+```http
 GET   /api/v1/users
 GET   /api/v1/users/me
 GET   /api/v1/users/:id
 PATCH /api/v1/users/me
 PATCH /api/v1/users/:id
 PATCH /api/v1/users/:id/status
+```
 
-Roles & Permissions
+## Roles & Permissions
 
+```http
 GET    /api/v1/roles
 GET    /api/v1/roles/:id
 POST   /api/v1/roles
@@ -442,82 +405,108 @@ PATCH  /api/v1/roles/:id
 DELETE /api/v1/roles/:id
 
 GET /api/v1/permissions
+```
 
-Events
+## Events
 
+```http
 GET    /api/v1/events
 GET    /api/v1/events/:id
 POST   /api/v1/events
 PATCH  /api/v1/events/:id
 DELETE /api/v1/events/:id
+```
 
-Competitions
+## Competitions
 
+```http
 GET    /api/v1/competitions
 GET    /api/v1/competitions/:id
 POST   /api/v1/competitions
 PATCH  /api/v1/competitions/:id
 DELETE /api/v1/competitions/:id
+```
 
-Registrations
+## Registrations
 
+```http
 GET    /api/v1/registrations
 GET    /api/v1/registrations/:id
 POST   /api/v1/registrations
 PATCH  /api/v1/registrations/:id
 DELETE /api/v1/registrations/:id
+```
 
-Teams
+## Teams
 
+```http
 GET    /api/v1/teams
 GET    /api/v1/teams/:id
 POST   /api/v1/teams
 PATCH  /api/v1/teams/:id
 DELETE /api/v1/teams/:id
+```
 
-Submissions
+## Submissions
 
+```http
 GET    /api/v1/submissions
 GET    /api/v1/submissions/:id
 POST   /api/v1/submissions
 PATCH  /api/v1/submissions/:id
 DELETE /api/v1/submissions/:id
+```
 
 Additional APIs are available for:
 
+```text
 Evaluations
 Judges
 Mentors
 Volunteers
 Attendance
 Certificates
+```
 
-🗄️ Database
+---
+
+# 🗄️ Database
 
 Prisma is used as the ORM.
 
 Generate Prisma Client:
 
+```bash
 npx prisma generate
+```
 
 Create/apply migrations:
 
+```bash
 npm run db:migrate
+```
 
 Seed development data:
 
+```bash
 npm run db:seed
+```
 
 Inspect the database using Prisma Studio:
 
+```bash
 npx prisma studio
+```
 
-⚙️ Environment Variables
+---
 
-Create a .env file in the project root.
+# ⚙️ Environment Variables
+
+Create a `.env` file in the project root.
 
 Example:
 
+```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/ascent_db"
 
 JWT_SECRET="your-development-secret"
@@ -525,176 +514,189 @@ JWT_SECRET="your-development-secret"
 FRONTEND_URL="http://localhost:8081"
 
 PORT=3000
+```
 
-Never commit real production secrets to GitHub.
+> Never commit real production secrets to GitHub.
 
-Use .env.example to document required environment variables.
+Use `.env.example` to document required environment variables.
 
-🚀 Installation
+---
+
+# 🚀 Installation
 
 Clone the repository:
 
+```bash
 git clone <your-repository-url>
 cd ascent-platform
+```
 
 Install dependencies:
 
+```bash
 npm install
+```
 
 Generate Prisma Client:
 
+```bash
 npx prisma generate
+```
 
 Run database migrations:
 
+```bash
 npm run db:migrate
+```
 
 Seed the database:
 
+```bash
 npm run db:seed
+```
 
-▶️ Running the Application
+---
 
-Start Backend
+# ▶️ Running the Application
 
+## Start Backend
+
+```bash
 npm run dev:server
+```
 
 Backend:
 
+```text
 http://localhost:3000
+```
 
-Start Frontend
+## Start Frontend
 
 Open another terminal:
 
+```bash
 npm run dev
+```
 
 Frontend:
 
+```text
 http://localhost:8081
+```
 
-👤 Development Credentials
+---
+
+# 👤 Development Credentials
 
 The seed script provides development-only accounts.
 
-Platform Admin
+### Platform Admin
 
+```text
 Email: admin@ascent.dev
 Password: password123
+```
 
-Organization Manager
+### Organization Manager
 
+```text
 Email: manager@contoso.com
 Password: password123
+```
 
-Participant
+### Participant
 
+```text
 Email: participant@gmail.com
 Password: password123
+```
 
-These credentials are for local development only and must never be used in production.
+> These credentials are for local development only and must never be used in production.
 
-🧪 Testing & Verification
+---
+
+# 🧪 Testing & Verification
 
 TypeScript check:
 
+```bash
 npx tsc --noEmit
+```
 
 Build:
 
+```bash
 npm run build:dev
+```
 
 Backend health check:
 
+```text
 GET http://localhost:3000/api/v1/health
+```
 
 Expected response:
 
+```json
 {
   "success": true,
   "message": "Ascent API is healthy"
 }
+```
 
-📊 Integration Status
+---
 
-✅ Fully Backend Integrated
+# 📊 Integration Status
 
-Authentication
+## ✅ Fully Backend Integrated
 
-Platform Administration
+- Authentication
+- Platform Administration
+- Organization Management
+- User Management
+- Roles & Permissions
+- Event Management
+- Competition Management
+- Registration Management
+- Team Management
+- Submission Management
+- Evaluation Management
+- Judge Management
+- Mentor Management
+- Volunteer Management
+- Attendance Management
 
-Organization Management
-
-User Management
-
-Roles & Permissions
-
-Event Management
-
-Competition Management
-
-Registration Management
-
-Team Management
-
-Submission Management
-
-Evaluation Management
-
-Judge Management
-
-Mentor Management
-
-Volunteer Management
-
-Attendance Management
-
-🚧 Progressive Backend Integration
+## 🚧 Progressive Backend Integration
 
 The following modules currently have enterprise UI implementations and are being progressively connected to the real backend:
 
-Payment & Billing
+- Payment & Billing
+- AI Validation
+- Live Event Management
+- Communication Center
+- Certificate Management
+- Badge & Achievement Management
+- Winner Management
+- Sponsor Management
+- Recruitment Management
+- Learning & Resource Center
+- Community & Networking
+- Feedback Management
+- Analytics & BI
+- AI Copilot
+- Notification Engine
+- Reports
+- Integration Hub
+- Workflow Automation
+- Security & Compliance
+- Developer Administration
 
-AI Validation
+---
 
-Live Event Management
+# 🔄 Development Roadmap
 
-Communication Center
-
-Certificate Management
-
-Badge & Achievement Management
-
-Winner Management
-
-Sponsor Management
-
-Recruitment Management
-
-Learning & Resource Center
-
-Community & Networking
-
-Feedback Management
-
-Analytics & BI
-
-AI Copilot
-
-Notification Engine
-
-Reports
-
-Integration Hub
-
-Workflow Automation
-
-Security & Compliance
-
-Developer Administration
-
-🔄 Development Roadmap
-
+```text
 Phase 1
 │
 ├── UI Foundation
@@ -740,71 +742,57 @@ Phase 5
 ├── Enterprise Security
 ├── Developer Platform
 └── Production Deployment
+```
 
-🎨 Design System
+---
+
+# 🎨 Design System
 
 The platform uses a reusable enterprise design system built on:
 
-shadcn/ui
-
-Radix UI
-
-Tailwind CSS
-
-Lucide Icons
+- shadcn/ui
+- Radix UI
+- Tailwind CSS
+- Lucide Icons
 
 Reusable components include:
 
-Buttons
-
-Inputs
-
-Selects
-
-Dialogs
-
-Drawers
-
-Tables
-
-Pagination
-
-Cards
-
-Statistics Cards
-
-Charts
-
-Tabs
-
-Breadcrumbs
-
-Badges
-
-Status Chips
-
-Timelines
-
-Steppers
-
-Progress Bars
-
-File Uploads
-
-Form Controls
-
-Page Templates
+- Buttons
+- Inputs
+- Selects
+- Dialogs
+- Drawers
+- Tables
+- Pagination
+- Cards
+- Statistics Cards
+- Charts
+- Tabs
+- Breadcrumbs
+- Badges
+- Status Chips
+- Timelines
+- Steppers
+- Progress Bars
+- File Uploads
+- Form Controls
+- Page Templates
 
 Page templates include:
 
+```text
 ListPageTemplate
 DetailsPageTemplate
 FormPageTemplate
+```
 
-📐 Backend Architecture
+---
+
+# 📐 Backend Architecture
 
 Each backend feature follows:
 
+```text
 Route
   ↓
 Middleware
@@ -818,29 +806,28 @@ Repository
 Prisma
   ↓
 PostgreSQL
+```
 
-Controller
-
+### Controller
 Handles HTTP requests and responses.
 
-Service
-
+### Service
 Contains business logic.
 
-Repository
-
+### Repository
 Handles database operations and tenant isolation.
 
-Validator
-
+### Validator
 Validates incoming request data using Zod.
 
-Middleware
-
+### Middleware
 Handles authentication, tenant resolution, RBAC, validation, and security.
 
-📡 Frontend Data Flow
+---
 
+# 📡 Frontend Data Flow
+
+```text
 React Component
       ↓
 React Query Hook
@@ -860,81 +847,61 @@ Repository
 Prisma
       ↓
 PostgreSQL
+```
 
 This architecture allows mock services to be progressively replaced with real APIs without redesigning the UI.
 
-🤝 Development Guidelines
+---
+
+# 🤝 Development Guidelines
 
 When adding a new module:
 
-Create the module under src/modules/.
+1. Create the module under `src/modules/`.
+2. Keep routing inside `src/routes/`.
+3. Keep business UI inside the module.
+4. Create a dedicated API service.
+5. Use React Query for server state.
+6. Use Zod for validation.
+7. Reuse existing shadcn components.
+8. Reuse existing page templates.
+9. Add backend repository/service/controller/routes.
+10. Enforce tenant isolation.
+11. Add appropriate RBAC permissions.
+12. Add audit logging for important mutations.
+13. Add seed data for development.
+14. Test the API.
+15. Test the browser flow.
+16. Run TypeScript and build checks.
 
-Keep routing inside src/routes/.
+---
 
-Keep business UI inside the module.
-
-Create a dedicated API service.
-
-Use React Query for server state.
-
-Use Zod for validation.
-
-Reuse existing shadcn components.
-
-Reuse existing page templates.
-
-Add backend repository/service/controller/routes.
-
-Enforce tenant isolation.
-
-Add appropriate RBAC permissions.
-
-Add audit logging for important mutations.
-
-Add seed data for development.
-
-Test the API.
-
-Test the browser flow.
-
-Run TypeScript and build checks.
-
-🔒 Production Considerations
+# 🔒 Production Considerations
 
 Before production deployment:
 
-Replace development JWT secrets.
+- Replace development JWT secrets.
+- Configure production PostgreSQL.
+- Configure secure CORS origins.
+- Enable HTTPS.
+- Configure secure cookies/tokens.
+- Configure production rate limits.
+- Add proper logging/monitoring.
+- Configure backups.
+- Review RBAC permissions.
+- Perform security testing.
+- Remove development credentials.
+- Configure CI/CD.
+- Add automated tests.
+- Configure production environment variables.
 
-Configure production PostgreSQL.
+---
 
-Configure secure CORS origins.
-
-Enable HTTPS.
-
-Configure secure cookies/tokens.
-
-Configure production rate limits.
-
-Add proper logging/monitoring.
-
-Configure backups.
-
-Review RBAC permissions.
-
-Perform security testing.
-
-Remove development credentials.
-
-Configure CI/CD.
-
-Add automated tests.
-
-Configure production environment variables.
-
-📈 Project Vision
+# 📈 Project Vision
 
 Ascent is designed to become a unified enterprise platform for:
 
+```text
 Organizations
       ↓
 Events
@@ -956,10 +923,13 @@ Certificates
 Analytics
       ↓
 Recruitment / Innovation
+```
 
 The modular architecture allows the platform to expand into AI-powered validation, workflow automation, enterprise integrations, analytics, communication, and innovation management without requiring a fundamental architectural rewrite.
 
-📄 License
+---
+
+# 📄 License
 
 This project is currently maintained as a private development project.
 

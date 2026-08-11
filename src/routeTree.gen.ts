@@ -109,6 +109,7 @@ import { Route as WorkflowsExecutionsRouteImport } from './routes/workflows.exec
 import { Route as WorkflowsListRouteImport } from './routes/workflows.list'
 import { Route as WorkflowsNewRouteImport } from './routes/workflows.new'
 import { Route as WorkflowsTemplatesRouteImport } from './routes/workflows.templates'
+import { Route as CertificatesVerifyCodeRouteImport } from './routes/certificates.verify.$code'
 import { Route as CommunicationCampaignsIndexRouteImport } from './routes/communication.campaigns.index'
 import { Route as CommunicationCampaignsNewRouteImport } from './routes/communication.campaigns.new'
 import { Route as CommunityDiscussionsIndexRouteImport } from './routes/community.discussions.index'
@@ -621,6 +622,11 @@ const WorkflowsTemplatesRoute = WorkflowsTemplatesRouteImport.update({
   path: '/workflows/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificatesVerifyCodeRoute = CertificatesVerifyCodeRouteImport.update({
+  id: '/certificates/verify/$code',
+  path: '/certificates/verify/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunicationCampaignsIndexRoute =
   CommunicationCampaignsIndexRouteImport.update({
     id: '/communication/campaigns/',
@@ -766,6 +772,7 @@ export interface FileRoutesByFullPath {
   '/teams/': typeof TeamsIndexRoute
   '/winners/': typeof WinnersIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
+  '/certificates/verify/$code': typeof CertificatesVerifyCodeRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
@@ -876,6 +883,7 @@ export interface FileRoutesByTo {
   '/teams': typeof TeamsIndexRoute
   '/winners': typeof WinnersIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
+  '/certificates/verify/$code': typeof CertificatesVerifyCodeRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
@@ -987,6 +995,7 @@ export interface FileRoutesById {
   '/teams/': typeof TeamsIndexRoute
   '/winners/': typeof WinnersIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
+  '/certificates/verify/$code': typeof CertificatesVerifyCodeRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
@@ -1099,6 +1108,7 @@ export interface FileRouteTypes {
     | '/teams/'
     | '/winners/'
     | '/workflows/'
+    | '/certificates/verify/$code'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
     | '/feedback/surveys/new'
@@ -1209,6 +1219,7 @@ export interface FileRouteTypes {
     | '/teams'
     | '/winners'
     | '/workflows'
+    | '/certificates/verify/$code'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
     | '/feedback/surveys/new'
@@ -1319,6 +1330,7 @@ export interface FileRouteTypes {
     | '/teams/'
     | '/winners/'
     | '/workflows/'
+    | '/certificates/verify/$code'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
     | '/feedback/surveys/new'
@@ -1430,6 +1442,7 @@ export interface RootRouteChildren {
   TeamsIndexRoute: typeof TeamsIndexRoute
   WinnersIndexRoute: typeof WinnersIndexRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
+  CertificatesVerifyCodeRoute: typeof CertificatesVerifyCodeRoute
   CommunicationCampaignsNewRoute: typeof CommunicationCampaignsNewRoute
   CommunityDiscussionsIdRoute: typeof CommunityDiscussionsIdRoute
   FeedbackSurveysNewRoute: typeof FeedbackSurveysNewRoute
@@ -2142,6 +2155,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/certificates/verify/$code': {
+      id: '/certificates/verify/$code'
+      path: '/certificates/verify/$code'
+      fullPath: '/certificates/verify/$code'
+      preLoaderRoute: typeof CertificatesVerifyCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/communication/campaigns/': {
       id: '/communication/campaigns/'
       path: '/communication/campaigns'
@@ -2302,6 +2322,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamsIndexRoute: TeamsIndexRoute,
   WinnersIndexRoute: WinnersIndexRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
+  CertificatesVerifyCodeRoute: CertificatesVerifyCodeRoute,
   CommunicationCampaignsNewRoute: CommunicationCampaignsNewRoute,
   CommunityDiscussionsIdRoute: CommunityDiscussionsIdRoute,
   FeedbackSurveysNewRoute: FeedbackSurveysNewRoute,
