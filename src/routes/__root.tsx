@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  Navigate,
   createRootRouteWithContext,
   useRouter,
   HeadContent,
@@ -12,8 +13,9 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "@/components/layout/app-shell";
-import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeProvider, useHydrated } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -123,16 +125,43 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const hydrated = useHydrated();
+  const isLogin = router.state.location.pathname === "/login";
+
+  if (!hydrated || (isLoading && !isLogin)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated && !isLogin) {
+    return <Navigate to="/login" />;
+  }
+
+  if (isLogin) {
+    return <>{children}</>;
+  }
+
+  return <AppShell>{children}</AppShell>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppShell>
+        <AuthProvider>
+          <ProtectedRoute>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </ProtectedRoute>
+        </AuthProvider>
         <Toaster />
       </ThemeProvider>
     </QueryClientProvider>

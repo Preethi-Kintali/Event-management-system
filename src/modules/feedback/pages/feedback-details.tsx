@@ -89,7 +89,7 @@ export function FeedbackDetailsPage() {
                       title: "Status: Reviewed",
                       detail: "Manually reviewed by admin.",
                       time: record.status === "Reviewed" ? "Yesterday" : "Pending",
-                      state: record.status === "Reviewed" ? "done" : "active",
+                      state: record.status === "Reviewed" ? "done" : "current",
                     },
                   ]}
                 />

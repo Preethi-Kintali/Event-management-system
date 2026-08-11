@@ -106,7 +106,7 @@ export function IntegrationsDashboard() {
                     <td className="px-4 py-3 text-muted-foreground text-xs">{conn.lastSync}</td>
                     <td className="px-4 py-3 text-right">
                       <Button variant="link" size="sm" asChild className="h-auto p-0">
-                        <Link to={`/integrations/${conn.id}`}>Configure</Link>
+                        <Link to={`/integrations/${conn.id}` as any}>Configure</Link>
                       </Button>
                     </td>
                   </tr>

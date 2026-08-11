@@ -65,7 +65,7 @@ export function QRScannerPage() {
         </SectionCard>
 
         <div className="flex flex-col gap-6">
-          <SectionCard className="flex-1 flex flex-col items-center justify-center p-12 text-center border-dashed">
+          <SectionCard title="QR Code Display" className="flex-1 flex flex-col items-center justify-center p-12 text-center border-dashed">
             <div className="bg-muted p-6 rounded-2xl mb-6">
               <QrCode className="w-32 h-32 opacity-20" />
             </div>

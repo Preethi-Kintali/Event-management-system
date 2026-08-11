@@ -11,6 +11,7 @@ import {
   Settings,
   UserRound,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -58,10 +59,15 @@ const quickLinks = [
 ];
 
 export function Topbar() {
+  const { user, logout, activeOrganization, setActiveOrganization } = useAuth();
   const [open, setOpen] = useState(false);
-  const [org, setOrg] = useState(organizations[0]!.name);
   const navigate = useNavigate();
   const unread = notifications.filter((n) => n.unread).length;
+
+  const currentMembership = user?.memberships?.find(
+    (m) => m.organization.id === activeOrganization
+  );
+  const orgName = currentMembership?.organization.name || "Ascent Platform";
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -83,9 +89,9 @@ export function Topbar() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="hidden max-w-56 gap-2 px-2 md:inline-flex">
             <span className="grid h-6 w-6 shrink-0 place-items-center rounded bg-primary-muted text-[11px] font-semibold text-accent-foreground">
-              {org.slice(0, 2).toUpperCase()}
+              {orgName.slice(0, 2).toUpperCase()}
             </span>
-            <span className="min-w-0 truncate text-sm">{org}</span>
+            <span className="min-w-0 truncate text-sm">{orgName}</span>
             <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
           </Button>
         </DropdownMenuTrigger>
@@ -93,10 +99,14 @@ export function Topbar() {
           <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
             Switch organization
           </DropdownMenuLabel>
-          {organizations.slice(0, 5).map((o) => (
-            <DropdownMenuItem key={o.id} onSelect={() => setOrg(o.name)} className="gap-2">
-              <span className="min-w-0 flex-1 truncate">{o.name}</span>
-              {o.name === org ? <Check className="h-4 w-4 text-primary" /> : null}
+          {user?.memberships?.map((m) => (
+            <DropdownMenuItem 
+              key={m.organization.id} 
+              onSelect={() => setActiveOrganization(m.organization.id)} 
+              className="gap-2"
+            >
+              <span className="min-w-0 flex-1 truncate">{m.organization.name}</span>
+              {m.organization.id === activeOrganization ? <Check className="h-4 w-4 text-primary" /> : null}
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
@@ -178,23 +188,23 @@ export function Topbar() {
             <Button variant="ghost" className="ml-1 h-9 gap-2 px-1.5">
               <Avatar className="h-7 w-7">
                 <AvatarFallback className="bg-primary-muted text-[11px] font-semibold text-accent-foreground">
-                  AI
+                  {user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "U"}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden min-w-0 text-left lg:block">
                 <span className="block truncate text-xs font-medium leading-tight">
-                  Ananya Iyer
+                  {user ? `${user.firstName} ${user.lastName}` : "Loading..."}
                 </span>
                 <span className="block truncate text-[11px] text-muted-foreground">
-                  Platform Admin
+                  {user?.status || "Active"}
                 </span>
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
-              <p className="text-sm font-medium">Ananya Iyer</p>
-              <p className="text-xs text-muted-foreground">ananya.iyer@northwind.edu</p>
+              <p className="text-sm font-medium">{user ? `${user.firstName} ${user.lastName}` : ""}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
@@ -208,7 +218,7 @@ export function Topbar() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={() => logout()}>
               <LogOut className="h-4 w-4" />
               Sign out
             </DropdownMenuItem>

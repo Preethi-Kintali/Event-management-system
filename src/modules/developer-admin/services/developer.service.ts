@@ -24,6 +24,7 @@ export const DeveloperService = {
   async getApiMetrics(): Promise<ApiMetric[]> {
     return [
       {
+        id: "1",
         endpoint: "/api/v1/users",
         method: "GET",
         requests: 450000,
@@ -32,6 +33,7 @@ export const DeveloperService = {
         status: "Healthy",
       },
       {
+        id: "2",
         endpoint: "/api/v1/registrations",
         method: "POST",
         requests: 12500,
@@ -40,6 +42,7 @@ export const DeveloperService = {
         status: "Healthy",
       },
       {
+        id: "3",
         endpoint: "/api/v1/submissions",
         method: "POST",
         requests: 8400,
@@ -48,6 +51,7 @@ export const DeveloperService = {
         status: "High Latency",
       },
       {
+        id: "4",
         endpoint: "/api/v1/analytics/export",
         method: "GET",
         requests: 320,
@@ -56,6 +60,7 @@ export const DeveloperService = {
         status: "Failing",
       },
       {
+        id: "5",
         endpoint: "/api/v1/events",
         method: "GET",
         requests: 890000,

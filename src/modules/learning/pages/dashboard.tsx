@@ -57,7 +57,7 @@ export function LearningDashboard() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <Link
-                      to={`/learning/courses/${course.id}`}
+                      to={`/learning/courses/${course.id}` as any}
                       className="font-semibold hover:underline"
                     >
                       {course.course}

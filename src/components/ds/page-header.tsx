@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,16 +33,18 @@ export function PageHeader({
         <Breadcrumb>
           <BreadcrumbList>
             {crumbs.map((crumb, i) => (
-              <BreadcrumbItem key={crumb.label}>
-                {crumb.to && i < crumbs.length - 1 ? (
-                  <BreadcrumbLink asChild>
-                    <Link to={crumb.to}>{crumb.label}</Link>
-                  </BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-                )}
+              <React.Fragment key={crumb.label}>
+                <BreadcrumbItem>
+                  {crumb.to && i < crumbs.length - 1 ? (
+                    <BreadcrumbLink asChild>
+                      <Link to={crumb.to}>{crumb.label}</Link>
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
                 {i < crumbs.length - 1 ? <BreadcrumbSeparator /> : null}
-              </BreadcrumbItem>
+              </React.Fragment>
             ))}
           </BreadcrumbList>
         </Breadcrumb>
@@ -70,15 +72,17 @@ export function SectionCard({
   actions,
   children,
   padded = true,
+  className,
 }: {
   title: string;
   description?: string | undefined;
   actions?: ReactNode | undefined;
   children: ReactNode;
   padded?: boolean | undefined;
+  className?: string | undefined;
 }) {
   return (
-    <section className="card-surface overflow-hidden">
+    <section className={`card-surface overflow-hidden ${className || ""}`}>
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-5 py-4">
         <div className="min-w-0">
           <h2 className="text-display truncate text-sm font-semibold">{title}</h2>

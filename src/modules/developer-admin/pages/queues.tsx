@@ -88,7 +88,7 @@ export function QueuesPage() {
         { label: "Retry Failed Jobs", onSelect: () => {} },
         { label: "Pause Queue", onSelect: () => {} },
         { label: "Resume Queue", onSelect: () => {} },
-        { label: "Purge Queue", variant: "destructive", onSelect: () => {} },
+        { label: "Purge Queue", onSelect: () => {} },
       ]}
     />
   );

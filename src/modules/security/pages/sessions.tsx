@@ -95,7 +95,7 @@ export function SessionsPage() {
       facet={{ label: "Status", key: "status", options: ["Active", "Idle", "Revoked"] }}
       rowActions={[
         { label: "View User Details", onSelect: () => {} },
-        { label: "Revoke Session", variant: "destructive", onSelect: () => {} },
+        { label: "Revoke Session", onSelect: () => {} },
       ]}
     />
   );

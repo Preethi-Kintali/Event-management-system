@@ -2,6 +2,7 @@ export type HealthStatus = "Healthy" | "Degraded" | "Down";
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL";
 
 export interface ApiMetric {
+  id: string;
   endpoint: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   requests: number;

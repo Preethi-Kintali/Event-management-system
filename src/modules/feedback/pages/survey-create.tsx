@@ -125,13 +125,7 @@ export function SurveyCreatePage() {
           ),
         },
       ]}
-      actions={
-        <div className="flex gap-2 w-full justify-end">
-          <Button variant="outline">Preview</Button>
-          <Button variant="outline">Save Draft</Button>
-          <Button>Publish Survey</Button>
-        </div>
-      }
+
     />
   );
 }

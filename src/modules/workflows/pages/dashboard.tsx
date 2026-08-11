@@ -79,8 +79,8 @@ export function WorkflowsDashboard() {
             ]}
             xKey="date"
             series={[
-              { key: "success", label: "Successful", color: "hsl(var(--primary))" },
-              { key: "failed", label: "Failed", color: "hsl(var(--destructive))" },
+              { key: "success", label: "Successful" },
+              { key: "failed", label: "Failed" },
             ]}
             height={300}
           />

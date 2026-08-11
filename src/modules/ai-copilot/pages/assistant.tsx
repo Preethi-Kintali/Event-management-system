@@ -29,7 +29,7 @@ export function AIAssistantPage() {
   useEffect(() => {
     AICopilotService.getConversations().then((data) => {
       setConversations(data);
-      if (data.length > 0) setActiveId(data[0].id);
+      if (data.length > 0 && data[0]) setActiveId(data[0].id);
     });
   }, []);
 

@@ -1,18 +1,21 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
-import { AttendanceService } from "../services/attendance.service";
-import { AttendanceSummary } from "../types/attendance.types";
-import { useEffect, useState } from "react";
-import { QrCode } from "lucide-react";
+import { QrCode, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAttendanceSummary, useAttendanceSessions } from "../services/attendance.api";
 
 export function AttendanceDashboard() {
-  const [summary, setSummary] = useState<AttendanceSummary | null>(null);
+  const { data: summary, isLoading: summaryLoading } = useAttendanceSummary();
+  const { data: sessions = [], isLoading: sessionsLoading } = useAttendanceSessions();
 
-  useEffect(() => {
-    AttendanceService.getDashboardSummary().then(setSummary);
-  }, []);
+  const isLoading = summaryLoading || sessionsLoading;
+
+  // Build per-session bar chart data from real sessions
+  const sessionChartData = sessions.slice(0, 5).map((s) => ({
+    session: s.name.length > 16 ? s.name.slice(0, 16) + "…" : s.name,
+    total: s._count?.records ?? 0,
+  }));
 
   return (
     <>
@@ -28,60 +31,82 @@ export function AttendanceDashboard() {
         }
       />
 
-      {summary && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            label="Today's Attendance"
-            value={summary.todaysAttendance.toString()}
-            progress={summary.attendanceRate}
-            index={0}
-          />
-          <StatCard label="Present" value={summary.present.toString()} delta={5.2} index={1} />
-          <StatCard label="Absent" value={summary.absent.toString()} delta={-2.1} index={2} />
-          <StatCard
-            label="Late Check-ins"
-            value={summary.late.toString()}
-            hint="After session start"
-            index={3}
-          />
+      {isLoading ? (
+        <div className="flex items-center gap-2 py-6 text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading attendance data…
         </div>
+      ) : (
+        <>
+          {summary && (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard
+                label="Today's Check-ins"
+                value={summary.todaysAttendance.toString()}
+                progress={summary.attendanceRate}
+                index={0}
+              />
+              <StatCard label="Present" value={summary.present.toString()} delta={0} index={1} />
+              <StatCard label="Absent" value={summary.absent.toString()} delta={0} index={2} />
+              <StatCard
+                label="Late Check-ins"
+                value={summary.late.toString()}
+                hint="After session start"
+                index={3}
+              />
+            </div>
+          )}
+
+          <div className="grid gap-6 xl:grid-cols-2">
+            <SectionCard title="Session Attendance" description="Check-ins per session">
+              {sessionChartData.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-6">
+                  No sessions recorded yet. Create attendance sessions to start tracking.
+                </p>
+              ) : (
+                <GroupedBarChart
+                  data={sessionChartData}
+                  xKey="session"
+                  series={[{ key: "total", label: "Check-ins" }]}
+                  height={260}
+                />
+              )}
+            </SectionCard>
+
+            <SectionCard title="Sessions Overview" description={`${sessions.length} sessions`}>
+              {sessions.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-6">No sessions scheduled yet.</p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {sessions.slice(0, 5).map((s) => (
+                    <li key={s.id} className="flex items-center justify-between py-3 px-1">
+                      <div>
+                        <p className="text-sm font-medium truncate max-w-[180px]">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">{s.event?.name ?? "—"}</p>
+                      </div>
+                      <div className="text-right">
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            s.status === "LIVE"
+                              ? "bg-green-500/10 text-green-600"
+                              : s.status === "COMPLETED"
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          {s.status}
+                        </span>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {s._count?.records ?? 0} check-ins
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </SectionCard>
+          </div>
+        </>
       )}
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <SectionCard title="Daily Attendance" description="Check-ins over the last 5 days">
-          <GroupedBarChart
-            data={[
-              { date: "10 Sep", present: 420, absent: 80 },
-              { date: "11 Sep", present: 840, absent: 160 },
-              { date: "12 Sep", present: 1120, absent: 140 },
-              { date: "13 Sep", present: 1680, absent: 220 },
-              { date: "14 Sep", present: 1420, absent: 480 },
-            ]}
-            xKey="date"
-            series={[
-              { key: "present", label: "Present" },
-              { key: "absent", label: "Absent" },
-            ]}
-            height={260}
-            stacked
-          />
-        </SectionCard>
-
-        <SectionCard title="Session Attendance Rate" description="Top sessions by participation">
-          <GroupedBarChart
-            data={[
-              { session: "Keynote", rate: 95 },
-              { session: "Workshop A", rate: 82 },
-              { session: "Workshop B", rate: 78 },
-              { session: "Judging", rate: 100 },
-              { session: "Ceremony", rate: 92 },
-            ]}
-            xKey="session"
-            series={[{ key: "rate", label: "Attendance %" }]}
-            height={260}
-          />
-        </SectionCard>
-      </div>
     </>
   );
 }

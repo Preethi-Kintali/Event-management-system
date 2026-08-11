@@ -12,13 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EvaluationsRouteImport } from './routes/evaluations'
 import { Route as JudgesRouteImport } from './routes/judges'
+import { Route as LiveEventsRouteImport } from './routes/live-events'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OrganizationsRouteImport } from './routes/organizations'
 import { Route as RecruitmentRouteImport } from './routes/recruitment'
 import { Route as RegistrationsRouteImport } from './routes/registrations'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as RolesRouteImport } from './routes/roles'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SponsorsRouteImport } from './routes/sponsors'
+import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as VolunteersRouteImport } from './routes/volunteers'
 import { Route as AiCopilotIndexRouteImport } from './routes/ai-copilot.index'
@@ -83,9 +88,6 @@ import { Route as PlatformAdminIndexRouteImport } from './routes/platform-admin.
 import { Route as PlatformAdminAuditLogsRouteImport } from './routes/platform-admin.audit-logs'
 import { Route as PlatformAdminConfigurationRouteImport } from './routes/platform-admin.configuration'
 import { Route as PlatformAdminLicensesRouteImport } from './routes/platform-admin.licenses'
-import { Route as PlatformAdminOrganizationsRouteImport } from './routes/platform-admin.organizations'
-import { Route as PlatformAdminPermissionsRouteImport } from './routes/platform-admin.permissions'
-import { Route as PlatformAdminSubscriptionsRouteImport } from './routes/platform-admin.subscriptions'
 import { Route as SecurityIndexRouteImport } from './routes/security.index'
 import { Route as SecurityAlertsRouteImport } from './routes/security.alerts'
 import { Route as SecurityAuthenticationRouteImport } from './routes/security.authentication'
@@ -131,6 +133,16 @@ const JudgesRoute = JudgesRouteImport.update({
   path: '/judges',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveEventsRoute = LiveEventsRouteImport.update({
+  id: '/live-events',
+  path: '/live-events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MentorsRoute = MentorsRouteImport.update({
   id: '/mentors',
   path: '/mentors',
@@ -139,6 +151,11 @@ const MentorsRoute = MentorsRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizationsRoute = OrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecruitmentRoute = RecruitmentRouteImport.update({
@@ -156,6 +173,11 @@ const ReportsRoute = ReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RolesRoute = RolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -164,6 +186,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SponsorsRoute = SponsorsRouteImport.update({
   id: '/sponsors',
   path: '/sponsors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionsRoute = SubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersRoute = UsersRouteImport.update({
@@ -489,24 +516,6 @@ const PlatformAdminLicensesRoute = PlatformAdminLicensesRouteImport.update({
   path: '/platform-admin/licenses',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlatformAdminOrganizationsRoute =
-  PlatformAdminOrganizationsRouteImport.update({
-    id: '/platform-admin/organizations',
-    path: '/platform-admin/organizations',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const PlatformAdminPermissionsRoute =
-  PlatformAdminPermissionsRouteImport.update({
-    id: '/platform-admin/permissions',
-    path: '/platform-admin/permissions',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const PlatformAdminSubscriptionsRoute =
-  PlatformAdminSubscriptionsRouteImport.update({
-    id: '/platform-admin/subscriptions',
-    path: '/platform-admin/subscriptions',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const SecurityIndexRoute = SecurityIndexRouteImport.update({
   id: '/security/',
   path: '/security/',
@@ -660,13 +669,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/evaluations': typeof EvaluationsRoute
   '/judges': typeof JudgesRoute
+  '/live-events': typeof LiveEventsRoute
+  '/login': typeof LoginRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
+  '/organizations': typeof OrganizationsRoute
   '/recruitment': typeof RecruitmentRoute
   '/registrations': typeof RegistrationsRoute
   '/reports': typeof ReportsRoute
+  '/roles': typeof RolesRoute
   '/settings': typeof SettingsRoute
   '/sponsors': typeof SponsorsRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/users': typeof UsersRoute
   '/volunteers': typeof VolunteersRoute
   '/ai-copilot/assistant': typeof AiCopilotAssistantRoute
@@ -717,9 +731,6 @@ export interface FileRoutesByFullPath {
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
   '/platform-admin/configuration': typeof PlatformAdminConfigurationRoute
   '/platform-admin/licenses': typeof PlatformAdminLicensesRoute
-  '/platform-admin/organizations': typeof PlatformAdminOrganizationsRoute
-  '/platform-admin/permissions': typeof PlatformAdminPermissionsRoute
-  '/platform-admin/subscriptions': typeof PlatformAdminSubscriptionsRoute
   '/security/alerts': typeof SecurityAlertsRoute
   '/security/authentication': typeof SecurityAuthenticationRoute
   '/security/compliance': typeof SecurityComplianceRoute
@@ -768,13 +779,18 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/evaluations': typeof EvaluationsRoute
   '/judges': typeof JudgesRoute
+  '/live-events': typeof LiveEventsRoute
+  '/login': typeof LoginRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
+  '/organizations': typeof OrganizationsRoute
   '/recruitment': typeof RecruitmentRoute
   '/registrations': typeof RegistrationsRoute
   '/reports': typeof ReportsRoute
+  '/roles': typeof RolesRoute
   '/settings': typeof SettingsRoute
   '/sponsors': typeof SponsorsRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/users': typeof UsersRoute
   '/volunteers': typeof VolunteersRoute
   '/ai-copilot/assistant': typeof AiCopilotAssistantRoute
@@ -825,9 +841,6 @@ export interface FileRoutesByTo {
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
   '/platform-admin/configuration': typeof PlatformAdminConfigurationRoute
   '/platform-admin/licenses': typeof PlatformAdminLicensesRoute
-  '/platform-admin/organizations': typeof PlatformAdminOrganizationsRoute
-  '/platform-admin/permissions': typeof PlatformAdminPermissionsRoute
-  '/platform-admin/subscriptions': typeof PlatformAdminSubscriptionsRoute
   '/security/alerts': typeof SecurityAlertsRoute
   '/security/authentication': typeof SecurityAuthenticationRoute
   '/security/compliance': typeof SecurityComplianceRoute
@@ -877,13 +890,18 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/evaluations': typeof EvaluationsRoute
   '/judges': typeof JudgesRoute
+  '/live-events': typeof LiveEventsRoute
+  '/login': typeof LoginRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
+  '/organizations': typeof OrganizationsRoute
   '/recruitment': typeof RecruitmentRoute
   '/registrations': typeof RegistrationsRoute
   '/reports': typeof ReportsRoute
+  '/roles': typeof RolesRoute
   '/settings': typeof SettingsRoute
   '/sponsors': typeof SponsorsRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/users': typeof UsersRoute
   '/volunteers': typeof VolunteersRoute
   '/ai-copilot/assistant': typeof AiCopilotAssistantRoute
@@ -934,9 +952,6 @@ export interface FileRoutesById {
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
   '/platform-admin/configuration': typeof PlatformAdminConfigurationRoute
   '/platform-admin/licenses': typeof PlatformAdminLicensesRoute
-  '/platform-admin/organizations': typeof PlatformAdminOrganizationsRoute
-  '/platform-admin/permissions': typeof PlatformAdminPermissionsRoute
-  '/platform-admin/subscriptions': typeof PlatformAdminSubscriptionsRoute
   '/security/alerts': typeof SecurityAlertsRoute
   '/security/authentication': typeof SecurityAuthenticationRoute
   '/security/compliance': typeof SecurityComplianceRoute
@@ -987,13 +1002,18 @@ export interface FileRouteTypes {
     | '/'
     | '/evaluations'
     | '/judges'
+    | '/live-events'
+    | '/login'
     | '/mentors'
     | '/notifications'
+    | '/organizations'
     | '/recruitment'
     | '/registrations'
     | '/reports'
+    | '/roles'
     | '/settings'
     | '/sponsors'
+    | '/subscriptions'
     | '/users'
     | '/volunteers'
     | '/ai-copilot/assistant'
@@ -1044,9 +1064,6 @@ export interface FileRouteTypes {
     | '/platform-admin/audit-logs'
     | '/platform-admin/configuration'
     | '/platform-admin/licenses'
-    | '/platform-admin/organizations'
-    | '/platform-admin/permissions'
-    | '/platform-admin/subscriptions'
     | '/security/alerts'
     | '/security/authentication'
     | '/security/compliance'
@@ -1095,13 +1112,18 @@ export interface FileRouteTypes {
     | '/'
     | '/evaluations'
     | '/judges'
+    | '/live-events'
+    | '/login'
     | '/mentors'
     | '/notifications'
+    | '/organizations'
     | '/recruitment'
     | '/registrations'
     | '/reports'
+    | '/roles'
     | '/settings'
     | '/sponsors'
+    | '/subscriptions'
     | '/users'
     | '/volunteers'
     | '/ai-copilot/assistant'
@@ -1152,9 +1174,6 @@ export interface FileRouteTypes {
     | '/platform-admin/audit-logs'
     | '/platform-admin/configuration'
     | '/platform-admin/licenses'
-    | '/platform-admin/organizations'
-    | '/platform-admin/permissions'
-    | '/platform-admin/subscriptions'
     | '/security/alerts'
     | '/security/authentication'
     | '/security/compliance'
@@ -1203,13 +1222,18 @@ export interface FileRouteTypes {
     | '/'
     | '/evaluations'
     | '/judges'
+    | '/live-events'
+    | '/login'
     | '/mentors'
     | '/notifications'
+    | '/organizations'
     | '/recruitment'
     | '/registrations'
     | '/reports'
+    | '/roles'
     | '/settings'
     | '/sponsors'
+    | '/subscriptions'
     | '/users'
     | '/volunteers'
     | '/ai-copilot/assistant'
@@ -1260,9 +1284,6 @@ export interface FileRouteTypes {
     | '/platform-admin/audit-logs'
     | '/platform-admin/configuration'
     | '/platform-admin/licenses'
-    | '/platform-admin/organizations'
-    | '/platform-admin/permissions'
-    | '/platform-admin/subscriptions'
     | '/security/alerts'
     | '/security/authentication'
     | '/security/compliance'
@@ -1312,13 +1333,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EvaluationsRoute: typeof EvaluationsRoute
   JudgesRoute: typeof JudgesRoute
+  LiveEventsRoute: typeof LiveEventsRoute
+  LoginRoute: typeof LoginRoute
   MentorsRoute: typeof MentorsRoute
   NotificationsRoute: typeof NotificationsRoute
+  OrganizationsRoute: typeof OrganizationsRoute
   RecruitmentRoute: typeof RecruitmentRoute
   RegistrationsRoute: typeof RegistrationsRoute
   ReportsRoute: typeof ReportsRoute
+  RolesRoute: typeof RolesRoute
   SettingsRoute: typeof SettingsRoute
   SponsorsRoute: typeof SponsorsRoute
+  SubscriptionsRoute: typeof SubscriptionsRoute
   UsersRoute: typeof UsersRoute
   VolunteersRoute: typeof VolunteersRoute
   AiCopilotAssistantRoute: typeof AiCopilotAssistantRoute
@@ -1369,9 +1395,6 @@ export interface RootRouteChildren {
   PlatformAdminAuditLogsRoute: typeof PlatformAdminAuditLogsRoute
   PlatformAdminConfigurationRoute: typeof PlatformAdminConfigurationRoute
   PlatformAdminLicensesRoute: typeof PlatformAdminLicensesRoute
-  PlatformAdminOrganizationsRoute: typeof PlatformAdminOrganizationsRoute
-  PlatformAdminPermissionsRoute: typeof PlatformAdminPermissionsRoute
-  PlatformAdminSubscriptionsRoute: typeof PlatformAdminSubscriptionsRoute
   SecurityAlertsRoute: typeof SecurityAlertsRoute
   SecurityAuthenticationRoute: typeof SecurityAuthenticationRoute
   SecurityComplianceRoute: typeof SecurityComplianceRoute
@@ -1440,6 +1463,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JudgesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live-events': {
+      id: '/live-events'
+      path: '/live-events'
+      fullPath: '/live-events'
+      preLoaderRoute: typeof LiveEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mentors': {
       id: '/mentors'
       path: '/mentors'
@@ -1452,6 +1489,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizations': {
+      id: '/organizations'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof OrganizationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recruitment': {
@@ -1475,6 +1519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/roles': {
+      id: '/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof RolesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -1487,6 +1538,13 @@ declare module '@tanstack/react-router' {
       path: '/sponsors'
       fullPath: '/sponsors'
       preLoaderRoute: typeof SponsorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscriptions': {
+      id: '/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof SubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users': {
@@ -1937,27 +1995,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlatformAdminLicensesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/platform-admin/organizations': {
-      id: '/platform-admin/organizations'
-      path: '/platform-admin/organizations'
-      fullPath: '/platform-admin/organizations'
-      preLoaderRoute: typeof PlatformAdminOrganizationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/platform-admin/permissions': {
-      id: '/platform-admin/permissions'
-      path: '/platform-admin/permissions'
-      fullPath: '/platform-admin/permissions'
-      preLoaderRoute: typeof PlatformAdminPermissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/platform-admin/subscriptions': {
-      id: '/platform-admin/subscriptions'
-      path: '/platform-admin/subscriptions'
-      fullPath: '/platform-admin/subscriptions'
-      preLoaderRoute: typeof PlatformAdminSubscriptionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/security/': {
       id: '/security/'
       path: '/security'
@@ -2168,13 +2205,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EvaluationsRoute: EvaluationsRoute,
   JudgesRoute: JudgesRoute,
+  LiveEventsRoute: LiveEventsRoute,
+  LoginRoute: LoginRoute,
   MentorsRoute: MentorsRoute,
   NotificationsRoute: NotificationsRoute,
+  OrganizationsRoute: OrganizationsRoute,
   RecruitmentRoute: RecruitmentRoute,
   RegistrationsRoute: RegistrationsRoute,
   ReportsRoute: ReportsRoute,
+  RolesRoute: RolesRoute,
   SettingsRoute: SettingsRoute,
   SponsorsRoute: SponsorsRoute,
+  SubscriptionsRoute: SubscriptionsRoute,
   UsersRoute: UsersRoute,
   VolunteersRoute: VolunteersRoute,
   AiCopilotAssistantRoute: AiCopilotAssistantRoute,
@@ -2225,9 +2267,6 @@ const rootRouteChildren: RootRouteChildren = {
   PlatformAdminAuditLogsRoute: PlatformAdminAuditLogsRoute,
   PlatformAdminConfigurationRoute: PlatformAdminConfigurationRoute,
   PlatformAdminLicensesRoute: PlatformAdminLicensesRoute,
-  PlatformAdminOrganizationsRoute: PlatformAdminOrganizationsRoute,
-  PlatformAdminPermissionsRoute: PlatformAdminPermissionsRoute,
-  PlatformAdminSubscriptionsRoute: PlatformAdminSubscriptionsRoute,
   SecurityAlertsRoute: SecurityAlertsRoute,
   SecurityAuthenticationRoute: SecurityAuthenticationRoute,
   SecurityComplianceRoute: SecurityComplianceRoute,

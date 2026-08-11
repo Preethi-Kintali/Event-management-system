@@ -18,6 +18,7 @@ export function FileUpload({
 }: {
   label?: string | undefined;
   hint?: string | undefined;
+  onUpload?: (() => void) | undefined;
 }) {
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState<MockFile[]>([

@@ -16,7 +16,7 @@ export function IntegrationDetailsPage() {
   useEffect(() => {
     IntegrationsService.getConnected().then((data) => {
       const found = data.find((c) => c.id === id);
-      setRecord(found || data[0]);
+      setRecord(found || data[0] || null);
     });
   }, [id]);
 

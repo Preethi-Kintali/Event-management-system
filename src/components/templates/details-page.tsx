@@ -34,7 +34,7 @@ export function DetailsPageTemplate({
   actions?: ReactNode;
   overview: ReactNode;
   metrics: { label: string; value: string; caption?: string }[];
-  related: RelatedRecord[];
+  related?: RelatedRecord[];
   relatedTitle?: string;
 }) {
   return (
@@ -167,16 +167,18 @@ export function DetailsPageTemplate({
             </div>
           </SectionCard>
 
-          <SectionCard title={relatedTitle} description={`${related.length} linked`} padded={false}>
-            <ul className="divide-y divide-border">
-              {related.map((record) => (
-                <li key={record.id} className="px-5 py-3">
-                  <p className="truncate text-sm font-medium">{record.label}</p>
-                  <p className="truncate text-xs text-muted-foreground">{record.meta}</p>
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
+          {related && related.length > 0 && (
+            <SectionCard title={relatedTitle} description={`${related.length} linked`} padded={false}>
+              <ul className="divide-y divide-border">
+                {related.map((record) => (
+                  <li key={record.id} className="px-5 py-3">
+                    <p className="truncate text-sm font-medium">{record.label}</p>
+                    <p className="truncate text-xs text-muted-foreground">{record.meta}</p>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          )}
         </aside>
       </div>
     </>

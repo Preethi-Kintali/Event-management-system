@@ -60,7 +60,7 @@ export function CompetitionDetailsPage() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {column.title} · {column.items.length}
                   </p>
-                  {column.items.map((item) => (
+                  {(column.items as Array<{ id: string; title: string; team: string; status: string }>).map((item) => (
                     <KanbanCard
                       key={item.id}
                       title={item.title}

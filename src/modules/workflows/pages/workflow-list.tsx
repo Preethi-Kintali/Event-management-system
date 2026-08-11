@@ -97,11 +97,11 @@ export function WorkflowListPage() {
       createLabel="Create Workflow"
       createTo="/workflows/new"
       rowActions={[
-        { label: "Edit Workflow", to: (row) => `/workflows/${row.id}` },
+        { label: "Edit Workflow", onSelect: () => {} },
         { label: "View History", onSelect: () => {} },
         { label: "Duplicate", onSelect: () => {} },
         { label: "Pause Rule", onSelect: () => {} },
-        { label: "Delete", variant: "destructive", onSelect: () => {} },
+        { label: "Delete", onSelect: () => {} },
       ]}
     />
   );

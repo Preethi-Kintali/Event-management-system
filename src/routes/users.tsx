@@ -2,25 +2,27 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { users } from "@/lib/mock-data";
+import { AuthUser } from "@/lib/auth";
+import { useUsers, useUpdateUserStatus } from "@/modules/users/services/users.api";
+import { UserDialog } from "@/modules/users/components/user-dialog";
+import { useState } from "react";
+import { toast } from "sonner";
 
-type Row = (typeof users)[number];
+type Row = AuthUser;
 
 const columns: Column<Row>[] = [
   {
     key: "name",
     header: "User",
     sortable: true,
-    render: (row) => <span className="font-medium">{row.name}</span>,
+    render: (row) => <span className="font-medium">{row.firstName} {row.lastName}</span>,
   },
   { key: "email", header: "Email", sortable: true },
-  { key: "role", header: "Role", sortable: true },
-  { key: "org", header: "Organization", sortable: true },
   {
     key: "mfa",
     header: "MFA",
-    sortable: true,
-    render: (row) => (row.mfa ? <StatusChip status="approved" /> : <StatusChip status="pending" />),
+    sortable: false,
+    render: () => <StatusChip status="approved" />,
   },
   {
     key: "status",
@@ -28,7 +30,11 @@ const columns: Column<Row>[] = [
     sortable: true,
     render: (row) => <StatusChip status={row.status} />,
   },
-  { key: "lastActive", header: "Last active" },
+  { 
+    key: "createdAt", 
+    header: "Joined",
+    render: (row) => <span>{new Date(row.createdAt).toLocaleDateString()}</span>
+  },
 ];
 
 export const Route = createFileRoute("/users")({
@@ -50,40 +56,52 @@ export const Route = createFileRoute("/users")({
 });
 
 function UsersPage() {
+  const { data = [], isLoading, isError } = useUsers();
+  const updateStatusMutation = useUpdateUserStatus();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<AuthUser | null>(null);
+
+  const handleEdit = (user: AuthUser) => {
+    setSelectedUser(user);
+    setDialogOpen(true);
+  };
+
+  const handleStatusChange = async (user: AuthUser, status: string) => {
+    try {
+      await updateStatusMutation.mutateAsync({ id: user.id, status });
+      toast.success(`User status updated to ${status}`);
+    } catch (e) {
+      toast.error("Failed to update status");
+    }
+  };
+
   return (
-    <ListPageTemplate<Row>
-      title="Users"
-      description="Directory of every platform user with roles, organizations and security posture."
-      crumbs={[{ label: "Administration" }, { label: "Users" }]}
-      columns={columns}
-      rows={users}
-      searchKeys={["name", "email", "role"]}
-      stats={[
-        { label: "Total users", value: "42,318", delta: 4.2, hint: "active last 30 days" },
-        { label: "Admins", value: "98", hint: "across all tenants" },
-        { label: "MFA adoption", value: "84%", progress: 84 },
-        { label: "Suspended", value: "12", delta: -18.5, hint: "vs last month" },
-      ]}
-      facet={{
-        label: "Role",
-        key: "role",
-        options: [
-          "Platform Admin",
-          "Organization Admin",
-          "Event Manager",
-          "Judge",
-          "Mentor",
-          "Reviewer",
-          "Volunteer",
-          "Recruiter",
-        ],
-      }}
-      createLabel="Invite user"
-      rowActions={[
-        { label: "View details", onSelect: () => {} },
-        { label: "Duplicate", onSelect: () => {} },
-        { label: "Archive", onSelect: () => {} },
-      ]}
-    />
+    <>
+      <ListPageTemplate<Row>
+        title="Users"
+        description="Directory of every platform user with roles, organizations and security posture."
+        crumbs={[{ label: "Administration" }, { label: "Users" }]}
+        columns={columns}
+        rows={data}
+        loading={isLoading}
+        error={isError}
+        searchKeys={["firstName", "lastName", "email"]}
+        stats={[
+          { label: "Total users", value: String(data.length) },
+          { label: "Active users", value: String(data.filter((u) => u.status === "ACTIVE").length) },
+        ]}
+        rowActions={[
+          { label: "Edit profile", onSelect: handleEdit },
+          { label: "Activate", onSelect: (user) => handleStatusChange(user, "ACTIVE") },
+          { label: "Suspend", onSelect: (user) => handleStatusChange(user, "SUSPENDED") },
+        ]}
+      />
+      <UserDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        user={selectedUser}
+      />
+    </>
   );
 }

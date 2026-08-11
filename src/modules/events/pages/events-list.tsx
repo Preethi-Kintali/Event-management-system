@@ -1,59 +1,107 @@
+import { useState } from "react";
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { events } from "@/lib/mock-data";
+import { useEvents, useDeleteEvent, ApiEvent } from "../services/events.api";
+import { EventDialog } from "../components/event-dialog";
+import { toast } from "sonner";
 
-type Row = (typeof events)[number];
+const statusLabel: Record<string, string> = {
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  LIVE: "active",
+  COMPLETED: "closed",
+  CANCELLED: "cancelled",
+};
 
-const columns: Column<Row>[] = [
+const columns: Column<ApiEvent>[] = [
   {
     key: "name",
     header: "Event",
     sortable: true,
     render: (row) => <span className="font-medium">{row.name}</span>,
   },
-  { key: "org", header: "Organization", sortable: true },
-  { key: "category", header: "Category", sortable: true },
-  { key: "mode", header: "Mode", sortable: true },
-  { key: "location", header: "Location", sortable: true },
-  { key: "start", header: "Starts", sortable: true },
-  {
-    key: "registrations",
-    header: "Registrations",
-    sortable: true,
-    render: (row) => <span className="tabular-nums">{row.registrations.toLocaleString()}</span>,
-  },
   {
     key: "status",
     header: "Status",
     sortable: true,
-    render: (row) => <StatusChip status={row.status} />,
+    render: (row) => <StatusChip status={statusLabel[row.status] ?? row.status} />,
+  },
+  {
+    key: "startTime",
+    header: "Starts",
+    sortable: true,
+    render: (row) => <span>{new Date(row.startTime).toLocaleDateString()}</span>,
+  },
+  {
+    key: "endTime",
+    header: "Ends",
+    sortable: true,
+    render: (row) => <span>{new Date(row.endTime).toLocaleDateString()}</span>,
   },
 ];
 
 export function EventsListPage() {
+  const { data: events = [], isLoading } = useEvents();
+  const deleteMutation = useDeleteEvent();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<ApiEvent | null>(null);
+
+  const handleEdit = (row: ApiEvent) => {
+    setEditingEvent(row);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (row: ApiEvent) => {
+    if (!confirm(`Delete "${row.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteMutation.mutateAsync(row.id);
+      toast.success("Event deleted");
+    } catch {
+      toast.error("Failed to delete event");
+    }
+  };
+
   return (
-    <ListPageTemplate<Row>
-      title="Events"
-      description="Every event across your organizations with registrations, mode and lifecycle state."
-      crumbs={[{ label: "Programs" }, { label: "Events" }]}
-      columns={columns}
-      rows={events}
-      searchKeys={["name", "org", "location"]}
-      stats={[
-        { label: "Total events", value: "486", delta: 8.9, hint: "vs last year" },
-        { label: "Live now", value: "12", hint: "3 hybrid, 9 online" },
-        { label: "Registrations", value: "42,800", delta: 14.6 },
-        { label: "Capacity filled", value: "81%", progress: 81 },
-      ]}
-      facet={{ label: "Mode", key: "mode", options: ["Onsite", "Online", "Hybrid"] }}
-      createLabel="Create event"
-      createTo="/events/new"
-      rowActions={[
-        { label: "View details", onSelect: () => {} },
-        { label: "Duplicate", onSelect: () => {} },
-        { label: "Archive", onSelect: () => {} },
-      ]}
-    />
+    <>
+      <ListPageTemplate<ApiEvent>
+        title="Events"
+        description="Every event across your organizations with lifecycle state."
+        crumbs={[{ label: "Programs" }, { label: "Events" }]}
+        columns={columns}
+        rows={events}
+        loading={isLoading}
+        searchKeys={["name"]}
+        stats={[
+          { label: "Total events", value: String(events.length) },
+          {
+            label: "Published",
+            value: String(events.filter((e) => e.status === "PUBLISHED" || e.status === "LIVE").length),
+          },
+          { label: "Draft", value: String(events.filter((e) => e.status === "DRAFT").length) },
+          { label: "Completed", value: String(events.filter((e) => e.status === "COMPLETED").length) },
+        ]}
+        facet={{
+          label: "Status",
+          key: "status",
+          options: ["DRAFT", "PUBLISHED", "LIVE", "COMPLETED", "CANCELLED"],
+        }}
+        createLabel="Create event"
+        onCreate={() => {
+          setEditingEvent(null);
+          setDialogOpen(true);
+        }}
+        rowActions={[
+          { label: "Edit", onSelect: (row) => handleEdit(row) },
+          { label: "Delete", onSelect: (row) => handleDelete(row) },
+        ]}
+      />
+      <EventDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        event={editingEvent}
+      />
+    </>
   );
 }

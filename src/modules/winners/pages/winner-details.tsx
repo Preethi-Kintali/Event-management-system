@@ -86,21 +86,21 @@ export function WinnerDetailsPage() {
                   title: "Winner Announced",
                   detail: "Public announcement made.",
                   time: record.announcementDate || "Pending",
-                  state: record.announcementDate ? "done" : "active",
+                  state: record.status === "Announced" ? "done" : "current",
                 },
                 {
                   id: "3",
                   title: "Certificate Issued",
                   detail: "Digital certificate sent to email.",
                   time: "Pending",
-                  state: "pending",
+                  state: "upcoming",
                 },
                 {
                   id: "4",
                   title: "Prize Distributed",
                   detail: `${record.prize} transfer.`,
                   time: "Pending",
-                  state: "pending",
+                  state: "upcoming",
                 },
               ]}
             />

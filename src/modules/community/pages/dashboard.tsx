@@ -56,7 +56,7 @@ export function CommunityDashboard() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <Link
-                      to={`/community/discussions/${disc.id}`}
+                      to={`/community/discussions/${disc.id}` as any}
                       className="font-semibold hover:underline"
                     >
                       {disc.title}

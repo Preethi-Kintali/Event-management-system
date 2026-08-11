@@ -1,9 +1,12 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { PlatformAdminService } from "../services/platform-admin.service";
+import { useRoles, useDeleteRole } from "../services/roles.api";
 import { PlatformRole } from "../types/platform-admin.types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { RoleDialog } from "../components/role-dialog";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const columns: Column<PlatformRole>[] = [
   {
@@ -27,31 +30,66 @@ const columns: Column<PlatformRole>[] = [
     key: "status",
     header: "Status",
     sortable: true,
-    render: (row) => <StatusChip status={row.status} />,
+    render: (row) => <StatusChip status="approved" />,
   },
 ];
 
 export function PermissionsPage() {
-  const [data, setData] = useState<PlatformRole[]>([]);
+  const { data = [], isLoading, isError } = useRoles();
+  const deleteMutation = useDeleteRole();
 
-  useEffect(() => {
-    PlatformAdminService.getRoles().then(setData);
-  }, []);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<PlatformRole | null>(null);
+
+  const handleCreate = () => {
+    setSelectedRole(null);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (role: PlatformRole) => {
+    setSelectedRole(role);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (role: PlatformRole) => {
+    if (confirm("Are you sure you want to delete this role?")) {
+      try {
+        await deleteMutation.mutateAsync(role.id);
+        toast.success("Role deleted");
+      } catch (e) {
+        toast.error("Failed to delete role");
+      }
+    }
+  };
 
   return (
-    <ListPageTemplate<PlatformRole>
-      title="Roles & Permissions"
-      description="Manage enterprise access controls and role-based permissions."
-      crumbs={[{ label: "Platform" }, { label: "Roles" }]}
-      columns={columns}
-      rows={data}
-      searchKeys={["name", "scope", "description"]}
-      facet={{
-        label: "Scope",
-        key: "scope",
-        options: ["Global", "Organization", "Event", "Competition"],
-      }}
-      createLabel="Create Role"
-    />
+    <>
+      <ListPageTemplate<PlatformRole>
+        title="Roles & Permissions"
+        description="Manage enterprise access controls and role-based permissions."
+        crumbs={[{ label: "Platform" }, { label: "Roles" }]}
+        columns={columns}
+        rows={data}
+        loading={isLoading}
+        error={isError}
+        searchKeys={["name", "scope", "description"]}
+        facet={{
+          label: "Scope",
+          key: "scope",
+          options: ["Global", "Organization", "Event", "Competition"],
+        }}
+        createLabel="Create Role"
+        onCreate={handleCreate}
+        rowActions={[
+          { label: "Edit role", onSelect: handleEdit },
+          { label: "Delete", onSelect: handleDelete },
+        ]}
+      />
+      <RoleDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        role={selectedRole}
+      />
+    </>
   );
 }

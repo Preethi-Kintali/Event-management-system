@@ -28,6 +28,7 @@ export interface ListPageProps<T extends { id: string }> {
   stats?: StatCardProps[] | undefined;
   createLabel?: string | undefined;
   createTo?: string | undefined;
+  onCreate?: () => void;
   rowActions?: RowAction<T>[] | undefined;
   onRowClick?: ((row: T) => void) | undefined;
   aside?: ReactNode | undefined;
@@ -61,6 +62,7 @@ export function ListPageTemplate<T extends { id: string }>({
   stats,
   createLabel,
   createTo,
+  onCreate,
   rowActions,
   onRowClick,
   aside,
@@ -132,7 +134,7 @@ export function ListPageTemplate<T extends { id: string }>({
                   </Link>
                 </Button>
               ) : (
-                <Button onClick={() => toast.info("Create form opens here")}>
+                <Button onClick={onCreate || (() => toast.info("Create form opens here"))}>
                   <Plus className="h-4 w-4" />
                   {createLabel}
                 </Button>

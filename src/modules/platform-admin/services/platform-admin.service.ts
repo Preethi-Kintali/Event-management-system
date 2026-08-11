@@ -8,13 +8,6 @@ import {
 import { organizations, roles, auditLogs, subscriptions } from "@/lib/mock-data";
 
 export const PlatformAdminService = {
-  async getOrganizations(): Promise<Organization[]> {
-    return organizations as any; // Reusing existing mock data where applicable
-  },
-
-  async getRoles(): Promise<PlatformRole[]> {
-    return roles as any;
-  },
 
   async getAuditLogs(): Promise<AuditLog[]> {
     return auditLogs as any;

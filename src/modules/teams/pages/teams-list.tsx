@@ -1,62 +1,96 @@
+import { useState } from "react";
 import { ListPageTemplate } from "@/components/templates/list-page";
-import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { Progress } from "@/components/ui/progress";
-import { teams } from "@/lib/mock-data";
+import { useTeams, useDeleteTeam, ApiTeam } from "../services/teams.api";
+import { TeamDialog } from "../components/team-dialog";
+import { toast } from "sonner";
 
-type Row = (typeof teams)[number];
-
-const columns: Column<Row>[] = [
+const columns: Column<ApiTeam>[] = [
   {
     key: "name",
     header: "Team",
     sortable: true,
     render: (row) => <span className="font-medium">{row.name}</span>,
   },
-  { key: "competition", header: "Competition", sortable: true },
-  { key: "lead", header: "Team lead", sortable: true },
-  { key: "members", header: "Members", sortable: true },
   {
-    key: "progress",
-    header: "Progress",
+    key: "competitionId",
+    header: "Competition",
     sortable: true,
-    render: (row) => (
-      <div className="flex items-center gap-2">
-        <Progress value={row.progress} className="h-1.5 w-20" />
-        <span className="text-xs tabular-nums text-muted-foreground">{row.progress}%</span>
-      </div>
-    ),
+    render: (row) => <span>{row.competition?.name ?? "—"}</span>,
   },
-  { key: "submissions", header: "Submissions", sortable: true },
   {
-    key: "status",
-    header: "Status",
+    key: "_count",
+    header: "Members",
+    render: (row) => <span className="tabular-nums">{row._count?.members ?? 0}</span>,
+  },
+  {
+    key: "createdAt",
+    header: "Created",
     sortable: true,
-    render: (row) => <StatusChip status={row.status} />,
+    render: (row) => <span>{new Date(row.createdAt).toLocaleDateString()}</span>,
   },
 ];
 
 export function TeamsListPage() {
+  const { data: teams = [], isLoading } = useTeams();
+  const deleteMutation = useDeleteTeam();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingTeam, setEditingTeam] = useState<ApiTeam | null>(null);
+
+  const handleEdit = (row: ApiTeam) => {
+    setEditingTeam(row);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (row: ApiTeam) => {
+    if (!confirm(`Delete "${row.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteMutation.mutateAsync(row.id);
+      toast.success("Team deleted");
+    } catch {
+      toast.error("Failed to delete team");
+    }
+  };
+
   return (
-    <ListPageTemplate<Row>
-      title="Teams"
-      description="Team formation, membership and progress across all competitions."
-      crumbs={[{ label: "Programs" }, { label: "Teams" }]}
-      columns={columns}
-      rows={teams}
-      searchKeys={["name", "competition", "lead"]}
-      stats={[
-        { label: "Teams", value: "3,120", delta: 9.8 },
-        { label: "Avg team size", value: "3.8", hint: "members per team" },
-        { label: "Complete profiles", value: "74%", progress: 74 },
-        { label: "Inactive teams", value: "118", delta: -12.4 },
-      ]}
-      createLabel="Create team"
-      rowActions={[
-        { label: "View details", onSelect: () => {} },
-        { label: "Duplicate", onSelect: () => {} },
-        { label: "Archive", onSelect: () => {} },
-      ]}
-    />
+    <>
+      <ListPageTemplate<ApiTeam>
+        title="Teams"
+        description="Team formation and membership across all competitions."
+        crumbs={[{ label: "Programs" }, { label: "Teams" }]}
+        columns={columns}
+        rows={teams}
+        loading={isLoading}
+        searchKeys={["name"]}
+        stats={[
+          { label: "Total teams", value: String(teams.length) },
+          {
+            label: "Total members",
+            value: String(teams.reduce((s, t) => s + (t._count?.members ?? 0), 0)),
+          },
+          {
+            label: "Avg team size",
+            value: teams.length
+              ? (teams.reduce((s, t) => s + (t._count?.members ?? 0), 0) / teams.length).toFixed(1)
+              : "—",
+          },
+        ]}
+        createLabel="Create team"
+        onCreate={() => {
+          setEditingTeam(null);
+          setDialogOpen(true);
+        }}
+        rowActions={[
+          { label: "Edit", onSelect: (row) => handleEdit(row) },
+          { label: "Delete", onSelect: (row) => handleDelete(row) },
+        ]}
+      />
+      <TeamDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        team={editingTeam}
+      />
+    </>
   );
 }

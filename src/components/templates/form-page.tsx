@@ -18,12 +18,14 @@ export function FormPageTemplate({
   crumbs,
   steps,
   publishLabel = "Publish",
+  actions,
 }: {
   title: string;
   description: string;
   crumbs: Crumb[];
   steps: WizardStep[];
   publishLabel?: string;
+  actions?: ReactNode;
 }) {
   const [current, setCurrent] = useState(0);
   const step = steps[current]!;

@@ -1,4 +1,4 @@
-export type Status = "active" | "suspended" | "pending" | "archived";
+export type Status = "active" | "suspended" | "pending" | "archived" | "ACTIVE" | "SUSPENDED" | "INVITED";
 
 export interface Organization {
   id: string;

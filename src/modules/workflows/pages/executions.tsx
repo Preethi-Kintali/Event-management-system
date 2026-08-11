@@ -96,7 +96,7 @@ export function ExecutionsPage() {
         options: ["Successful", "Failed", "Running", "Cancelled"],
       }}
       rowActions={[
-        { label: "View Workflow", to: (row) => `/workflows/${row.workflowId}` },
+        { label: "View Workflow", onSelect: () => {} },
         { label: "Retry Execution", onSelect: () => {} },
       ]}
     />
