@@ -51,7 +51,7 @@ async function main() {
     'teams.read', 'teams.manage',
     'submissions.read', 'submissions.manage',
     'evaluations.read', 'evaluations.manage',
-    'certificates.read', 'certificates.manage',
+    'certificates.read', 'certificates.manage', 'certificates.create', 'certificates.update', 'certificates.delete', 'certificates.issue', 'certificates.revoke',
   ];
 
   const permissions: Record<string, { id: string; action: string }> = {};
@@ -150,6 +150,7 @@ async function main() {
     'teams.read', 'teams.manage',
     'submissions.read', 'submissions.manage',
     'evaluations.read', 'evaluations.manage',
+    'certificates.read', 'certificates.create', 'certificates.update', 'certificates.delete', 'certificates.issue', 'certificates.revoke',
   ];
   for (const p of orgAdminPerms) {
     await prisma.rolePermission.create({ data: { roleId: orgAdminRole.id, permissionId: permissions[p].id } });
@@ -470,6 +471,50 @@ async function main() {
       status: AttendanceStatus.PRESENT,
       checkInTime: new Date('2026-10-02T14:02:00Z'),
     },
+  });
+
+  // 17. Certificates
+  await prisma.certificate.create({
+    data: {
+      userId: participant1.id,
+      organizationId: org1.id,
+      eventId: event1.id,
+      competitionId: comp1.id,
+      certificateNumber: 'CERT-2026-WIN-001',
+      type: 'WINNER',
+      title: 'First Place Winner',
+      description: 'Awarded for exceptional performance in Global AI Hackathon 2026.',
+      status: 'ISSUED',
+      verificationCode: 'VERIFY-ABC-1234',
+    }
+  });
+
+  await prisma.certificate.create({
+    data: {
+      userId: participant2.id,
+      organizationId: org1.id,
+      eventId: event1.id,
+      certificateNumber: 'CERT-2026-PART-002',
+      type: 'PARTICIPATION',
+      title: 'Certificate of Participation',
+      description: 'Awarded for participating in Global AI Hackathon 2026.',
+      status: 'ISSUED',
+      verificationCode: 'VERIFY-XYZ-5678',
+    }
+  });
+
+  await prisma.certificate.create({
+    data: {
+      userId: judgeUser1.id,
+      organizationId: org1.id,
+      eventId: event1.id,
+      certificateNumber: 'CERT-2026-JDG-003',
+      type: 'JUDGE',
+      title: 'Certificate of Appreciation',
+      description: 'Awarded for valuable contribution as a Judge.',
+      status: 'ISSUED',
+      verificationCode: 'VERIFY-DEF-9012',
+    }
   });
 
   console.log("\n✅ Seeding complete!");

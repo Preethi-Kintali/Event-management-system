@@ -75,24 +75,40 @@ enum SessionStatus {
   CANCELLED
 }
 
+enum CertificateType {
+  PARTICIPATION
+  COMPLETION
+  WINNER
+  FINALIST
+  JUDGE
+  MENTOR
+  VOLUNTEER
+}
+
+enum CertificateStatus {
+  ISSUED
+  REVOKED
+}
+
 // Models
 model User {
-  id             String               @id @default(uuid())
-  email          String               @unique
-  passwordHash   String
-  firstName      String?
-  lastName       String?
-  status         UserStatus           @default(PENDING)
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  memberships    OrganizationMember[]
-  registrations  Registration[]
-  teamMembers    TeamMember[]
-  evaluations    Evaluation[]
-  auditLogs      AuditLog[]
-  mentorProfile  Mentor?
-  volunteerProfile Volunteer?
+  id                String               @id @default(uuid())
+  email             String               @unique
+  passwordHash      String
+  firstName         String?
+  lastName          String?
+  status            UserStatus           @default(PENDING)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  memberships       OrganizationMember[]
+  registrations     Registration[]
+  teamMembers       TeamMember[]
+  evaluations       Evaluation[]
+  auditLogs         AuditLog[]
+  mentorProfile     Mentor?
+  volunteerProfile  Volunteer?
   attendanceRecords AttendanceRecord[]
+  Certificate       Certificate[]
 }
 
 model Organization {
@@ -109,6 +125,7 @@ model Organization {
   judges      Judge[]
   mentors     Mentor[]
   volunteers  Volunteer[]
+  Certificate Certificate[]
 }
 
 model OrganizationMember {
@@ -129,7 +146,7 @@ model OrganizationMember {
 
 model Role {
   id             String               @id @default(uuid())
-  organizationId String?              // Null means it's a global/default role
+  organizationId String? // Null means it's a global/default role
   name           String
   description    String?
   createdAt      DateTime             @default(now())
@@ -159,33 +176,35 @@ model RolePermission {
 }
 
 model Event {
-  id             String              @id @default(uuid())
-  organizationId String
-  name           String
-  description    String?
-  status         EventStatus         @default(DRAFT)
-  startTime      DateTime
-  endTime        DateTime
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  competitions   Competition[]
-  registrations  Registration[]
-  volunteerEvents VolunteerEvent[]
+  id                 String              @id @default(uuid())
+  organizationId     String
+  name               String
+  description        String?
+  status             EventStatus         @default(DRAFT)
+  startTime          DateTime
+  endTime            DateTime
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  competitions       Competition[]
+  registrations      Registration[]
+  volunteerEvents    VolunteerEvent[]
   attendanceSessions AttendanceSession[]
+  Certificate        Certificate[]
 }
 
 model Competition {
-  id          String       @id @default(uuid())
-  eventId     String
-  name        String
-  description String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  teams       Team[]
-  submissions Submission[]
+  id               String             @id @default(uuid())
+  eventId          String
+  name             String
+  description      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  teams            Team[]
+  submissions      Submission[]
   judgeAssignments JudgeCompetition[]
+  Certificate      Certificate[]
 }
 
 model Registration {
@@ -202,14 +221,14 @@ model Registration {
 }
 
 model Team {
-  id            String       @id @default(uuid())
-  competitionId String
-  name          String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  competition   Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  members       TeamMember[]
-  submissions   Submission[]
+  id                String       @id @default(uuid())
+  competitionId     String
+  name              String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  competition       Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  members           TeamMember[]
+  submissions       Submission[]
   mentorAssignments TeamMentor[]
 }
 
@@ -241,14 +260,14 @@ model Submission {
 }
 
 model Judge {
-  id             String       @id @default(uuid())
+  id             String             @id @default(uuid())
   userId         String
   organizationId String
   expertise      String?
   bio            String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   competitions   JudgeCompetition[]
 
   @@unique([userId, organizationId])
@@ -268,7 +287,7 @@ model JudgeCompetition {
 model Evaluation {
   id           String           @id @default(uuid())
   submissionId String
-  judgeId      String           // references User id who is acting as a judge
+  judgeId      String // references User id who is acting as a judge
   score        Float?
   feedback     String?
   status       EvaluationStatus @default(PENDING)
@@ -281,15 +300,15 @@ model Evaluation {
 }
 
 model Mentor {
-  id             String       @id @default(uuid())
-  userId         String       @unique
-  organizationId String
-  expertise      String?
-  bio            String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id              String       @id @default(uuid())
+  userId          String       @unique
+  organizationId  String
+  expertise       String?
+  bio             String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   teamAssignments TeamMentor[]
 }
 
@@ -305,15 +324,15 @@ model TeamMentor {
 }
 
 model Volunteer {
-  id             String           @id @default(uuid())
-  userId         String           @unique
-  organizationId String
-  role           String?
-  bio            String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id               String           @id @default(uuid())
+  userId           String           @unique
+  organizationId   String
+  role             String?
+  bio              String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   eventAssignments VolunteerEvent[]
 }
 
@@ -331,42 +350,57 @@ model VolunteerEvent {
 }
 
 model AttendanceSession {
-  id          String        @id @default(uuid())
+  id          String             @id @default(uuid())
   eventId     String
   name        String
   description String?
   startTime   DateTime
   endTime     DateTime
-  status      SessionStatus @default(UPCOMING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  event       Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status      SessionStatus      @default(UPCOMING)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  event       Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   records     AttendanceRecord[]
 }
 
 model AttendanceRecord {
-  id          String           @id @default(uuid())
-  sessionId   String
-  userId      String
-  checkInTime DateTime         @default(now())
+  id           String            @id @default(uuid())
+  sessionId    String
+  userId       String
+  checkInTime  DateTime          @default(now())
   checkOutTime DateTime?
-  method      AttendanceMethod @default(MANUAL)
-  status      AttendanceStatus @default(PRESENT)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  session     AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  method       AttendanceMethod  @default(MANUAL)
+  status       AttendanceStatus  @default(PRESENT)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  session      AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, userId])
 }
 
 model Certificate {
-  id             String   @id @default(uuid())
-  userId         String
-  organizationId String
-  title          String
-  issuedAt       DateTime @default(now())
-  metadata       Json?
+  id                String            @id @default(uuid())
+  userId            String
+  organizationId    String
+  eventId           String
+  competitionId     String?
+  certificateNumber String            @unique
+  type              CertificateType
+  title             String
+  description       String?
+  status            CertificateStatus @default(ISSUED)
+  issuedAt          DateTime          @default(now())
+  expiryDate        DateTime?
+  verificationCode  String            @unique
+  metadata          Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  competition  Competition? @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {

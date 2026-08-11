@@ -43,6 +43,7 @@ import { judgeRoutes } from "./routes/judges.routes";
 import { mentorRoutes } from "./routes/mentors.routes";
 import { volunteerRoutes } from "./routes/volunteers.routes";
 import { attendanceRoutes } from "./routes/attendance.routes";
+import { certificatesRouter } from "./routes/certificates.routes";
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/events", eventRoutes);
@@ -59,6 +60,7 @@ app.use("/api/v1/judges", judgeRoutes);
 app.use("/api/v1/mentors", mentorRoutes);
 app.use("/api/v1/volunteers", volunteerRoutes);
 app.use("/api/v1/attendance", attendanceRoutes);
+app.use("/api/v1/certificates", certificatesRouter);
 
 // Health check endpoint
 app.get("/api/v1/health", (req: Request, res: Response) => {
