@@ -108,8 +108,8 @@ export function CertificateDetails({ id }: { id: string }) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Event</p>
-                <Link to={`/events/${cert.event?.id}`} className="font-medium hover:underline text-primary">
-                  {cert.event?.name}
+                <Link to="/events/$id" params={{ id: cert.event.id }} className="font-medium hover:underline text-primary">
+                  {cert.event.name}
                 </Link>
               </div>
               <div>
@@ -130,7 +130,7 @@ export function CertificateDetails({ id }: { id: string }) {
               <MetricWidget
                 label="Serial Number"
                 value={cert.certificateNumber}
-                trend="Unique ID"
+                caption="Unique ID"
               />
               <div className="bg-muted p-4 rounded-xl space-y-2">
                 <p className="text-sm font-medium">Verify Authenticity</p>
@@ -139,7 +139,8 @@ export function CertificateDetails({ id }: { id: string }) {
                 </p>
                 <div className="pt-2">
                   <Link 
-                    to={`/certificates/verify/${cert.verificationCode}`}
+                    to="/certificates/verify/$code"
+                    params={{ code: cert.verificationCode }}
                     className="text-xs text-primary font-medium hover:underline block break-all"
                   >
                     {window.location.origin}/certificates/verify/{cert.verificationCode}

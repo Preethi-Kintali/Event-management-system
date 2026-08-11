@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateCertificate } from "../services/certificates.api";
 import { useEvents } from "@/modules/events/services/events.api";
+import { CreateCertificatePayload } from "../types/certificate.types";
 
 const formSchema = z.object({
   userId: z.string().uuid("Recipient user ID is required"),
@@ -41,7 +42,8 @@ export function CertificateCreateDialog({ open, onOpenChange }: Props) {
   const selectedType = watch("type");
 
   const onSubmit = async (data: FormValues) => {
-    createMutation.mutate(data, {
+    const payload = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined)) as CreateCertificatePayload;
+    createMutation.mutate(payload, {
       onSuccess: () => {
         toast.success("Certificate issued successfully");
         reset();

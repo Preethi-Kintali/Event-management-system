@@ -17,9 +17,10 @@ const labels: Record<string, string> = {
   in_review: "In review",
 };
 
-export function StatusChip({ status, className }: { status: string; className?: string }) {
-  const tone = tones[status] ?? tones["draft"];
-  const label = labels[status] ?? status.charAt(0).toUpperCase() + status.slice(1);
+export function StatusChip({ status, label: customLabel, className }: { status: string; label?: string; className?: string }) {
+  const tone = tones[status.toLowerCase()] ?? tones["draft"];
+  const defaultLabel = labels[status.toLowerCase()] ?? status.charAt(0).toUpperCase() + status.toLowerCase().slice(1);
+  const label = customLabel ?? defaultLabel;
 
   return (
     <span

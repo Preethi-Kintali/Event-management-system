@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useBulkIssueCertificates } from "../services/certificates.api";
 import { useEvents } from "@/modules/events/services/events.api";
 import { useRegistrations } from "@/modules/registrations/services/registrations.api";
+import { BulkIssueCertificatePayload } from "../types/certificate.types";
 
 const bulkSchema = z.object({
   eventId: z.string().uuid("Event selection is required"),
@@ -46,8 +47,8 @@ export function CertificateBulkIssueDialog({ open, onOpenChange }: Props) {
 
   // Mock finding eligible participants: filtering registrations by approved status for the selected event
   const eligibleUsers = registrations
-    .filter(r => r.event.id === selectedEventId && r.status === "APPROVED")
-    .map(r => r.user);
+    .filter(r => r.eventId === selectedEventId && r.status === "APPROVED")
+    .map(r => ({ ...r.user, id: r.userId }));
 
   const onSubmit = async (data: BulkValues) => {
     if (step === 1) {
@@ -59,10 +60,12 @@ export function CertificateBulkIssueDialog({ open, onOpenChange }: Props) {
       return;
     }
 
-    bulkMutation.mutate({
+    const payload = Object.fromEntries(Object.entries({
       ...data,
-      userIds: eligibleUsers.map(u => u.id)
-    }, {
+      userIds: eligibleUsers.map(u => u.id!)
+    }).filter(([_, v]) => v !== undefined)) as unknown as BulkIssueCertificatePayload;
+
+    bulkMutation.mutate(payload, {
       onSuccess: (res) => {
         toast.success(`Successfully issued ${res.count || eligibleUsers.length} certificates`);
         reset();

@@ -29,6 +29,7 @@ export interface ListPageProps<T extends { id: string }> {
   createLabel?: string | undefined;
   createTo?: string | undefined;
   onCreate?: () => void;
+  headerActions?: ReactNode | undefined;
   rowActions?: RowAction<T>[] | undefined;
   onRowClick?: ((row: T) => void) | undefined;
   aside?: ReactNode | undefined;
@@ -140,6 +141,7 @@ export function ListPageTemplate<T extends { id: string }>({
                 </Button>
               )
             ) : null}
+            {props.headerActions}
           </>
         }
       />

@@ -79,25 +79,20 @@ export function CertificateList() {
         crumbs={[{ label: "Certificates" }]}
         columns={columns}
         rows={certificates}
-        isLoading={isLoading}
-        searchKeys={["certificateNumber", "title", "user.firstName", "user.lastName"]}
+        searchKeys={["certificateNumber", "title"]}
         facet={{
           label: "Type",
           key: "type",
           options: ["PARTICIPATION", "COMPLETION", "WINNER", "FINALIST", "JUDGE", "MENTOR", "VOLUNTEER"],
         }}
-        primaryAction={{
-          label: "Issue single",
-          icon: <Plus className="w-4 h-4 mr-2" />,
-          onClick: () => setCreateOpen(true),
-        }}
-        secondaryActions={[
-          {
-            label: "Bulk issue",
-            icon: <Download className="w-4 h-4 mr-2" />,
-            onClick: () => setBulkOpen(true),
-          },
-        ]}
+        createLabel="Issue single"
+        onCreate={() => setCreateOpen(true)}
+        headerActions={
+          <Button variant="outline" onClick={() => setBulkOpen(true)}>
+            <Download className="w-4 h-4 mr-2" />
+            Bulk issue
+          </Button>
+        }
         rowActions={[
           {
             label: "View details",
@@ -106,7 +101,6 @@ export function CertificateList() {
           {
             label: "Delete",
             onSelect: (row) => handleDelete(row.id),
-            variant: "destructive",
           },
         ]}
       />

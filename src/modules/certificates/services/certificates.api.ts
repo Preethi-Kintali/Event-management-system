@@ -16,14 +16,14 @@ export const CERTIFICATE_KEYS = {
 export function useCertificates() {
   return useQuery({
     queryKey: CERTIFICATE_KEYS.list(),
-    queryFn: () => fetchApi<Certificate[]>("/api/v1/certificates"),
+    queryFn: () => fetchApi("/api/v1/certificates") as Promise<Certificate[]>,
   });
 }
 
 export function useCertificate(id: string) {
   return useQuery({
     queryKey: CERTIFICATE_KEYS.detail(id),
-    queryFn: () => fetchApi<Certificate>(`/api/v1/certificates/${id}`),
+    queryFn: () => fetchApi(`/api/v1/certificates/${id}`) as Promise<Certificate>,
     enabled: !!id,
   });
 }
@@ -31,7 +31,7 @@ export function useCertificate(id: string) {
 export function useVerifyCertificate(code: string) {
   return useQuery({
     queryKey: CERTIFICATE_KEYS.verify(code),
-    queryFn: () => fetchApi<Certificate>(`/api/v1/certificates/verify/${code}`),
+    queryFn: () => fetchApi(`/api/v1/certificates/verify/${code}`) as Promise<Certificate>,
     enabled: !!code,
     retry: false,
   });
@@ -41,10 +41,10 @@ export function useCreateCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateCertificatePayload) =>
-      fetchApi<Certificate>("/api/v1/certificates", {
+      fetchApi("/api/v1/certificates", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      }) as Promise<Certificate>,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.list() }),
   });
 }
@@ -53,10 +53,10 @@ export function useUpdateCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CreateCertificatePayload> }) =>
-      fetchApi<Certificate>(`/api/v1/certificates/${id}`, {
+      fetchApi(`/api/v1/certificates/${id}`, {
         method: "PATCH",
         body: JSON.stringify(data),
-      }),
+      }) as Promise<Certificate>,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.list() });
@@ -68,10 +68,10 @@ export function useBulkIssueCertificates() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: BulkIssueCertificatePayload) =>
-      fetchApi<any>("/api/v1/certificates/bulk-issue", {
+      fetchApi("/api/v1/certificates/bulk-issue", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      }) as Promise<any>,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.list() }),
   });
 }
@@ -80,9 +80,9 @@ export function useRevokeCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      fetchApi<Certificate>(`/api/v1/certificates/${id}/revoke`, {
+      fetchApi(`/api/v1/certificates/${id}/revoke`, {
         method: "POST",
-      }),
+      }) as Promise<Certificate>,
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.detail(id) });
       queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.list() });
@@ -94,9 +94,9 @@ export function useDeleteCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      fetchApi<void>(`/api/v1/certificates/${id}`, {
+      fetchApi(`/api/v1/certificates/${id}`, {
         method: "DELETE",
-      }),
+      }) as Promise<void>,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.list() }),
   });
 }
