@@ -11,8 +11,14 @@ export type ApiSubmission = {
   createdAt: string;
   updatedAt: string;
   competition?: { name: string; event?: { name: string } };
-  team?: { name: string };
+  team?: { name: string; members?: { user: { firstName: string; lastName: string } }[] };
   _count?: { evaluations: number };
+  evaluations?: {
+    id: string;
+    score: number | null;
+    feedback: string | null;
+    judge: { firstName: string; lastName: string };
+  }[];
 };
 
 export type CreateSubmissionInput = {

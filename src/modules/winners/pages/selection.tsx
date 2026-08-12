@@ -9,8 +9,16 @@ import {
 } from "@/components/ui/select";
 import { Medal, CheckCircle2, MessageSquare } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useCompetitions } from "@/modules/competitions/services/competitions.api";
+import { useState } from "react";
+import { useSelectWinner, usePrizes } from "../services/winners.api";
 
 export function WinnerSelectionPage() {
+  const { data: competitions = [] } = useCompetitions();
+  const [selectedComp, setSelectedComp] = useState<string>("");
+  const { data: prizes = [] } = usePrizes(selectedComp);
+  const selectWinner = useSelectWinner();
+
   return (
     <>
       <PageHeader
@@ -29,14 +37,16 @@ export function WinnerSelectionPage() {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="comp">Competition</Label>
-              <Select defaultValue="c1">
+              <Select value={selectedComp} onValueChange={setSelectedComp}>
                 <SelectTrigger id="comp">
-                  <SelectValue />
+                  <SelectValue placeholder="Select competition..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="c1">AI for Accessibility Track</SelectItem>
-                  <SelectItem value="c2">Campus Robotics Sprint</SelectItem>
-                  <SelectItem value="c3">Impact Business Model Case</SelectItem>
+                  {competitions.map((comp) => (
+                    <SelectItem key={comp.id} value={comp.id}>
+                      {comp.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

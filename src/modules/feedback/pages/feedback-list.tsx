@@ -1,12 +1,21 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { FeedbackService } from "../services/feedback.service";
-import { Feedback } from "../types/feedback.types";
-import { useEffect, useState } from "react";
+import { useFeedbackList } from "../hooks/feedback.api";
 import { Badge } from "@/components/ui/badge";
 
-const columns: Column<Feedback>[] = [
+type FeedbackRow = {
+  id: string;
+  participant: string;
+  event: string;
+  rating: number;
+  sentiment: string;
+  category: string;
+  submittedDate: string;
+  status: string;
+};
+
+const columns: Column<FeedbackRow>[] = [
   {
     key: "participant",
     header: "Participant",
@@ -58,20 +67,31 @@ const columns: Column<Feedback>[] = [
 ];
 
 export function FeedbackListPage() {
-  const [data, setData] = useState<Feedback[]>([]);
+  const { data: responses = [], isLoading } = useFeedbackList();
 
-  useEffect(() => {
-    FeedbackService.getFeedbackList().then(setData);
-  }, []);
+  const rows: FeedbackRow[] = responses.map((r: any) => ({
+    id: r.id,
+    participant: r.participant ? `${r.participant.firstName} ${r.participant.lastName}` : "Unknown",
+    event: r.survey?.name || "Unknown",
+    rating: r.rating || 0,
+    sentiment: r.sentiment,
+    category: "General", // Default fallback
+    submittedDate: new Date(r.createdAt).toLocaleDateString(),
+    status: "Pending", // Default fallback
+  }));
+
+  if (isLoading) {
+    return <div className="p-8">Loading feedback...</div>;
+  }
 
   return (
-    <ListPageTemplate<Feedback>
+    <ListPageTemplate<FeedbackRow>
       title="Feedback Inbox"
       description="Review individual feedback submissions and respond."
       crumbs={[{ label: "Engagement" }, { label: "Feedback", to: "/feedback" }, { label: "Inbox" }]}
       columns={columns}
-      rows={data}
-      searchKeys={["participant", "event", "comments"]}
+      rows={rows}
+      searchKeys={["participant", "event"]}
       facet={{ label: "Sentiment", key: "sentiment", options: ["Positive", "Neutral", "Negative"] }}
       rowActions={[
         { label: "View Details", onSelect: () => {} },
@@ -81,3 +101,4 @@ export function FeedbackListPage() {
     />
   );
 }
+

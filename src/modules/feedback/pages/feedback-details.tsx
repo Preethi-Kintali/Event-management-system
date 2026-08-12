@@ -2,28 +2,28 @@ import { DetailsPageTemplate } from "@/components/templates/details-page";
 import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
-import { FeedbackService } from "../services/feedback.service";
-import { Feedback } from "../types/feedback.types";
-import { useEffect, useState } from "react";
+import { useFeedback } from "../hooks/feedback.api";
 import { useRouterState } from "@tanstack/react-router";
 import { User, MessageSquareQuote, History } from "lucide-react";
 import { Timeline } from "@/components/ds/timeline";
 
 export function FeedbackDetailsPage() {
-  const [record, setRecord] = useState<Feedback | null>(null);
   const routerState = useRouterState();
   const id = routerState.location.pathname.split("/").pop() || "";
+  const { data: record, isLoading } = useFeedback(id);
 
-  useEffect(() => {
-    FeedbackService.getFeedbackById(id).then((r) => setRecord(r || null));
-  }, [id]);
+  if (isLoading) return <div className="p-8">Loading feedback details...</div>;
+  if (!record) return <div className="p-8">Feedback not found.</div>;
 
-  if (!record) return null;
+  const participantName = (record as any).participant ? `${(record as any).participant.firstName} ${(record as any).participant.lastName}` : "Unknown";
+  const eventName = (record as any).survey?.name || "Unknown";
+  const submittedDate = new Date(record.createdAt).toLocaleString();
+  const status: string = "Pending"; // Default fallback
 
   return (
     <DetailsPageTemplate
-      title={`Feedback from ${record.participant}`}
-      description={record.event}
+      title={`Feedback from ${participantName}`}
+      description={eventName}
       crumbs={[
         { label: "Engagement" },
         { label: "Feedback", to: "/feedback" },
@@ -32,8 +32,8 @@ export function FeedbackDetailsPage() {
       ]}
       meta={
         <>
-          <StatusChip status={record.status === "Reviewed" ? "published" : "draft"} />
-          <span className="text-xs text-muted-foreground">{record.category}</span>
+          <StatusChip status={status === "Reviewed" ? "published" : "draft"} />
+          <span className="text-xs text-muted-foreground">General</span>
         </>
       }
       actions={
@@ -44,9 +44,9 @@ export function FeedbackDetailsPage() {
       }
       metrics={[
         { label: "Rating", value: `⭐ ${record.rating}` },
-        { label: "Sentiment", value: record.sentiment },
-        { label: "Category", value: record.category },
-        { label: "Submitted", value: record.submittedDate },
+        { label: "Sentiment", value: record.sentiment || "Unknown" },
+        { label: "Category", value: "General" },
+        { label: "Submitted", value: submittedDate },
       ]}
       overview={
         <>
@@ -57,7 +57,7 @@ export function FeedbackDetailsPage() {
                 <p className="text-lg italic text-foreground mb-4">"{record.comments}"</p>
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
                   <User className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">{record.participant}</span>
+                  <span className="text-sm font-medium">{participantName}</span>
                   <span className="text-xs text-muted-foreground"> • Participant profile</span>
                 </div>
               </div>
@@ -74,22 +74,22 @@ export function FeedbackDetailsPage() {
                       id: "1",
                       title: "Feedback Submitted",
                       detail: "Via post-event survey link.",
-                      time: record.submittedDate,
+                      time: submittedDate,
                       state: "done",
                     },
                     {
                       id: "2",
                       title: "Automated Sentiment Analysis",
                       detail: `Flagged as ${record.sentiment}.`,
-                      time: record.submittedDate,
+                      time: submittedDate,
                       state: "done",
                     },
                     {
                       id: "3",
                       title: "Status: Reviewed",
                       detail: "Manually reviewed by admin.",
-                      time: record.status === "Reviewed" ? "Yesterday" : "Pending",
-                      state: record.status === "Reviewed" ? "done" : "current",
+                      time: status === "Reviewed" ? "Yesterday" : "Pending",
+                      state: status === "Reviewed" ? "done" : "current",
                     },
                   ]}
                 />
@@ -101,3 +101,4 @@ export function FeedbackDetailsPage() {
     />
   );
 }
+

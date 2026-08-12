@@ -1,0 +1,202 @@
+[
+  {
+    "module": "auth",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": false,
+    "endpoints": 4
+  },
+  {
+    "module": "organizations",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 9
+  },
+  {
+    "module": "users",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 6
+  },
+  {
+    "module": "roles",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 5
+  },
+  {
+    "module": "permissions",
+    "route": true,
+    "controller": false,
+    "service": false,
+    "repo": false,
+    "endpoints": 1
+  },
+  {
+    "module": "events",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 5
+  },
+  {
+    "module": "competitions",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 5
+  },
+  {
+    "module": "registrations",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 5
+  },
+  {
+    "module": "teams",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 5
+  },
+  {
+    "module": "submissions",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 5
+  },
+  {
+    "module": "evaluations",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 4
+  },
+  {
+    "module": "judges",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 3
+  },
+  {
+    "module": "mentors",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 7
+  },
+  {
+    "module": "volunteers",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 7
+  },
+  {
+    "module": "attendance",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 4
+  },
+  {
+    "module": "certificates",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 9
+  },
+  {
+    "module": "communications",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 7
+  },
+  {
+    "module": "notifications",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 4
+  },
+  {
+    "module": "winners",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 6
+  },
+  {
+    "module": "badges",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 6
+  },
+  {
+    "module": "learning",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 17
+  },
+  {
+    "module": "community",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 15
+  },
+  {
+    "module": "feedback",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 10
+  },
+  {
+    "module": "recruitment",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 9
+  },
+  {
+    "module": "sponsors",
+    "route": true,
+    "controller": true,
+    "service": true,
+    "repo": true,
+    "endpoints": 8
+  }
+]

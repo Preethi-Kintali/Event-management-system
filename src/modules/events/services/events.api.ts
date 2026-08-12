@@ -42,6 +42,43 @@ export function useEvent(id: string) {
   });
 }
 
+export function useEventDashboard(id: string) {
+  return useQuery({
+    queryKey: ["events", id, "dashboard"],
+    queryFn: async () => {
+      const res = await fetchApi(`/events/${id}/dashboard`);
+      return res.data as {
+        registrationTrend: any[];
+        metrics: {
+          registrations: number;
+          teams: number;
+          submissions: number;
+          revenue: number;
+        };
+      };
+    },
+    enabled: !!id,
+  });
+}
+
+export function useEventSessions(id: string) {
+  return useQuery({
+    queryKey: ["events", id, "sessions"],
+    queryFn: async () => {
+      const res = await fetchApi(`/events/${id}/sessions`);
+      return res.data as {
+        id: string;
+        name: string;
+        description: string;
+        startTime: string;
+        endTime: string;
+        status: string;
+      }[];
+    },
+    enabled: !!id,
+  });
+}
+
 export function useCreateEvent() {
   const queryClient = useQueryClient();
   return useMutation({

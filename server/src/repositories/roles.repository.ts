@@ -4,7 +4,10 @@ export class RoleRepository {
   static async findAll(orgId?: string) {
     return prisma.role.findMany({
       where: orgId ? { OR: [{ organizationId: orgId }, { organizationId: null }] } : { organizationId: null },
-      include: { permissions: { include: { permission: true } } }
+      include: { 
+        permissions: { include: { permission: true } },
+        _count: { select: { members: true } }
+      }
     });
   }
 

@@ -90,42 +90,169 @@ enum CertificateStatus {
   REVOKED
 }
 
+enum CommunicationType {
+  ANNOUNCEMENT
+  ALERT
+  REMINDER
+}
+
+enum CommunicationStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum NotificationType {
+  ANNOUNCEMENT
+  EVENT
+  REGISTRATION
+  TEAM
+  SUBMISSION
+  EVALUATION
+  CERTIFICATE
+  SYSTEM
+}
+
+// Payment Enums
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  RAZORPAY
+  OTHER
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  VOID
+  REFUNDED
+}
+
 // Models
 model User {
-  id                String               @id @default(uuid())
-  email             String               @unique
-  passwordHash      String
-  firstName         String?
-  lastName          String?
-  status            UserStatus           @default(PENDING)
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
-  memberships       OrganizationMember[]
-  registrations     Registration[]
-  teamMembers       TeamMember[]
-  evaluations       Evaluation[]
-  auditLogs         AuditLog[]
-  mentorProfile     Mentor?
-  volunteerProfile  Volunteer?
-  attendanceRecords AttendanceRecord[]
-  Certificate       Certificate[]
+  id                    String               @id @default(uuid())
+  email                 String               @unique
+  passwordHash          String
+  firstName             String?
+  lastName              String?
+  status                UserStatus           @default(PENDING)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  memberships           OrganizationMember[]
+  registrations         Registration[]
+  teamMembers           TeamMember[]
+  evaluations           Evaluation[]
+  auditLogs             AuditLog[]
+  mentorProfile         Mentor?
+  volunteerProfile      Volunteer?
+  attendanceRecords     AttendanceRecord[]
+  Certificate           Certificate[]
+  communicationsCreated Communication[]
+  notifications         Notification[]       @relation("NotificationRecipient")
+  winnersSelected       Winner[]             @relation("WinnerSelector")
+  badgesAwarded         BadgeAward[]         @relation("BadgeAwarder")
+  badgesReceived        BadgeAward[]         @relation("BadgeRecipient")
+  winningEntries        Winner[]
+
+  // MFA relations
+  mfa                   UserMfa?
+  recoveryCodes         UserRecoveryCode[]
+
+  // Phase 4D relations
+  coursesInstructed   Course[]           @relation("CourseInstructor")
+  courseEnrollments   CourseEnrollment[] @relation("CourseParticipant")
+  resourcesUploaded   LearningResource[] @relation("ResourceUploader")
+  workshopsInstructed Workshop[]         @relation("WorkshopInstructor")
+  communityGroups     GroupMembership[]  @relation("GroupMember")
+  discussionsAuthored Discussion[]       @relation("DiscussionAuthor")
+  discussionReplies   DiscussionReply[]  @relation("ReplyAuthor")
+  surveyResponses     SurveyResponse[]   @relation("SurveyParticipant")
+  jobApplications     JobApplication[]   @relation("JobCandidate")
+
+  // Phase 4F relations
+  workflowsCreated      Workflow[]    @relation("WorkflowCreator")
+  integrationsConnected Integration[] @relation("IntegrationConnector")
+  apiKeysCreated        ApiKey[]      @relation("ApiKeyCreator")
+  aiRequestsMade        AIRequest[]   @relation("AIRequester")
+
+  // Phase 5 Enterprise Security
+  sessions       UserSession[]
+  securityEvents SecurityEvent[]
 }
 
 model Organization {
-  id          String               @id @default(uuid())
-  name        String
-  slug        String               @unique
-  status      OrganizationStatus   @default(PENDING)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  members     OrganizationMember[]
-  roles       Role[]
-  events      Event[]
-  auditLogs   AuditLog[]
-  judges      Judge[]
-  mentors     Mentor[]
-  volunteers  Volunteer[]
-  Certificate Certificate[]
+  id             String               @id @default(uuid())
+  name           String
+  slug           String               @unique
+  status         OrganizationStatus   @default(PENDING)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  members        OrganizationMember[]
+  roles          Role[]
+  events         Event[]
+  auditLogs      AuditLog[]
+  judges         Judge[]
+  mentors        Mentor[]
+  volunteers     Volunteer[]
+  Certificate    Certificate[]
+  communications Communication[]
+  notifications  Notification[]
+  prizes         Prize[]
+  winners        Winner[]
+  badges         Badge[]
+  badgeAwards    BadgeAward[]
+  achievements   Achievement[]
+
+  // Phase 4D relations
+  courses           Course[]
+  learningResources LearningResource[]
+  workshops         Workshop[]
+  communityGroups   CommunityGroup[]
+  discussions       Discussion[]
+  surveys           Survey[]
+  jobPostings       JobPosting[]
+  sponsors          Sponsor[]
+
+  // Phase 4F relations
+  workflows           Workflow[]
+  integrations        Integration[]
+  apiKeys             ApiKey[]
+  webhooks            Webhook[]
+  aiValidationRecords AIValidationRecord[]
+  aiRequests          AIRequest[]
+
+  // Payment & Billing relations
+  billingProfile OrganizationBillingProfile?
+  subscriptions  Subscription[]
+  payments       Payment[]
+  invoices       Invoice[]
+  coupons        Coupon[]
+  refunds        Refund[]
+
+  // Phase 5 Enterprise Security
+  securityPolicies OrganizationSecurityPolicy[]
+  securityEvents   SecurityEvent[]
+  userSessions     UserSession[]
 }
 
 model OrganizationMember {
@@ -191,6 +318,10 @@ model Event {
   volunteerEvents    VolunteerEvent[]
   attendanceSessions AttendanceSession[]
   Certificate        Certificate[]
+
+  // Phase 4D relations
+  surveys      Survey[]
+  sponsorships Sponsorship[]
 }
 
 model Competition {
@@ -205,6 +336,8 @@ model Competition {
   submissions      Submission[]
   judgeAssignments JudgeCompetition[]
   Certificate      Certificate[]
+  prizes           Prize[]
+  winners          Winner[]
 }
 
 model Registration {
@@ -230,6 +363,7 @@ model Team {
   members           TeamMember[]
   submissions       Submission[]
   mentorAssignments TeamMentor[]
+  winners           Winner[]
 }
 
 model TeamMember {
@@ -257,6 +391,10 @@ model Submission {
   team          Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
   competition   Competition      @relation(fields: [competitionId], references: [id], onDelete: Cascade)
   evaluations   Evaluation[]
+
+  // Phase 4F relations
+  aiValidationRecord AIValidationRecord?
+  winners            Winner[]
 }
 
 model Judge {
@@ -413,4 +551,738 @@ model AuditLog {
   createdAt      DateTime     @default(now())
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   actor          User         @relation(fields: [actorId], references: [id], onDelete: Cascade)
+}
+
+model Communication {
+  id             String              @id @default(uuid())
+  organizationId String
+  title          String
+  content        String
+  type           CommunicationType   @default(ANNOUNCEMENT)
+  status         CommunicationStatus @default(DRAFT)
+  audience       String // e.g., "ALL", "JUDGES", "EVENT:eventId"
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  createdBy      String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator      User         @relation(fields: [createdBy], references: [id])
+}
+
+model Notification {
+  id              String           @id @default(uuid())
+  organizationId  String
+  recipientUserId String
+  title           String
+  message         String
+  type            NotificationType @default(SYSTEM)
+  isRead          Boolean          @default(false)
+  readAt          DateTime?
+  link            String?
+  createdAt       DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recipient    User         @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------
+// Phase 4C: Winners & Prizes
+// ---------------------------------------------------------
+
+model Prize {
+  id             String   @id @default(uuid())
+  organizationId String
+  competitionId  String
+  name           String
+  position       String // e.g., "1st Place", "Finalist"
+  value          Float?
+  currency       String?
+  description    String?
+  status         String   @default("PENDING") // PENDING, PAID
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  competition  Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  winners      Winner[]
+}
+
+model Winner {
+  id             String   @id @default(uuid())
+  organizationId String
+  competitionId  String
+  submissionId   String
+  teamId         String? // Reference to the winning team
+  userId         String? // Reference to an individual winning user (if applicable)
+  position       String
+  status         String   @default("PENDING") // PENDING, FINALIZED
+  prizeId        String?
+  selectedBy     String
+  selectedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  competition  Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  submission   Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prize        Prize?       @relation(fields: [prizeId], references: [id], onDelete: SetNull)
+  selector     User         @relation("WinnerSelector", fields: [selectedBy], references: [id])
+
+  @@unique([competitionId, submissionId]) // A submission can only win once per competition
+}
+
+// ---------------------------------------------------------
+// Phase 4C: Badges & Achievements
+// ---------------------------------------------------------
+
+model Badge {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  icon           String?
+  type           String // PARTICIPATION, WINNER, ACHIEVEMENT, FINALIST
+  criteria       String? // Basic criteria representation (e.g. "WIN_COMPETITION")
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  awards       BadgeAward[]
+}
+
+model BadgeAward {
+  id              String    @id @default(uuid())
+  organizationId  String
+  badgeId         String
+  recipientUserId String
+  reason          String?
+  awardedBy       String?
+  awardedAt       DateTime  @default(now())
+  revokedAt       DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  badge        Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  recipient    User         @relation("BadgeRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+  awarder      User?        @relation("BadgeAwarder", fields: [awardedBy], references: [id], onDelete: SetNull)
+
+  @@unique([badgeId, recipientUserId]) // One badge per user to prevent duplicates
+}
+
+model Achievement {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  criteria       String // e.g. "FIRST_SUBMISSION", "COMPLETED_5_EVENTS"
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------
+// Phase 4D: Learning, Community, Feedback, Recruitment, Sponsors
+// ---------------------------------------------------------
+
+// LEARNING
+model Course {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  category       String
+  instructorId   String
+  level          String // Beginner, Intermediate, Advanced
+  status         String   @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  instructor   User               @relation("CourseInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
+  enrollments  CourseEnrollment[]
+}
+
+model CourseEnrollment {
+  id         String   @id @default(uuid())
+  courseId   String
+  userId     String
+  status     String   @default("ENROLLED") // ENROLLED, COMPLETED, DROPPED
+  progress   Int      @default(0) // percentage 0-100
+  enrolledAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation("CourseParticipant", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+}
+
+model LearningResource {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  type           String
+  category       String
+  downloads      Int      @default(0)
+  url            String?
+  status         String   @default("ACTIVE") // ACTIVE, ARCHIVED
+  uploadedById   String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploadedBy   User         @relation("ResourceUploader", fields: [uploadedById], references: [id], onDelete: Cascade)
+}
+
+model Workshop {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  instructorId   String
+  date           DateTime
+  duration       String // e.g. "2 hours"
+  status         String   @default("UPCOMING") // UPCOMING, LIVE, COMPLETED, CANCELLED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  instructor   User         @relation("WorkshopInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
+}
+
+// COMMUNITY
+model CommunityGroup {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  category       String
+  status         String   @default("ACTIVE") // ACTIVE, INACTIVE
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members      GroupMembership[]
+}
+
+model GroupMembership {
+  id       String   @id @default(uuid())
+  groupId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  group CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User           @relation("GroupMember", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model Discussion {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  category       String
+  status         String   @default("OPEN") // OPEN, RESOLVED, LOCKED
+  views          Int      @default(0)
+  likes          Int      @default(0)
+  authorId       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author       User              @relation("DiscussionAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  replies      DiscussionReply[]
+}
+
+model DiscussionReply {
+  id           String   @id @default(uuid())
+  discussionId String
+  authorId     String
+  content      String
+  likes        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  author     User       @relation("ReplyAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+// FEEDBACK
+model Survey {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  eventId        String?
+  audience       String // e.g. "ALL", "JUDGES"
+  status         String   @default("DRAFT") // DRAFT, PUBLISHED, CLOSED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  event        Event?           @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  questions    SurveyQuestion[]
+  responses    SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id       String @id @default(uuid())
+  surveyId String
+  text     String
+  type     String // RATING, TEXT, MULTIPLE_CHOICE
+  order    Int    @default(0)
+
+  survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+}
+
+model SurveyResponse {
+  id            String   @id @default(uuid())
+  surveyId      String
+  participantId String
+  sentiment     String? // Positive, Neutral, Negative
+  rating        Int?
+  comments      String?
+  createdAt     DateTime @default(now())
+
+  survey      Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  participant User   @relation("SurveyParticipant", fields: [participantId], references: [id], onDelete: Cascade)
+}
+
+// RECRUITMENT
+model JobPosting {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  company        String
+  roleType       String // Full-time, Internship, etc
+  status         String   @default("OPEN") // OPEN, CLOSED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id          String   @id @default(uuid())
+  jobId       String
+  candidateId String
+  stage       String   @default("APPLIED") // APPLIED, SHORTLISTED, INTERVIEW, OFFER, REJECTED
+  score       Float?
+  source      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate User       @relation("JobCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+// SPONSORS
+model Sponsor {
+  id             String    @id @default(uuid())
+  organizationId String
+  name           String
+  tier           String // Platinum, Gold, Silver
+  committedValue Float?
+  status         String    @default("ACTIVE") // ACTIVE, INACTIVE
+  renewalDate    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contacts     SponsorContact[]
+  sponsorships Sponsorship[]
+}
+
+model SponsorContact {
+  id        String  @id @default(uuid())
+  sponsorId String
+  name      String
+  email     String
+  role      String?
+
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+}
+
+model Sponsorship {
+  id                 String   @id @default(uuid())
+  sponsorId          String
+  eventId            String
+  deliverablesMet    Int      @default(0)
+  deliverablesTarget Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+// PHASE 4F: AI, Automation & Integrations
+
+// WORKFLOWS
+model Workflow {
+  id             String    @id @default(uuid())
+  organizationId String
+  name           String
+  trigger        String
+  actions        String[]
+  status         String    @default("Draft")
+  lastRun        DateTime?
+  executions     Int       @default(0)
+  successRate    Float     @default(0.0)
+  createdById    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization  Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy     User                @relation("WorkflowCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  workflowExecs WorkflowExecution[]
+}
+
+model WorkflowExecution {
+  id           String    @id @default(uuid())
+  workflowId   String
+  triggerEvent String
+  started      DateTime  @default(now())
+  completed    DateTime?
+  durationMs   Int?
+  status       String    @default("Running")
+  error        String?
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model WorkflowTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  trigger     String
+  actionCount Int      @default(0)
+  category    String
+  createdAt   DateTime @default(now())
+}
+
+// INTEGRATIONS
+model Integration {
+  id             String    @id @default(uuid())
+  organizationId String
+  name           String
+  category       String
+  description    String?
+  status         String    @default("Disconnected")
+  logo           String?
+  connectedById  String?
+  connectedDate  DateTime?
+  lastSync       DateTime?
+  apiUsage       Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  connectedBy  User?        @relation("IntegrationConnector", fields: [connectedById], references: [id], onDelete: SetNull)
+}
+
+model ApiKey {
+  id             String    @id @default(uuid())
+  organizationId String
+  name           String
+  environment    String
+  keyHash        String
+  maskedKey      String
+  createdById    String
+  lastUsed       DateTime?
+  status         String    @default("Active")
+  expiry         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation("ApiKeyCreator", fields: [createdById], references: [id], onDelete: Cascade)
+}
+
+model Webhook {
+  id             String    @id @default(uuid())
+  organizationId String
+  name           String
+  endpoint       String
+  events         String[]
+  status         String    @default("Active")
+  lastDelivery   DateTime?
+  successRate    Float     @default(0.0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  deliveries   WebhookDelivery[]
+}
+
+model WebhookDelivery {
+  id           String   @id @default(uuid())
+  webhookId    String
+  event        String
+  status       String
+  responseCode Int?
+  durationMs   Int?
+  createdAt    DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+}
+
+// AI VALIDATION
+model AIValidationRecord {
+  id              String   @id @default(uuid())
+  organizationId  String
+  submissionId    String   @unique
+  status          String   @default("pending")
+  plagiarismScore Float    @default(0.0)
+  aiContentScore  Float    @default(0.0)
+  duplicateScore  Float    @default(0.0)
+  codeQuality     Float    @default(0.0)
+  grammarScore    Float    @default(0.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  submission   Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
+
+// AI COPILOT
+model AIRequest {
+  id             String   @id @default(uuid())
+  organizationId String
+  feature        String
+  tokens         Int      @default(0)
+  durationMs     Int      @default(0)
+  status         String   @default("Success")
+  requestedById  String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requestedBy  User         @relation("AIRequester", fields: [requestedById], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// PAYMENT & BILLING MODELS
+// ==========================================
+
+model SubscriptionPlan {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  stripeProductId String?  @unique
+  stripePriceId   String?  @unique
+  price           Float
+  currency        String   @default("USD")
+  interval        String   @default("month") // month, year
+  features        Json?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model OrganizationBillingProfile {
+  id               String   @id @default(uuid())
+  organizationId   String   @unique
+  email            String?
+  phone            String?
+  addressLine1     String?
+  addressLine2     String?
+  city             String?
+  state            String?
+  postalCode       String?
+  country          String?
+  taxId            String?
+  stripeCustomerId String?  @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  organizationId     String             @unique
+  planId             String
+  status             SubscriptionStatus @default(INACTIVE)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean            @default(false)
+  provider           PaymentProvider
+  providerSubId      String?            @unique
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan         SubscriptionPlan @relation(fields: [planId], references: [id])
+}
+
+model Payment {
+  id                String          @id @default(uuid())
+  organizationId    String
+  amount            Float
+  currency          String
+  status            PaymentStatus   @default(PENDING)
+  provider          PaymentProvider
+  providerPaymentId String?         @unique
+  description       String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoice      Invoice?
+  refunds      Refund[]
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  organizationId String
+  paymentId      String        @unique
+  invoiceNumber  String        @unique
+  subtotal       Float
+  taxAmount      Float
+  discountAmount Float
+  total          Float
+  currency       String
+  status         InvoiceStatus @default(DRAFT)
+  issuedAt       DateTime?
+  paidAt         DateTime?
+  invoiceUrl     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  payment      Payment      @relation(fields: [paymentId], references: [id])
+}
+
+model Coupon {
+  id             String    @id @default(uuid())
+  organizationId String
+  code           String
+  type           String // PERCENTAGE, FIXED
+  value          Float
+  isActive       Boolean   @default(true)
+  maxUses        Int?
+  usedCount      Int       @default(0)
+  validFrom      DateTime?
+  validUntil     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, code])
+}
+
+model Refund {
+  id               String        @id @default(uuid())
+  organizationId   String
+  paymentId        String
+  amount           Float
+  reason           String?
+  status           PaymentStatus // PROCESSING, SUCCEEDED, FAILED
+  providerRefundId String?       @unique
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  payment      Payment      @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+model PaymentWebhookEvent {
+  id              String          @id @default(uuid())
+  provider        PaymentProvider
+  providerEventId String          @unique
+  eventType       String
+  status          String // PENDING, PROCESSED, FAILED
+  processedAt     DateTime?
+  failureReason   String?
+  payload         Json
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+// =========================================================================
+// PHASE 5: ENTERPRISE SECURITY
+// =========================================================================
+
+model UserSession {
+  id              String    @id @default(uuid())
+  userId          String
+  organizationId  String?
+  tokenIdentifier String    @unique
+  ipAddress       String?
+  userAgent       String?
+  device          String?
+  loginTime       DateTime  @default(now())
+  lastActivityAt  DateTime  @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+model OrganizationSecurityPolicy {
+  id                   String   @id @default(uuid())
+  organizationId       String   @unique
+  mfaEnabled           Boolean  @default(false)
+  mfaRequiredForAdmins Boolean  @default(false)
+  minPasswordLength    Int      @default(12)
+  passwordExpiryDays   Int      @default(90)
+  lockoutThreshold     Int      @default(5)
+  ssoEnabled           Boolean  @default(false)
+  ssoProvider          String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model SecurityEvent {
+  id             String   @id @default(uuid())
+  organizationId String
+  userId         String?
+  event          String
+  severity       String // Critical, High, Medium, Low, Info
+  ipAddress      String?
+  device         String?
+  status         String // Success, Blocked, Failed, Active
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([createdAt])
+}
+
+model UserMfa {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  secret          String
+  enabled         Boolean   @default(false)
+  verifiedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserRecoveryCode {
+  id        String    @id @default(uuid())
+  userId    String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

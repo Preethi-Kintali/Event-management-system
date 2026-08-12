@@ -12,6 +12,7 @@ router.use(requireTenant);
 
 router.get("/", requirePermission("competitions.read"), CompetitionController.findAll);
 router.get("/:id", requirePermission("competitions.read"), CompetitionController.findById);
+router.get("/:id/dashboard", requirePermission("competitions.read"), CompetitionController.getCompetitionDashboard);
 router.post("/", requirePermission("competitions.manage"), validateRequest(createCompetitionSchema), CompetitionController.create);
 router.patch("/:id", requirePermission("competitions.manage"), validateRequest(updateCompetitionSchema), CompetitionController.update);
 router.delete("/:id", requirePermission("competitions.manage"), CompetitionController.delete);

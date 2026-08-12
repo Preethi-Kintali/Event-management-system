@@ -1,31 +1,29 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { WinnersService } from "../services/winners.service";
-import { PrizeDistribution } from "../types/winners.types";
-import { useEffect, useState } from "react";
+import { usePrizes } from "../services/winners.api";
 
-const columns: Column<PrizeDistribution>[] = [
+const columns: Column<any>[] = [
   {
-    key: "winner",
-    header: "Recipient",
+    key: "name",
+    header: "Prize Name",
     sortable: true,
-    render: (row) => <span className="font-medium">{row.winner}</span>,
+    render: (row) => <span className="font-medium">{row.name}</span>,
   },
-  { key: "competition", header: "Competition", sortable: true },
-  { key: "prize", header: "Prize Type", sortable: true },
+  { key: "competition", header: "Competition", sortable: true, render: (row) => row.competition?.name },
+  { key: "position", header: "Position", sortable: true },
   {
     key: "amount",
     header: "Value",
     sortable: true,
-    render: (row) => <span className="tabular-nums font-semibold">{row.amount}</span>,
+    render: (row) => <span className="tabular-nums font-semibold">{row.currency} {row.value}</span>,
   },
   {
-    key: "distributionDate",
-    header: "Distribution Date",
+    key: "createdAt",
+    header: "Created Date",
     sortable: true,
     render: (row) => (
-      <span className="text-xs text-muted-foreground">{row.distributionDate || "—"}</span>
+      <span className="text-xs text-muted-foreground">{new Date(row.createdAt).toLocaleDateString()}</span>
     ),
   },
   {
@@ -34,30 +32,17 @@ const columns: Column<PrizeDistribution>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Distributed") statusId = "published";
-      if (row.status === "Processing") statusId = "active";
-      if (row.status === "Pending") statusId = "draft";
-      if (row.status === "Failed") statusId = "suspended";
+      if (row.status === "PAID") statusId = "published";
       return <StatusChip status={statusId as any} />;
     },
-  },
-  {
-    key: "reference",
-    header: "Reference",
-    sortable: false,
-    render: (row) => <span className="text-xs font-mono">{row.reference || "—"}</span>,
   },
 ];
 
 export function PrizeDistributionPage() {
-  const [data, setData] = useState<PrizeDistribution[]>([]);
-
-  useEffect(() => {
-    WinnersService.getPrizes().then(setData);
-  }, []);
+  const { data = [] } = usePrizes();
 
   return (
-    <ListPageTemplate<PrizeDistribution>
+    <ListPageTemplate<any>
       title="Prize Distribution"
       description="Track and process grants, cash prizes, and physical awards."
       crumbs={[{ label: "Engagement" }, { label: "Winners", to: "/winners" }, { label: "Prizes" }]}

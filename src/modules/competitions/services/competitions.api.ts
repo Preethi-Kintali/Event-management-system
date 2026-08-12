@@ -39,6 +39,26 @@ export function useCompetition(id: string) {
   });
 }
 
+export function useCompetitionDashboard(id: string) {
+  return useQuery({
+    queryKey: ["competitions", id, "dashboard"],
+    queryFn: async () => {
+      const res = await fetchApi(`/competitions/${id}/dashboard`);
+      return res.data as {
+        evaluationLoad: any[];
+        kanbanColumns: any[];
+        metrics: {
+          teams: number;
+          submissions: number;
+          avgScore: number;
+          judges: number;
+        };
+      };
+    },
+    enabled: !!id,
+  });
+}
+
 export function useCreateCompetition() {
   const queryClient = useQueryClient();
   return useMutation({

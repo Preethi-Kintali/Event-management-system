@@ -1,20 +1,28 @@
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+
 import { useCreateCertificate } from "../services/certificates.api";
 import { useEvents } from "@/modules/events/services/events.api";
+import { useRegistrations } from "@/modules/registrations/services/registrations.api";
 import { CreateCertificatePayload } from "../types/certificate.types";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  userId: z.string().uuid("Recipient user ID is required"),
-  eventId: z.string().uuid("Event selection is required"),
+  eventId: z.string().min(1, "Event selection is required").uuid("Must be a valid event ID"),
+  userId: z.string().min(1, "Recipient user ID is required").uuid("Must be a valid UUID"),
   type: z.enum(["PARTICIPATION", "COMPLETION", "WINNER", "FINALIST", "JUDGE", "MENTOR", "VOLUNTEER"]),
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
@@ -28,21 +36,43 @@ interface Props {
 }
 
 export function CertificateCreateDialog({ open, onOpenChange }: Props) {
+  const [comboboxOpen, setComboboxOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const { data: events = [] } = useEvents();
   const createMutation = useCreateCertificate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch, reset } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: "PARTICIPATION",
+      userId: "",
+      eventId: "",
     },
   });
 
   const selectedEventId = watch("eventId");
   const selectedType = watch("type");
+  const selectedUserId = watch("userId");
+
+  const { data: registrations = [], isLoading: isLoadingRegistrations } = useRegistrations(selectedEventId, debouncedSearch);
+
+  // Reset user selection when event changes
+  useEffect(() => {
+    if (selectedEventId) {
+      setValue("userId", "", { shouldValidate: false });
+    }
+  }, [selectedEventId, setValue]);
 
   const onSubmit = async (data: FormValues) => {
-    const payload = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined)) as CreateCertificatePayload;
+    const payload = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined)) as unknown as CreateCertificatePayload;
     createMutation.mutate(payload, {
       onSuccess: () => {
         toast.success("Certificate issued successfully");
@@ -84,14 +114,74 @@ export function CertificateCreateDialog({ open, onOpenChange }: Props) {
             {errors.eventId && <p className="text-sm text-destructive">{errors.eventId.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="userId">Recipient User ID</Label>
-            <Input 
-              id="userId" 
-              placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000" 
-              {...register("userId")}
-              className={errors.userId ? "border-destructive" : ""}
-            />
+          <div className="space-y-2 flex flex-col">
+            <Label htmlFor="userId">Recipient</Label>
+            <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="userId"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={comboboxOpen}
+                  disabled={!selectedEventId || isLoadingRegistrations}
+                  className={cn(
+                    "w-full justify-between",
+                    !selectedUserId && "text-muted-foreground",
+                    errors.userId ? "border-destructive" : ""
+                  )}
+                >
+                  {selectedUserId
+                    ? registrations.find((r) => r.userId === selectedUserId)?.user?.firstName
+                      ? `${registrations.find((r) => r.userId === selectedUserId)?.user?.firstName} ${registrations.find((r) => r.userId === selectedUserId)?.user?.lastName}`
+                      : registrations.find((r) => r.userId === selectedUserId)?.user?.email
+                    : !selectedEventId 
+                      ? "Select an event first" 
+                      : isLoadingRegistrations 
+                        ? "Loading participants..." 
+                        : "Select participant..."}
+                  {isLoadingRegistrations ? (
+                    <Loader2 className="ml-2 h-4 w-4 shrink-0 opacity-50 animate-spin" />
+                  ) : (
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[450px] p-0">
+                <Command shouldFilter={false}>
+                  <CommandInput 
+                    placeholder="Search participant by name or email..." 
+                    value={searchTerm}
+                    onValueChange={setSearchTerm}
+                  />
+                  <CommandList>
+                    <CommandEmpty>No eligible participants found.</CommandEmpty>
+                    <CommandGroup>
+                      {registrations.map((reg) => (
+                        <CommandItem
+                          key={reg.id}
+                          value={`${reg.user?.firstName} ${reg.user?.lastName} ${reg.user?.email}`} // Make it searchable by name and email
+                          onSelect={() => {
+                            setValue("userId", reg.userId, { shouldValidate: true });
+                            setComboboxOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedUserId === reg.userId ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span>{reg.user?.firstName} {reg.user?.lastName}</span>
+                            <span className="text-xs text-muted-foreground">{reg.user?.email}</span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {errors.userId && <p className="text-sm text-destructive">{errors.userId.message}</p>}
           </div>
 

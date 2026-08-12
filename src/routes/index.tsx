@@ -20,10 +20,10 @@ import {
   activities,
   categoryMix,
   deadlines,
-  evaluationLoad,
   events,
-  registrationTrend,
+  submissions,
 } from "@/lib/mock-data";
+import { registrationTrend, evaluationLoad } from "@/lib/mock-analytics";
 
 export const Route = createFileRoute("/")({
   head: () => ({

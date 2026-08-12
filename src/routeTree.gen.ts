@@ -36,8 +36,14 @@ import { Route as AiCopilotRubricRouteImport } from './routes/ai-copilot.rubric'
 import { Route as AiValidationIndexRouteImport } from './routes/ai-validation.index'
 import { Route as AiValidationIdRouteImport } from './routes/ai-validation.$id'
 import { Route as AiValidationQueueRouteImport } from './routes/ai-validation.queue'
+import { Route as AnalyticsAiRouteImport } from './routes/analytics.ai'
+import { Route as AnalyticsAttendanceRouteImport } from './routes/analytics.attendance'
+import { Route as AnalyticsCertificatesRouteImport } from './routes/analytics.certificates'
+import { Route as AnalyticsEvaluationsRouteImport } from './routes/analytics.evaluations'
 import { Route as AnalyticsParticipationRouteImport } from './routes/analytics.participation'
+import { Route as AnalyticsRecruitmentRouteImport } from './routes/analytics.recruitment'
 import { Route as AnalyticsRevenueRouteImport } from './routes/analytics.revenue'
+import { Route as AnalyticsSponsorsRouteImport } from './routes/analytics.sponsors'
 import { Route as AttendanceIndexRouteImport } from './routes/attendance.index'
 import { Route as AttendanceQrRouteImport } from './routes/attendance.qr'
 import { Route as AttendanceRecordsRouteImport } from './routes/attendance.records'
@@ -256,14 +262,44 @@ const AiValidationQueueRoute = AiValidationQueueRouteImport.update({
   path: '/ai-validation/queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsAiRoute = AnalyticsAiRouteImport.update({
+  id: '/analytics/ai',
+  path: '/analytics/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsAttendanceRoute = AnalyticsAttendanceRouteImport.update({
+  id: '/analytics/attendance',
+  path: '/analytics/attendance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsCertificatesRoute = AnalyticsCertificatesRouteImport.update({
+  id: '/analytics/certificates',
+  path: '/analytics/certificates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsEvaluationsRoute = AnalyticsEvaluationsRouteImport.update({
+  id: '/analytics/evaluations',
+  path: '/analytics/evaluations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsParticipationRoute = AnalyticsParticipationRouteImport.update({
   id: '/analytics/participation',
   path: '/analytics/participation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRecruitmentRoute = AnalyticsRecruitmentRouteImport.update({
+  id: '/analytics/recruitment',
+  path: '/analytics/recruitment',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsRevenueRoute = AnalyticsRevenueRouteImport.update({
   id: '/analytics/revenue',
   path: '/analytics/revenue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsSponsorsRoute = AnalyticsSponsorsRouteImport.update({
+  id: '/analytics/sponsors',
+  path: '/analytics/sponsors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AttendanceIndexRoute = AttendanceIndexRouteImport.update({
@@ -697,8 +733,14 @@ export interface FileRoutesByFullPath {
   '/ai-copilot/rubric': typeof AiCopilotRubricRoute
   '/ai-validation/$id': typeof AiValidationIdRoute
   '/ai-validation/queue': typeof AiValidationQueueRoute
+  '/analytics/ai': typeof AnalyticsAiRoute
+  '/analytics/attendance': typeof AnalyticsAttendanceRoute
+  '/analytics/certificates': typeof AnalyticsCertificatesRoute
+  '/analytics/evaluations': typeof AnalyticsEvaluationsRoute
   '/analytics/participation': typeof AnalyticsParticipationRoute
+  '/analytics/recruitment': typeof AnalyticsRecruitmentRoute
   '/analytics/revenue': typeof AnalyticsRevenueRoute
+  '/analytics/sponsors': typeof AnalyticsSponsorsRoute
   '/attendance/qr': typeof AttendanceQrRoute
   '/attendance/records': typeof AttendanceRecordsRoute
   '/attendance/reports': typeof AttendanceReportsRoute
@@ -808,8 +850,14 @@ export interface FileRoutesByTo {
   '/ai-copilot/rubric': typeof AiCopilotRubricRoute
   '/ai-validation/$id': typeof AiValidationIdRoute
   '/ai-validation/queue': typeof AiValidationQueueRoute
+  '/analytics/ai': typeof AnalyticsAiRoute
+  '/analytics/attendance': typeof AnalyticsAttendanceRoute
+  '/analytics/certificates': typeof AnalyticsCertificatesRoute
+  '/analytics/evaluations': typeof AnalyticsEvaluationsRoute
   '/analytics/participation': typeof AnalyticsParticipationRoute
+  '/analytics/recruitment': typeof AnalyticsRecruitmentRoute
   '/analytics/revenue': typeof AnalyticsRevenueRoute
+  '/analytics/sponsors': typeof AnalyticsSponsorsRoute
   '/attendance/qr': typeof AttendanceQrRoute
   '/attendance/records': typeof AttendanceRecordsRoute
   '/attendance/reports': typeof AttendanceReportsRoute
@@ -920,8 +968,14 @@ export interface FileRoutesById {
   '/ai-copilot/rubric': typeof AiCopilotRubricRoute
   '/ai-validation/$id': typeof AiValidationIdRoute
   '/ai-validation/queue': typeof AiValidationQueueRoute
+  '/analytics/ai': typeof AnalyticsAiRoute
+  '/analytics/attendance': typeof AnalyticsAttendanceRoute
+  '/analytics/certificates': typeof AnalyticsCertificatesRoute
+  '/analytics/evaluations': typeof AnalyticsEvaluationsRoute
   '/analytics/participation': typeof AnalyticsParticipationRoute
+  '/analytics/recruitment': typeof AnalyticsRecruitmentRoute
   '/analytics/revenue': typeof AnalyticsRevenueRoute
+  '/analytics/sponsors': typeof AnalyticsSponsorsRoute
   '/attendance/qr': typeof AttendanceQrRoute
   '/attendance/records': typeof AttendanceRecordsRoute
   '/attendance/reports': typeof AttendanceReportsRoute
@@ -1033,8 +1087,14 @@ export interface FileRouteTypes {
     | '/ai-copilot/rubric'
     | '/ai-validation/$id'
     | '/ai-validation/queue'
+    | '/analytics/ai'
+    | '/analytics/attendance'
+    | '/analytics/certificates'
+    | '/analytics/evaluations'
     | '/analytics/participation'
+    | '/analytics/recruitment'
     | '/analytics/revenue'
+    | '/analytics/sponsors'
     | '/attendance/qr'
     | '/attendance/records'
     | '/attendance/reports'
@@ -1144,8 +1204,14 @@ export interface FileRouteTypes {
     | '/ai-copilot/rubric'
     | '/ai-validation/$id'
     | '/ai-validation/queue'
+    | '/analytics/ai'
+    | '/analytics/attendance'
+    | '/analytics/certificates'
+    | '/analytics/evaluations'
     | '/analytics/participation'
+    | '/analytics/recruitment'
     | '/analytics/revenue'
+    | '/analytics/sponsors'
     | '/attendance/qr'
     | '/attendance/records'
     | '/attendance/reports'
@@ -1255,8 +1321,14 @@ export interface FileRouteTypes {
     | '/ai-copilot/rubric'
     | '/ai-validation/$id'
     | '/ai-validation/queue'
+    | '/analytics/ai'
+    | '/analytics/attendance'
+    | '/analytics/certificates'
+    | '/analytics/evaluations'
     | '/analytics/participation'
+    | '/analytics/recruitment'
     | '/analytics/revenue'
+    | '/analytics/sponsors'
     | '/attendance/qr'
     | '/attendance/records'
     | '/attendance/reports'
@@ -1367,8 +1439,14 @@ export interface RootRouteChildren {
   AiCopilotRubricRoute: typeof AiCopilotRubricRoute
   AiValidationIdRoute: typeof AiValidationIdRoute
   AiValidationQueueRoute: typeof AiValidationQueueRoute
+  AnalyticsAiRoute: typeof AnalyticsAiRoute
+  AnalyticsAttendanceRoute: typeof AnalyticsAttendanceRoute
+  AnalyticsCertificatesRoute: typeof AnalyticsCertificatesRoute
+  AnalyticsEvaluationsRoute: typeof AnalyticsEvaluationsRoute
   AnalyticsParticipationRoute: typeof AnalyticsParticipationRoute
+  AnalyticsRecruitmentRoute: typeof AnalyticsRecruitmentRoute
   AnalyticsRevenueRoute: typeof AnalyticsRevenueRoute
+  AnalyticsSponsorsRoute: typeof AnalyticsSponsorsRoute
   AttendanceQrRoute: typeof AttendanceQrRoute
   AttendanceRecordsRoute: typeof AttendanceRecordsRoute
   AttendanceReportsRoute: typeof AttendanceReportsRoute
@@ -1644,6 +1722,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiValidationQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics/ai': {
+      id: '/analytics/ai'
+      path: '/analytics/ai'
+      fullPath: '/analytics/ai'
+      preLoaderRoute: typeof AnalyticsAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics/attendance': {
+      id: '/analytics/attendance'
+      path: '/analytics/attendance'
+      fullPath: '/analytics/attendance'
+      preLoaderRoute: typeof AnalyticsAttendanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics/certificates': {
+      id: '/analytics/certificates'
+      path: '/analytics/certificates'
+      fullPath: '/analytics/certificates'
+      preLoaderRoute: typeof AnalyticsCertificatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics/evaluations': {
+      id: '/analytics/evaluations'
+      path: '/analytics/evaluations'
+      fullPath: '/analytics/evaluations'
+      preLoaderRoute: typeof AnalyticsEvaluationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics/participation': {
       id: '/analytics/participation'
       path: '/analytics/participation'
@@ -1651,11 +1757,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnalyticsParticipationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics/recruitment': {
+      id: '/analytics/recruitment'
+      path: '/analytics/recruitment'
+      fullPath: '/analytics/recruitment'
+      preLoaderRoute: typeof AnalyticsRecruitmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics/revenue': {
       id: '/analytics/revenue'
       path: '/analytics/revenue'
       fullPath: '/analytics/revenue'
       preLoaderRoute: typeof AnalyticsRevenueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics/sponsors': {
+      id: '/analytics/sponsors'
+      path: '/analytics/sponsors'
+      fullPath: '/analytics/sponsors'
+      preLoaderRoute: typeof AnalyticsSponsorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/attendance/': {
@@ -2247,8 +2367,14 @@ const rootRouteChildren: RootRouteChildren = {
   AiCopilotRubricRoute: AiCopilotRubricRoute,
   AiValidationIdRoute: AiValidationIdRoute,
   AiValidationQueueRoute: AiValidationQueueRoute,
+  AnalyticsAiRoute: AnalyticsAiRoute,
+  AnalyticsAttendanceRoute: AnalyticsAttendanceRoute,
+  AnalyticsCertificatesRoute: AnalyticsCertificatesRoute,
+  AnalyticsEvaluationsRoute: AnalyticsEvaluationsRoute,
   AnalyticsParticipationRoute: AnalyticsParticipationRoute,
+  AnalyticsRecruitmentRoute: AnalyticsRecruitmentRoute,
   AnalyticsRevenueRoute: AnalyticsRevenueRoute,
+  AnalyticsSponsorsRoute: AnalyticsSponsorsRoute,
   AttendanceQrRoute: AttendanceQrRoute,
   AttendanceRecordsRoute: AttendanceRecordsRoute,
   AttendanceReportsRoute: AttendanceReportsRoute,

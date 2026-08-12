@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart, TrendAreaChart } from "@/components/ds/charts";
-import { registrationTrend, revenueByPlan } from "@/lib/mock-data";
+import { useRevenueAnalytics } from "@/modules/analytics/hooks/analytics.hooks";
 
 export const Route = createFileRoute("/analytics/revenue")({
   head: () => ({
@@ -23,6 +23,15 @@ export const Route = createFileRoute("/analytics/revenue")({
 });
 
 function RevenueAnalyticsPage() {
+  const { data, isLoading } = useRevenueAnalytics();
+
+  if (isLoading || !data) return <div className="p-8">Loading analytics...</div>;
+
+  const { kpis, revenueTrend, revenueByPlan } = data;
+
+  const formatCurrency = (val: number) => 
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+
   return (
     <>
       <PageHeader
@@ -32,10 +41,10 @@ function RevenueAnalyticsPage() {
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Revenue (MTD)", value: "$108,600", delta: 12.4, hint: "vs last month" },
-          { label: "Subscription MRR", value: "$68,900", delta: 14.2 },
-          { label: "Registration revenue", value: "$30,500", delta: 8.1 },
-          { label: "Sponsorship", value: "$9,200", delta: 21.7 },
+          { label: "Revenue (MTD)", value: formatCurrency(kpis.revenueMTD), delta: 12.4, hint: "vs last month" },
+          { label: "Subscription MRR", value: formatCurrency(kpis.subscriptionMRR), delta: 14.2 },
+          { label: "Registration revenue", value: formatCurrency(kpis.registrationRevenue), delta: 8.1 },
+          { label: "Sponsorship", value: formatCurrency(kpis.sponsorship), delta: 21.7 },
         ].map((s, i) => (
           <StatCard key={s.label} {...s} index={i} />
         ))}
@@ -43,7 +52,7 @@ function RevenueAnalyticsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <SectionCard title="Revenue trend" description="Last 7 months">
           <TrendAreaChart
-            data={registrationTrend}
+            data={revenueTrend}
             xKey="month"
             series={[{ key: "revenue", label: "Revenue" }]}
           />

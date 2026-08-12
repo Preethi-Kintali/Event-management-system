@@ -2,37 +2,36 @@ import { DetailsPageTemplate } from "@/components/templates/details-page";
 import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
-import { LearningService } from "../services/learning.service";
-import { Course } from "../types/learning.types";
-import { useEffect, useState } from "react";
+import { useCourse } from "../hooks/learning.api";
 import { useRouterState } from "@tanstack/react-router";
 import { PlayCircle, FileText, CheckCircle2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export function CourseDetailsPage() {
-  const [record, setRecord] = useState<Course | null>(null);
   const routerState = useRouterState();
   const id = routerState.location.pathname.split("/").pop() || "";
+  const { data: record, isLoading } = useCourse(id);
 
-  useEffect(() => {
-    LearningService.getCourseById(id).then((r) => setRecord(r || null));
-  }, [id]);
+  if (isLoading) return <div className="p-8">Loading course details...</div>;
+  if (!record) return <div className="p-8">Course not found.</div>;
 
-  if (!record) return null;
+  const instructorName = (record as any).instructor ? `${(record as any).instructor.firstName} ${(record as any).instructor.lastName}` : "Unknown";
+  const enrollmentsCount = (record as any)._count?.enrollments || 0;
+  const completionRate = 0; // Default value
 
   return (
     <DetailsPageTemplate
-      title={record.course}
-      description={`Taught by ${record.instructor}`}
+      title={record.title}
+      description={`Taught by ${instructorName}`}
       crumbs={[
         { label: "Engagement" },
         { label: "Learning", to: "/learning" },
         { label: "Courses", to: "/learning/courses" },
-        { label: record.course },
+        { label: record.title },
       ]}
       meta={
         <>
-          <StatusChip status={record.status === "Published" ? "published" : "draft"} />
+          <StatusChip status={record.status === "PUBLISHED" ? "published" : "draft"} />
           <span className="text-xs text-muted-foreground">{record.category}</span>
         </>
       }
@@ -44,9 +43,9 @@ export function CourseDetailsPage() {
       }
       metrics={[
         { label: "Level", value: record.level },
-        { label: "Rating", value: `⭐ ${record.rating}` },
-        { label: "Enrollments", value: record.enrollments.toString() },
-        { label: "Completion", value: `${record.completionRate}%` },
+        { label: "Rating", value: `⭐ 5.0` }, // Mocked
+        { label: "Enrollments", value: enrollmentsCount.toString() },
+        { label: "Completion", value: `${completionRate}%` },
       ]}
       overview={
         <>
@@ -85,9 +84,9 @@ export function CourseDetailsPage() {
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Overall Completion</span>
-                  <span className="text-sm">{record.completionRate}%</span>
+                  <span className="text-sm">{completionRate}%</span>
                 </div>
-                <Progress value={record.completionRate} className="h-2" />
+                <Progress value={completionRate} className="h-2" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -95,7 +94,7 @@ export function CourseDetailsPage() {
                   <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5" />
                   <div>
                     <p className="font-semibold text-lg">
-                      {Math.round(record.enrollments * (record.completionRate / 100))}
+                      {Math.round(enrollmentsCount * (completionRate / 100))}
                     </p>
                     <p className="text-xs text-muted-foreground">Students Completed</p>
                   </div>
@@ -103,7 +102,7 @@ export function CourseDetailsPage() {
                 <div className="rounded-lg border border-border p-4 flex items-start gap-3">
                   <FileText className="w-5 h-5 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-lg">24</p>
+                    <p className="font-semibold text-lg">0</p>
                     <p className="text-xs text-muted-foreground">Certificates Issued</p>
                   </div>
                 </div>
@@ -115,3 +114,4 @@ export function CourseDetailsPage() {
     />
   );
 }
+

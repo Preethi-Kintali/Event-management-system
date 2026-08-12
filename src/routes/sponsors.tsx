@@ -2,9 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { sponsors } from "@/lib/mock-data";
+import { useSponsors, useSponsorsDashboard } from "@/modules/sponsors/hooks/sponsors.api";
 
-type Row = (typeof sponsors)[number];
+type Row = {
+  id: string;
+  name: string;
+  tier: string;
+  value: string;
+  events: number;
+  contact: string;
+  status: string;
+};
 
 const columns: Column<Row>[] = [
   {
@@ -21,7 +29,12 @@ const columns: Column<Row>[] = [
     key: "status",
     header: "Status",
     sortable: true,
-    render: (row) => <StatusChip status={row.status} />,
+    render: (row) => {
+      let statusId = "pending";
+      if (row.status === "ACTIVE") statusId = "active";
+      if (row.status === "EXPIRED") statusId = "archived";
+      return <StatusChip status={statusId as any} />;
+    },
   },
 ];
 
@@ -44,21 +57,38 @@ export const Route = createFileRoute("/sponsors")({
 });
 
 function SponsorsPage() {
+  const { data: sponsors = [], isLoading: isSponsorsLoading } = useSponsors();
+  const { data: stats, isLoading: isStatsLoading } = useSponsorsDashboard();
+
+  const rows: Row[] = sponsors.map((s: any) => ({
+    id: s.id,
+    name: s.name,
+    tier: s.tier,
+    value: `$${s.committedValue?.toLocaleString() || "0"}`,
+    events: s._count?.sponsorships || 0,
+    contact: s.contacts?.[0]?.email || "N/A",
+    status: s.status || "ACTIVE",
+  }));
+
+  if (isSponsorsLoading || isStatsLoading) {
+    return <div className="p-8">Loading sponsors...</div>;
+  }
+
   return (
     <ListPageTemplate<Row>
       title="Sponsors"
       description="Sponsorship tiers, committed value and deliverable tracking."
       crumbs={[{ label: "People" }, { label: "Sponsors" }]}
       columns={columns}
-      rows={sponsors}
+      rows={rows}
       searchKeys={["name", "tier", "contact"]}
       stats={[
-        { label: "Sponsors", value: "84", delta: 9.2 },
-        { label: "Committed value", value: "$4.1M", delta: 16.8 },
-        { label: "Deliverables met", value: "91%", progress: 91 },
-        { label: "Renewals pending", value: "7", hint: "this quarter" },
+        { label: "Sponsors", value: stats?.sponsors?.toString() || "0" },
+        { label: "Committed value", value: `$${((stats?.committedValue || 0) / 1000000).toFixed(1)}M` },
+        { label: "Deliverables met", value: `${stats?.deliverablesMet || 0}%`, progress: stats?.deliverablesMet || 0 },
+        { label: "Renewals pending", value: stats?.renewalsPending?.toString() || "0", hint: "next 90 days" },
       ]}
-      facet={{ label: "Tier", key: "tier", options: ["Platinum", "Gold", "Silver"] }}
+      facet={{ label: "Tier", key: "tier", options: ["Platinum", "Gold", "Silver", "BRONZE", "GOLD", "PLATINUM"] }}
       createLabel="Add sponsor"
       rowActions={[
         { label: "View details", onSelect: () => {} },
@@ -68,3 +98,4 @@ function SponsorsPage() {
     />
   );
 }
+

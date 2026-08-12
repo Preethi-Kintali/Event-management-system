@@ -1,12 +1,21 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { FeedbackService } from "../services/feedback.service";
-import { Survey } from "../types/feedback.types";
-import { useEffect, useState } from "react";
+import { useSurveys } from "../hooks/feedback.api";
 import { Progress } from "@/components/ui/progress";
 
-const columns: Column<Survey>[] = [
+type SurveyRow = {
+  id: string;
+  name: string;
+  event: string;
+  audience: string;
+  questions: number;
+  responses: number;
+  responseRate: number;
+  status: string;
+};
+
+const columns: Column<SurveyRow>[] = [
   {
     key: "name",
     header: "Survey Name",
@@ -44,23 +53,34 @@ const columns: Column<Survey>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Published") statusId = "active";
-      if (row.status === "Draft") statusId = "draft";
-      if (row.status === "Closed") statusId = "archived";
+      if (row.status === "PUBLISHED") statusId = "active";
+      if (row.status === "DRAFT") statusId = "draft";
+      if (row.status === "CLOSED") statusId = "archived";
       return <StatusChip status={statusId as any} />;
     },
   },
 ];
 
 export function SurveysPage() {
-  const [data, setData] = useState<Survey[]>([]);
+  const { data: surveys = [], isLoading } = useSurveys();
 
-  useEffect(() => {
-    FeedbackService.getSurveys().then(setData);
-  }, []);
+  const rows: SurveyRow[] = surveys.map((s: any) => ({
+    id: s.id,
+    name: s.title,
+    event: s.event ? s.event.name : "Global",
+    audience: s.audience || "Everyone",
+    questions: s._count?.questions || 0,
+    responses: s._count?.responses || 0,
+    responseRate: 0, // Default value
+    status: s.status,
+  }));
+
+  if (isLoading) {
+    return <div className="p-8">Loading surveys...</div>;
+  }
 
   return (
-    <ListPageTemplate<Survey>
+    <ListPageTemplate<SurveyRow>
       title="Surveys"
       description="Manage feedback forms and data collection instruments."
       crumbs={[
@@ -69,9 +89,9 @@ export function SurveysPage() {
         { label: "Surveys" },
       ]}
       columns={columns}
-      rows={data}
+      rows={rows}
       searchKeys={["name", "event", "audience"]}
-      facet={{ label: "Status", key: "status", options: ["Draft", "Published", "Closed"] }}
+      facet={{ label: "Status", key: "status", options: ["DRAFT", "PUBLISHED", "CLOSED"] }}
       createLabel="Create Survey"
       createTo="/feedback/surveys/new"
       rowActions={[
@@ -82,3 +102,4 @@ export function SurveysPage() {
     />
   );
 }
+

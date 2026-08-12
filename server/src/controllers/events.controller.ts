@@ -52,4 +52,24 @@ export class EventController {
       next(error);
     }
   }
+
+  static async getEventDashboard(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const tenantId = req.tenantId as string;
+      const dashboardData = await EventService.getEventDashboard(tenantId, req.params.id);
+      res.json({ success: true, data: dashboardData });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getEventSessions(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const tenantId = req.tenantId as string;
+      const sessions = await EventService.getEventSessions(tenantId, req.params.id);
+      res.json({ success: true, data: sessions });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

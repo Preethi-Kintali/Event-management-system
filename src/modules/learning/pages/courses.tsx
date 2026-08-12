@@ -1,13 +1,23 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { LearningService } from "../services/learning.service";
-import { Course } from "../types/learning.types";
-import { useEffect, useState } from "react";
+import { useCourses } from "../hooks/learning.api";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
-const columns: Column<Course>[] = [
+// A mapped type for the table display
+type CourseRow = {
+  id: string;
+  course: string;
+  category: string;
+  instructor: string;
+  level: string;
+  enrollments: number;
+  completionRate: number;
+  status: string;
+};
+
+const columns: Column<CourseRow>[] = [
   {
     key: "course",
     header: "Course Title",
@@ -29,14 +39,8 @@ const columns: Column<Course>[] = [
     render: (row) => <span className="tabular-nums">{row.enrollments}</span>,
   },
   {
-    key: "rating",
-    header: "Rating",
-    sortable: true,
-    render: (row) => <span className="tabular-nums">⭐ {row.rating}</span>,
-  },
-  {
     key: "completionRate",
-    header: "Completion",
+    header: "Avg Completion",
     sortable: true,
     render: (row) => (
       <div className="flex items-center gap-2 w-24">
@@ -51,23 +55,41 @@ const columns: Column<Course>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Published") statusId = "active";
-      if (row.status === "Draft") statusId = "draft";
-      if (row.status === "Archived") statusId = "archived";
+      if (row.status === "PUBLISHED") statusId = "active";
+      if (row.status === "DRAFT") statusId = "draft";
+      if (row.status === "ARCHIVED") statusId = "archived";
       return <StatusChip status={statusId as any} />;
     },
   },
 ];
 
 export function CoursesListPage() {
-  const [data, setData] = useState<Course[]>([]);
+  const { data: courses = [], isLoading } = useCourses();
 
-  useEffect(() => {
-    LearningService.getCourses().then(setData);
-  }, []);
+  // Map API data to table row format
+  const rows: CourseRow[] = courses.map((c: any) => {
+    const enrollments = c.enrollments || [];
+    const completed = enrollments.filter((e: any) => e.status === "COMPLETED" || e.progress === 100).length;
+    const completionRate = enrollments.length > 0 ? Math.round((completed / enrollments.length) * 100) : 0;
+
+    return {
+      id: c.id,
+      course: c.title,
+      category: c.category,
+      instructor: c.instructor ? `${c.instructor.firstName} ${c.instructor.lastName}` : "Unknown",
+      level: c.level,
+      enrollments: c._count?.enrollments || 0,
+      completionRate,
+      status: c.status,
+    };
+  });
+
+  if (isLoading) {
+    return <div className="p-8">Loading courses...</div>;
+  }
 
   return (
-    <ListPageTemplate<Course>
+    <ListPageTemplate<CourseRow>
       title="Courses"
       description="Manage educational curriculums and learning tracks."
       crumbs={[
@@ -76,7 +98,7 @@ export function CoursesListPage() {
         { label: "Courses" },
       ]}
       columns={columns}
-      rows={data}
+      rows={rows}
       searchKeys={["course", "category", "instructor"]}
       facet={{ label: "Level", key: "level", options: ["Beginner", "Intermediate", "Advanced"] }}
       createLabel="Create Course"
@@ -87,3 +109,4 @@ export function CoursesListPage() {
     />
   );
 }
+

@@ -1,95 +1,102 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { CommunicationService } from "../services/communication.service";
-import { Campaign } from "../types/communication.types";
-import { useEffect, useState } from "react";
+import { useCommunications, usePublishCommunication, useArchiveCommunication, useDeleteCommunication, Communication } from "../services/communications.api";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Link } from "@tanstack/react-router";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
-const columns: Column<Campaign>[] = [
+const columns: Column<Communication>[] = [
   {
-    key: "name",
-    header: "Campaign Name",
+    key: "title",
+    header: "Title",
     sortable: true,
-    render: (row) => <span className="font-medium">{row.name}</span>,
+    render: (row) => <span className="font-medium">{row.title}</span>,
   },
   {
-    key: "channel",
-    header: "Channel",
+    key: "type",
+    header: "Type",
     sortable: true,
-    render: (row) => <Badge variant="outline">{row.channel}</Badge>,
+    render: (row) => <Badge variant="outline">{row.type}</Badge>,
   },
   { key: "audience", header: "Audience", sortable: true },
-  {
-    key: "delivered",
-    header: "Delivery",
-    sortable: false,
-    render: (row) => {
-      if (row.status === "Draft" || row.status === "Scheduled")
-        return <span className="text-muted-foreground">—</span>;
-      const rate = row.sent > 0 ? (row.delivered / row.sent) * 100 : 0;
-      return (
-        <div className="flex items-center gap-2 w-24">
-          <Progress value={rate} className="h-1.5" />
-          <span className="text-xs">{Math.round(rate)}%</span>
-        </div>
-      );
-    },
-  },
   {
     key: "status",
     header: "Status",
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Completed") statusId = "published";
-      if (row.status === "Draft") statusId = "draft";
-      if (row.status === "Sending") statusId = "active";
-      if (row.status === "Failed") statusId = "suspended";
-      return <StatusChip status={statusId as any} />;
+      if (row.status === "PUBLISHED") statusId = "published";
+      if (row.status === "DRAFT") statusId = "draft";
+      if (row.status === "SCHEDULED") statusId = "active";
+      if (row.status === "ARCHIVED") statusId = "archived";
+      return <StatusChip status={statusId as any} label={row.status} />;
     },
   },
   {
-    key: "scheduledDate",
-    header: "Date",
+    key: "publishedAt",
+    header: "Published At",
     sortable: true,
-    render: (row) => <span>{row.scheduledDate || "—"}</span>,
+    render: (row) => <span>{row.publishedAt ? format(new Date(row.publishedAt), "MMM d, yyyy h:mm a") : "—"}</span>,
   },
 ];
 
 export function CommunicationCampaignsPage() {
-  const [data, setData] = useState<Campaign[]>([]);
-
-  useEffect(() => {
-    CommunicationService.getCampaigns().then(setData);
-  }, []);
+  const { data, isLoading } = useCommunications();
+  const publishComm = usePublishCommunication();
+  const archiveComm = useArchiveCommunication();
+  const deleteComm = useDeleteCommunication();
 
   return (
-    <ListPageTemplate<Campaign>
-      title="Campaigns"
-      description="Manage mass communications and targeted broadcasts."
+    <ListPageTemplate<Communication>
+      title="Communications"
+      description="Manage announcements, alerts, and targeted broadcasts."
       crumbs={[
         { label: "Engagement" },
         { label: "Communication", to: "/communication" },
         { label: "Campaigns" },
       ]}
       columns={columns}
-      rows={data}
-      searchKeys={["name", "audience"]}
+      rows={data?.data || []}
+      searchKeys={["title", "audience"]}
       facet={{
         label: "Status",
         key: "status",
-        options: ["Draft", "Scheduled", "Sending", "Completed", "Failed"],
+        options: ["DRAFT", "SCHEDULED", "PUBLISHED", "ARCHIVED"],
       }}
-      createLabel="New Campaign"
+      createLabel="New Communication"
       createTo="/communication/campaigns/new"
       rowActions={[
-        { label: "View Report", onSelect: () => {} },
-        { label: "Edit", onSelect: () => {} },
-        { label: "Duplicate", onSelect: () => {} },
-        { label: "Pause", onSelect: () => {} },
+        { 
+          label: "Publish", 
+          onSelect: (row) => {
+            if (row.status === "PUBLISHED") {
+              toast.error("Already published");
+              return;
+            }
+            publishComm.mutate(row.id, {
+              onSuccess: () => toast.success("Communication published! Notifications dispatched."),
+              onError: (e: any) => toast.error(e.message || "Failed to publish")
+            });
+          } 
+        },
+        { 
+          label: "Archive", 
+          onSelect: (row) => {
+            archiveComm.mutate(row.id, {
+              onSuccess: () => toast.success("Communication archived.")
+            });
+          } 
+        },
+        { 
+          label: "Delete", 
+          onSelect: (row) => {
+            deleteComm.mutate(row.id, {
+              onSuccess: () => toast.success("Communication deleted."),
+              onError: (e: any) => toast.error(e.message || "Cannot delete published communication")
+            });
+          } 
+        },
       ]}
     />
   );

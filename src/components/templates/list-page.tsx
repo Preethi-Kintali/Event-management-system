@@ -64,6 +64,7 @@ export function ListPageTemplate<T extends { id: string }>({
   createLabel,
   createTo,
   onCreate,
+  headerActions,
   rowActions,
   onRowClick,
   aside,
@@ -141,7 +142,7 @@ export function ListPageTemplate<T extends { id: string }>({
                 </Button>
               )
             ) : null}
-            {props.headerActions}
+            {headerActions}
           </>
         }
       />

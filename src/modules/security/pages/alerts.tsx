@@ -2,6 +2,7 @@ import { ListPageTemplate } from "@/components/templates/list-page";
 import type { Column } from "@/components/ds/data-table";
 import { SecurityService } from "../services/security.service";
 import { SecurityAlert } from "../types/security.types";
+import { useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
@@ -76,10 +77,12 @@ const columns: Column<SecurityAlert>[] = [
 
 export function AlertsPage() {
   const [data, setData] = useState<SecurityAlert[]>([]);
+  const { activeOrganization } = useAuth();
+  const tenantId = activeOrganization || "";
 
   useEffect(() => {
-    SecurityService.getAlerts().then(setData);
-  }, []);
+    SecurityService.getAlerts(tenantId).then(setData);
+  }, [tenantId]);
 
   return (
     <ListPageTemplate<SecurityAlert>

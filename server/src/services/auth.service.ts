@@ -2,6 +2,8 @@ import { prisma } from "../utils/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { UserStatus } from "@prisma/client";
+import { randomUUID } from "crypto";
+import speakeasy from "speakeasy";
 
 export class AuthService {
   static async register(data: any) {
@@ -26,7 +28,10 @@ export class AuthService {
   }
 
   static async login(data: any) {
-    const user = await prisma.user.findUnique({ where: { email: data.email } });
+    const user = await prisma.user.findUnique({ 
+      where: { email: data.email },
+      include: { mfa: true }
+    });
     if (!user) {
       throw { status: 401, code: "INVALID_CREDENTIALS", message: "Invalid email or password" };
     }
@@ -42,10 +47,55 @@ export class AuthService {
 
     const secret = process.env.JWT_SECRET || "replace-with-secure-secret";
     const expiresIn = process.env.JWT_EXPIRES_IN || "15m";
-    const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn });
+    
+    // Parse expiresIn to calculate expiresAt DateTime
+    let expiresAt = new Date();
+    if (expiresIn.endsWith('m')) {
+      expiresAt = new Date(Date.now() + parseInt(expiresIn) * 60000);
+    } else if (expiresIn.endsWith('h')) {
+      expiresAt = new Date(Date.now() + parseInt(expiresIn) * 3600000);
+    } else if (expiresIn.endsWith('d')) {
+      expiresAt = new Date(Date.now() + parseInt(expiresIn) * 86400000);
+    } else {
+      expiresAt = new Date(Date.now() + 15 * 60000); // default 15m
+    }
 
-    const { passwordHash: _, ...safeUser } = user;
-    return { token, user: safeUser };
+    if (user.mfa?.enabled) {
+      const challengeToken = jwt.sign(
+        { 
+          type: "mfa_challenge", 
+          userId: user.id, 
+          email: user.email,
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent
+        }, 
+        secret, 
+        { expiresIn: "5m" }
+      );
+      return { mfaRequired: true, challengeToken };
+    }
+
+    const tokenIdentifier = randomUUID();
+
+    // Create session in database
+    const session = await prisma.userSession.create({
+      data: {
+        userId: user.id,
+        tokenIdentifier,
+        ipAddress: data.ipAddress?.substring(0, 45) || null,
+        userAgent: data.userAgent || null,
+        device: data.userAgent ? (data.userAgent.includes("Mobile") ? "Mobile" : "Desktop") : null,
+        expiresAt,
+        // Optional: organizationId is not set globally on login here, 
+        // as users pick a tenant *after* login or pass tenant header. 
+        // We will leave organizationId null for the global login session.
+      }
+    });
+
+    const token = jwt.sign({ id: user.id, email: user.email, sessionId: session.id, tokenIdentifier }, secret, { expiresIn });
+
+    const { passwordHash: _, mfa: __, ...safeUser } = user;
+    return { token, user: safeUser, mfaRequired: false };
   }
 
   static async getMe(userId: string) {
@@ -65,5 +115,88 @@ export class AuthService {
 
     const { passwordHash: _, ...safeUser } = user;
     return safeUser;
+  }
+
+  static async verifyMfaChallenge(data: { challengeToken: string; code: string }) {
+    const secret = process.env.JWT_SECRET || "replace-with-secure-secret";
+    let decoded: any;
+    try {
+      decoded = jwt.verify(data.challengeToken, secret);
+    } catch (e) {
+      throw { status: 401, code: "INVALID_CHALLENGE", message: "Challenge token expired or invalid" };
+    }
+
+    if (decoded.type !== "mfa_challenge") {
+      throw { status: 401, code: "INVALID_CHALLENGE", message: "Invalid challenge token type" };
+    }
+
+    const userId = decoded.userId;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { mfa: true, recoveryCodes: true }
+    });
+
+    if (!user || !user.mfa || !user.mfa.enabled) {
+      throw { status: 400, code: "MFA_NOT_ENABLED", message: "MFA is not enabled for this user" };
+    }
+
+    // Verify TOTP or Recovery Code
+    let isValid = false;
+    let isRecovery = false;
+    let usedRecoveryCodeId: string | null = null;
+
+    if (speakeasy.totp.verify({ secret: user.mfa.secret, encoding: 'base32', token: data.code, window: 1 })) {
+      isValid = true;
+    } else {
+      // Check recovery codes
+      for (const rc of user.recoveryCodes) {
+        if (!rc.usedAt && await bcrypt.compare(data.code, rc.codeHash)) {
+          isValid = true;
+          isRecovery = true;
+          usedRecoveryCodeId = rc.id;
+          break;
+        }
+      }
+    }
+
+    if (!isValid) {
+      throw { status: 401, code: "INVALID_MFA_CODE", message: "Invalid MFA code" };
+    }
+
+    if (isRecovery && usedRecoveryCodeId) {
+      await prisma.userRecoveryCode.update({
+        where: { id: usedRecoveryCodeId },
+        data: { usedAt: new Date() }
+      });
+    }
+
+    const expiresIn = process.env.JWT_EXPIRES_IN || "15m";
+    let expiresAt = new Date();
+    if (expiresIn.endsWith('m')) {
+      expiresAt = new Date(Date.now() + parseInt(expiresIn) * 60000);
+    } else if (expiresIn.endsWith('h')) {
+      expiresAt = new Date(Date.now() + parseInt(expiresIn) * 3600000);
+    } else if (expiresIn.endsWith('d')) {
+      expiresAt = new Date(Date.now() + parseInt(expiresIn) * 86400000);
+    } else {
+      expiresAt = new Date(Date.now() + 15 * 60000);
+    }
+
+    const tokenIdentifier = randomUUID();
+    const session = await prisma.userSession.create({
+      data: {
+        userId: user.id,
+        tokenIdentifier,
+        ipAddress: decoded.ipAddress || null,
+        userAgent: decoded.userAgent || null,
+        device: decoded.userAgent ? (decoded.userAgent.includes("Mobile") ? "Mobile" : "Desktop") : null,
+        expiresAt,
+      }
+    });
+
+    const token = jwt.sign({ id: user.id, email: user.email, sessionId: session.id, tokenIdentifier }, secret, { expiresIn });
+
+    const { passwordHash: _, mfa: __, recoveryCodes: ___, ...safeUser } = user;
+    return { token, user: safeUser, mfaRequired: false };
   }
 }

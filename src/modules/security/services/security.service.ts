@@ -6,163 +6,92 @@ import {
   SecurityPolicy,
   ComplianceStatus,
 } from "../types/security.types";
+import { fetchApi } from "@/lib/api-client";
 
 export const SecurityService = {
-  async getDashboardSummary(): Promise<SecurityDashboardSummary> {
-    return {
-      securityScore: 84,
-      activeSessions: 145,
-      mfaAdoptionPct: 62.5,
-      failedLogins24h: 34,
-      suspiciousActivities: 2,
-      criticalAlerts: 1,
-    };
+  async getDashboardSummary(tenantId: string): Promise<SecurityDashboardSummary> {
+    return fetchApi(`/api/v1/security/dashboard`, {
+      headers: { "x-organization-id": tenantId },
+    });
   },
 
-  async getEvents(): Promise<SecurityEvent[]> {
-    return [
-      {
-        id: "evt_1",
-        timestamp: "2 mins ago",
-        user: "admin@ascent.dev",
-        event: "Admin Login",
-        severity: "Info",
-        ipAddress: "192.168.1.45",
-        device: "MacBook Pro",
-        status: "Success",
-      },
-      {
-        id: "evt_2",
-        timestamp: "15 mins ago",
-        user: "system",
-        event: "Multiple Failed Logins",
-        severity: "High",
-        ipAddress: "45.22.11.9",
-        device: "Unknown",
-        status: "Blocked",
-      },
-      {
-        id: "evt_3",
-        timestamp: "1 hour ago",
-        user: "johndoe@example.com",
-        event: "Password Reset Requested",
-        severity: "Medium",
-        ipAddress: "142.250.190.46",
-        device: "iPhone",
-        status: "Success",
-      },
-      {
-        id: "evt_4",
-        timestamp: "2 hours ago",
-        user: "admin2@ascent.dev",
-        event: "API Key Generated",
-        severity: "Low",
-        ipAddress: "192.168.1.12",
-        device: "Windows PC",
-        status: "Success",
-      },
-      {
-        id: "evt_5",
-        timestamp: "Yesterday",
-        user: "unknown",
-        event: "Unauthorized API Access Attempt",
-        severity: "Critical",
-        ipAddress: "185.15.58.22",
-        device: "Linux Server",
-        status: "Failed",
-      },
-    ];
+  async getEvents(tenantId: string): Promise<SecurityEvent[]> {
+    return fetchApi(`/api/v1/security/events`, {
+      headers: { "x-organization-id": tenantId },
+    });
   },
 
-  async getAlerts(): Promise<SecurityAlert[]> {
-    return [
-      {
-        id: "alt_1",
-        alert: "Brute Force Attack Detected",
-        severity: "Critical",
-        source: "Auth Service",
-        created: "15 mins ago",
-        status: "Investigating",
-        assignedTo: "SecOps Team",
-      },
-      {
-        id: "alt_2",
-        alert: "MFA Disabled by Admin",
-        severity: "High",
-        source: "Admin Panel",
-        created: "2 hours ago",
-        status: "Open",
-        assignedTo: "Unassigned",
-      },
-      {
-        id: "alt_3",
-        alert: "Unusual Download Volume",
-        severity: "Medium",
-        source: "Data Export",
-        created: "Yesterday",
-        status: "Resolved",
-        assignedTo: "Data Privacy Officer",
-      },
-    ];
+  async getAlerts(tenantId: string): Promise<SecurityAlert[]> {
+    // Phase 5 Foundation: Basic alerts implementation based on events
+    // For now, return empty array as real alerts come later
+    return [];
   },
 
-  async getSessions(): Promise<Session[]> {
-    return [
-      {
-        id: "ses_1",
-        user: "admin@ascent.dev",
-        device: "MacBook Pro",
-        browser: "Chrome 115",
-        location: "San Francisco, US",
-        ipAddress: "192.168.1.45",
-        loginTime: "2 hours ago",
-        lastActivity: "Just now",
-        status: "Active",
-      },
-      {
-        id: "ses_2",
-        user: "johndoe@example.com",
-        device: "iPhone 14",
-        browser: "Safari Mobile",
-        location: "London, UK",
-        ipAddress: "82.12.33.4",
-        loginTime: "Yesterday",
-        lastActivity: "15 mins ago",
-        status: "Idle",
-      },
-      {
-        id: "ses_3",
-        user: "marketing@ascent.dev",
-        device: "Windows PC",
-        browser: "Edge 114",
-        location: "New York, US",
-        ipAddress: "104.28.12.99",
-        loginTime: "3 days ago",
-        lastActivity: "2 days ago",
-        status: "Revoked",
-      },
-    ];
+  async getSessions(tenantId: string): Promise<Session[]> {
+    return fetchApi(`/api/v1/security/sessions`, {
+      headers: { "x-organization-id": tenantId },
+    });
   },
 
-  async getPolicy(): Promise<SecurityPolicy> {
-    return {
-      mfaEnabled: true,
-      mfaRequiredForAdmins: true,
-      minPasswordLength: 12,
-      passwordExpiryDays: 90,
-      lockoutThreshold: 5,
-      ssoEnabled: true,
-      ssoProvider: "Okta",
-    };
+  async revokeSession(tenantId: string, sessionId: string): Promise<void> {
+    return fetchApi(`/api/v1/security/sessions/${sessionId}/revoke`, {
+      method: "POST",
+      headers: { "x-organization-id": tenantId },
+    });
   },
 
-  async getComplianceStatus(): Promise<ComplianceStatus> {
+  async revokeAllOtherSessions(tenantId: string): Promise<void> {
+    return fetchApi(`/api/v1/security/sessions/revoke-others`, {
+      method: "POST",
+      headers: { "x-organization-id": tenantId },
+    });
+  },
+
+  async getPolicy(tenantId: string): Promise<SecurityPolicy> {
+    return fetchApi(`/api/v1/security/policy`, {
+      headers: { "x-organization-id": tenantId },
+    });
+  },
+
+  async updatePolicy(tenantId: string, data: Partial<SecurityPolicy>): Promise<SecurityPolicy> {
+    return fetchApi(`/api/v1/security/policy`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: { "x-organization-id": tenantId },
+    });
+  },
+
+  async getComplianceStatus(tenantId: string): Promise<ComplianceStatus> {
+    // Basic hardcoded compliance for now until we build compliance backend
     return {
       gdprCompliant: true,
       dataRetentionDays: 365,
       cookieConsentRequired: true,
-      userExportRequests: 12,
-      pendingDeletions: 4,
+      userExportRequests: 0,
+      pendingDeletions: 0,
     };
+  },
+
+  async setupMfa(tenantId: string): Promise<{ secret: string; otpauth: string }> {
+    return fetchApi(`/api/v1/security/mfa/setup`, {
+      method: "POST",
+      headers: { "x-organization-id": tenantId },
+    });
+  },
+
+  async verifySetupMfa(tenantId: string, code: string): Promise<{ recoveryCodes: string[] }> {
+    return fetchApi(`/api/v1/security/mfa/verify-setup`, {
+      method: "POST",
+      body: JSON.stringify({ code }),
+      headers: { "x-organization-id": tenantId },
+    });
+  },
+
+  async disableMfa(tenantId: string, userId?: string): Promise<void> {
+    return fetchApi(`/api/v1/security/mfa/disable`, {
+      method: "POST",
+      body: JSON.stringify({ userId }),
+      headers: { "x-organization-id": tenantId },
+    });
   },
 };

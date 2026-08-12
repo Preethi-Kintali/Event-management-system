@@ -1129,16 +1129,6 @@ export const deadlines = [
   },
 ];
 
-export const registrationTrend = [
-  { month: "Feb", registrations: 3120, participants: 2410, revenue: 42000 },
-  { month: "Mar", registrations: 4180, participants: 3260, revenue: 51500 },
-  { month: "Apr", registrations: 3890, participants: 3010, revenue: 48800 },
-  { month: "May", registrations: 5240, participants: 4180, revenue: 67200 },
-  { month: "Jun", registrations: 6110, participants: 4920, revenue: 79400 },
-  { month: "Jul", registrations: 7460, participants: 6080, revenue: 94100 },
-  { month: "Aug", registrations: 8320, participants: 6840, revenue: 108600 },
-];
-
 export const categoryMix = [
   { name: "Hackathons", value: 38 },
   { name: "Case Studies", value: 24 },
@@ -1175,101 +1165,6 @@ export const funnel = [
   { stage: "Teams formed", value: 12400 },
   { stage: "Submissions", value: 8960 },
   { stage: "Evaluated", value: 7410 },
-];
-
-export const scheduleItems = [
-  {
-    id: "sch_1",
-    day: "Day 1 — 14 Sep",
-    time: "09:00 – 10:00",
-    title: "Opening keynote: Responsible AI at scale",
-    track: "Main Stage",
-    speaker: "Dr. Elena Marković",
-    type: "Keynote",
-  },
-  {
-    id: "sch_2",
-    day: "Day 1 — 14 Sep",
-    time: "10:30 – 12:30",
-    title: "Team formation & problem statement release",
-    track: "Hall B",
-    speaker: "Marcus Feld",
-    type: "Workshop",
-  },
-  {
-    id: "sch_3",
-    day: "Day 1 — 14 Sep",
-    time: "14:00 – 18:00",
-    title: "Hacking block 1",
-    track: "Arena",
-    speaker: "—",
-    type: "Build",
-  },
-  {
-    id: "sch_4",
-    day: "Day 2 — 15 Sep",
-    time: "09:30 – 11:00",
-    title: "Mentor office hours",
-    track: "Pods 1–8",
-    speaker: "12 mentors",
-    type: "Mentoring",
-  },
-  {
-    id: "sch_5",
-    day: "Day 2 — 15 Sep",
-    time: "16:00 – 18:00",
-    title: "Round 1 judging",
-    track: "Jury Room",
-    speaker: "9 judges",
-    type: "Judging",
-  },
-  {
-    id: "sch_6",
-    day: "Day 3 — 16 Sep",
-    time: "11:00 – 13:00",
-    title: "Finals & awards ceremony",
-    track: "Main Stage",
-    speaker: "Leadership panel",
-    type: "Ceremony",
-  },
-];
-
-export const scorecardCriteria = [
-  {
-    id: "cr_1",
-    label: "Problem understanding",
-    weight: 20,
-    score: 17,
-    notes: "Clear articulation of accessibility gap with cited research.",
-  },
-  {
-    id: "cr_2",
-    label: "Technical execution",
-    weight: 30,
-    score: 26,
-    notes: "On-device inference is impressive; latency budget documented.",
-  },
-  {
-    id: "cr_3",
-    label: "Innovation",
-    weight: 20,
-    score: 15,
-    notes: "Captioning approach is incremental but well applied.",
-  },
-  {
-    id: "cr_4",
-    label: "Impact potential",
-    weight: 20,
-    score: 18,
-    notes: "Strong pilot commitments from two partner schools.",
-  },
-  {
-    id: "cr_5",
-    label: "Presentation",
-    weight: 10,
-    score: 8,
-    notes: "Demo was crisp; slides slightly dense.",
-  },
 ];
 
 export const comments = [
@@ -1363,11 +1258,4 @@ export const timeline = [
     time: "17 Sep",
     state: "upcoming" as const,
   },
-];
-
-export const kanbanColumns = [
-  { id: "k1", title: "Submitted", items: [submissions[0], submissions[5]] },
-  { id: "k2", title: "Under review", items: [submissions[1]] },
-  { id: "k3", title: "Scored", items: [submissions[3]] },
-  { id: "k4", title: "Decided", items: [submissions[4]] },
 ];

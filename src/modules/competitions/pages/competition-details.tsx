@@ -4,13 +4,26 @@ import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
 import { GroupedBarChart } from "@/components/ds/charts";
 import { KanbanCard } from "@/components/ds/timeline";
-import { evaluationLoad, kanbanColumns } from "@/lib/mock-data";
+import { useParams } from "@tanstack/react-router";
+import { useCompetition, useCompetitionDashboard } from "../services/competitions.api";
 
 export function CompetitionDetailsPage() {
+  const { id } = useParams({ strict: false }) as { id: string };
+  const { data: competition, isLoading: isCompetitionLoading } = useCompetition(id);
+  const { data: dashboard, isLoading: isDashboardLoading } = useCompetitionDashboard(id);
+
+  if (isCompetitionLoading || isDashboardLoading) {
+    return <div className="p-8">Loading competition details...</div>;
+  }
+
+  if (!competition) {
+    return <div className="p-8">Competition not found</div>;
+  }
+
   return (
     <DetailsPageTemplate
-      title="AI for Accessibility Track"
-      description="Hackathon · 3 rounds · $50,000 prize pool"
+      title={competition.name}
+      description={competition.description || "Competition details"}
       crumbs={[
         { label: "Programs" },
         { label: "Competitions", to: "/competitions" },
@@ -19,7 +32,7 @@ export function CompetitionDetailsPage() {
       meta={
         <>
           <StatusChip status="active" />
-          <span className="text-xs text-muted-foreground">Last updated 12 minutes ago</span>
+          <span className="text-xs text-muted-foreground">Created on {new Date(competition.createdAt).toLocaleDateString()}</span>
         </>
       }
       actions={
@@ -29,21 +42,16 @@ export function CompetitionDetailsPage() {
         </>
       }
       metrics={[
-        { label: "Teams", value: "214" },
-        { label: "Submissions", value: "186" },
-        { label: "Avg score", value: "76.4" },
-        { label: "Judges", value: "9" },
-      ]}
-      related={[
-        { id: "r1", label: "Neural Nomads", meta: "Team · 4 members" },
-        { id: "r2", label: "SUB-2291", meta: "Submission · In review" },
-        { id: "r3", label: "Dr. Elena Marković", meta: "Judge · Machine Learning" },
+        { label: "Teams", value: dashboard?.metrics?.teams.toString() || "0" },
+        { label: "Submissions", value: dashboard?.metrics?.submissions.toString() || "0" },
+        { label: "Avg score", value: dashboard?.metrics?.avgScore.toString() || "0" },
+        { label: "Judges", value: dashboard?.metrics?.judges.toString() || "0" },
       ]}
       overview={
         <>
           <SectionCard title="Evaluation load" description="Pending vs completed per round">
             <GroupedBarChart
-              data={evaluationLoad}
+              data={dashboard?.evaluationLoad || []}
               xKey="round"
               series={[
                 { key: "completed", label: "Completed" },
@@ -55,18 +63,18 @@ export function CompetitionDetailsPage() {
           </SectionCard>
           <SectionCard title="Submission board" description="Drag-free kanban view" padded={false}>
             <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-4">
-              {kanbanColumns.map((column) => (
+              {(dashboard?.kanbanColumns || []).map((column: any) => (
                 <div key={column.id} className="space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {column.title} · {column.items.length}
                   </p>
-                  {(column.items as Array<{ id: string; title: string; team: string; status: string }>).map((item) => (
+                  {column.items.map((item: any) => (
                     <KanbanCard
                       key={item.id}
                       title={item.title}
                       subtitle={item.team}
-                      meta={item.id}
-                      badge={<StatusChip status={item.status} />}
+                      meta={item.id.substring(0, 8)}
+                      badge={<StatusChip status={item.status.toLowerCase()} />}
                     />
                   ))}
                 </div>

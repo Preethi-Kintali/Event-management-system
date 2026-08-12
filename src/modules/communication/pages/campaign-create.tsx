@@ -9,13 +9,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCreateCommunication } from "../services/communications.api";
+import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function CampaignCreatePage() {
+  const createComm = useCreateCommunication();
+  const navigate = useNavigate();
+
+  const [title, setTitle] = useState("");
+  const [type, setType] = useState("ANNOUNCEMENT");
+  const [audience, setAudience] = useState("ALL");
+  const [content, setContent] = useState("");
+
+  const handleCreate = (status: "DRAFT" | "PUBLISHED") => {
+    createComm.mutate(
+      { title, type: type as any, audience, content, status },
+      {
+        onSuccess: () => {
+          toast.success(`Communication ${status === "PUBLISHED" ? "published" : "saved"}!`);
+          navigate({ to: "/communication/campaigns" });
+        },
+        onError: (e: any) => toast.error(e.message || "Failed to create communication"),
+      }
+    );
+  };
+
   return (
     <FormPageTemplate
-      title="Create Campaign"
+      title="Create Communication"
       description="Design and schedule a new communication broadcast."
       crumbs={[
         { label: "Engagement" },
@@ -24,25 +48,24 @@ export function CampaignCreatePage() {
       ]}
       steps={[
         {
-          title: "Campaign Details",
+          title: "Details",
           description: "Basic configuration",
           content: (
             <div className="grid gap-5">
               <div className="space-y-1.5">
-                <Label htmlFor="name">Campaign Name</Label>
-                <Input id="name" placeholder="e.g. Registration Reminder" />
+                <Label htmlFor="title">Title</Label>
+                <Input id="title" placeholder="e.g. Registration Reminder" value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="channel">Channel</Label>
-                <Select defaultValue="email">
-                  <SelectTrigger id="channel">
+                <Label htmlFor="type">Type</Label>
+                <Select value={type} onValueChange={setType}>
+                  <SelectTrigger id="type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="sms">SMS</SelectItem>
-                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                    <SelectItem value="push">Push Notification</SelectItem>
+                    <SelectItem value="ANNOUNCEMENT">Announcement</SelectItem>
+                    <SelectItem value="REMINDER">Reminder</SelectItem>
+                    <SelectItem value="ALERT">Alert</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -56,75 +79,35 @@ export function CampaignCreatePage() {
             <div className="grid gap-5">
               <div className="space-y-1.5">
                 <Label htmlFor="audience">Target Segment</Label>
-                <Select defaultValue="all">
+                <Select value={audience} onValueChange={setAudience}>
                   <SelectTrigger id="audience">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Participants</SelectItem>
-                    <SelectItem value="event">Event Participants</SelectItem>
-                    <SelectItem value="teams">Teams</SelectItem>
-                    <SelectItem value="judges">Judges</SelectItem>
-                    <SelectItem value="mentors">Mentors</SelectItem>
+                    <SelectItem value="ALL">All Members</SelectItem>
+                    <SelectItem value="JUDGES">Judges</SelectItem>
+                    <SelectItem value="MENTORS">Mentors</SelectItem>
+                    <SelectItem value="VOLUNTEERS">Volunteers</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                Estimated reach:{" "}
-                <span className="font-semibold text-foreground">1,240 recipients</span>
-              </p>
             </div>
           ),
         },
         {
           title: "Message",
-          description: "Content and variables",
+          description: "Content",
           content: (
             <div className="grid gap-5">
               <div className="space-y-1.5">
-                <Label htmlFor="subject">Subject Line</Label>
-                <Input id="subject" placeholder="Important update regarding your submission" />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-end mb-1">
-                  <Label htmlFor="message">Message Body</Label>
-                  <div className="flex gap-1">
-                    {["{{firstName}}", "{{eventName}}"].map((v) => (
-                      <Badge
-                        key={v}
-                        variant="secondary"
-                        className="cursor-pointer hover:bg-muted font-mono text-[10px] py-0"
-                      >
-                        {v}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+                <Label htmlFor="message">Message Body</Label>
                 <Textarea
                   id="message"
                   rows={8}
-                  placeholder="Hi {{firstName}}, this is a reminder for..."
+                  placeholder="Hello everyone, we wanted to announce..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                 />
-              </div>
-            </div>
-          ),
-        },
-        {
-          title: "Schedule",
-          description: "When to send",
-          content: (
-            <div className="grid gap-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="timing">Dispatch Time</Label>
-                <Select defaultValue="now">
-                  <SelectTrigger id="timing">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="now">Send Immediately</SelectItem>
-                    <SelectItem value="later">Schedule for Later</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           ),
@@ -132,9 +115,12 @@ export function CampaignCreatePage() {
       ]}
       actions={
         <div className="flex gap-2 w-full justify-end">
-          <Button variant="outline">Send Test</Button>
-          <Button variant="outline">Save Draft</Button>
-          <Button>Schedule Campaign</Button>
+          <Button variant="outline" onClick={() => handleCreate("DRAFT")} disabled={createComm.isPending}>
+            Save Draft
+          </Button>
+          <Button onClick={() => handleCreate("PUBLISHED")} disabled={createComm.isPending}>
+            Publish Now
+          </Button>
         </div>
       }
     />

@@ -3,7 +3,8 @@ import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
 import { Timeline } from "@/components/ds/timeline";
 import { Button } from "@/components/ui/button";
-import { revenueByPlan, registrationTrend, timeline } from "@/lib/mock-data";
+import { revenueByPlan, timeline } from "@/lib/mock-data";
+import { registrationTrend } from "@/lib/mock-analytics";
 import { Settings } from "lucide-react";
 
 export function PlatformAdminDashboard() {

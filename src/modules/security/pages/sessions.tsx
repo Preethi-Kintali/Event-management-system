@@ -1,12 +1,11 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { SecurityService } from "../services/security.service";
-import { Session } from "../types/security.types";
-import { useEffect, useState } from "react";
+import { useSecuritySessions, useRevokeSession } from "../hooks/security.hooks";
+import { useAuth } from "@/lib/auth";
 import { Monitor, Smartphone, Globe } from "lucide-react";
 
-const columns: Column<Session>[] = [
+const columns: Column<any>[] = [
   {
     key: "user",
     header: "User",
@@ -74,14 +73,13 @@ const columns: Column<Session>[] = [
 ];
 
 export function SessionsPage() {
-  const [data, setData] = useState<Session[]>([]);
-
-  useEffect(() => {
-    SecurityService.getSessions().then(setData);
-  }, []);
+  const { activeOrganization } = useAuth();
+  const tenantId = activeOrganization || "";
+  const { data = [] } = useSecuritySessions(tenantId);
+  const revokeMutation = useRevokeSession(tenantId);
 
   return (
-    <ListPageTemplate<Session>
+    <ListPageTemplate<any>
       title="Active Sessions"
       description="Monitor and manage active user logins across all devices."
       crumbs={[
@@ -95,7 +93,14 @@ export function SessionsPage() {
       facet={{ label: "Status", key: "status", options: ["Active", "Idle", "Revoked"] }}
       rowActions={[
         { label: "View User Details", onSelect: () => {} },
-        { label: "Revoke Session", onSelect: () => {} },
+        { 
+          label: "Revoke Session", 
+          onSelect: (row) => {
+            if (confirm("Are you sure you want to revoke this session?")) {
+              revokeMutation.mutate(row.id);
+            }
+          } 
+        },
       ]}
     />
   );

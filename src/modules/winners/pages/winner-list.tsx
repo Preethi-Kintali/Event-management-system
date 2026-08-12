@@ -1,36 +1,40 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { WinnersService } from "../services/winners.service";
-import { Winner } from "../types/winners.types";
-import { useEffect, useState } from "react";
+import { useWinners } from "../services/winners.api";
 import { Badge } from "@/components/ui/badge";
 
-const columns: Column<Winner>[] = [
+const columns: Column<any>[] = [
   {
     key: "winner",
     header: "Winner",
     sortable: true,
     render: (row) => (
       <div>
-        <p className="font-medium">{row.winner}</p>
-        {row.team && <p className="text-xs text-muted-foreground">Team: {row.team}</p>}
+        <p className="font-medium">
+          {row.team ? row.team.name : row.user ? `${row.user.firstName} ${row.user.lastName}` : "Unknown"}
+        </p>
+        <p className="text-xs text-muted-foreground">{row.submission?.title}</p>
       </div>
     ),
   },
-  { key: "competition", header: "Competition", sortable: true },
+  { 
+    key: "competition", 
+    header: "Competition", 
+    sortable: true,
+    render: (row) => row.competition?.name 
+  },
   {
     key: "position",
     header: "Position",
     sortable: true,
     render: (row) => <Badge variant="outline">{row.position}</Badge>,
   },
-  { key: "prize", header: "Prize", sortable: false },
-  {
-    key: "score",
-    header: "Score",
-    sortable: true,
-    render: (row) => <span className="tabular-nums font-mono text-xs">{row.score}</span>,
+  { 
+    key: "prize", 
+    header: "Prize", 
+    sortable: false,
+    render: (row) => row.prize ? `${row.prize.name} (${row.prize.currency || ''} ${row.prize.value || ''})` : "—"
   },
   {
     key: "status",
@@ -38,32 +42,25 @@ const columns: Column<Winner>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Prize Distributed") statusId = "published";
-      if (row.status === "Announced") statusId = "active";
-      if (row.status === "Selected") statusId = "draft";
-      if (row.status === "Prize Pending") statusId = "suspended";
+      if (row.status === "FINALIZED") statusId = "active";
       return <StatusChip status={statusId as any} />;
     },
   },
   {
-    key: "announcementDate",
-    header: "Announced",
+    key: "createdAt",
+    header: "Date",
     sortable: true,
     render: (row) => (
-      <span className="text-xs text-muted-foreground">{row.announcementDate || "—"}</span>
+      <span className="text-xs text-muted-foreground">{new Date(row.createdAt).toLocaleDateString()}</span>
     ),
   },
 ];
 
 export function WinnerListPage() {
-  const [data, setData] = useState<Winner[]>([]);
-
-  useEffect(() => {
-    WinnersService.getWinners().then(setData);
-  }, []);
+  const { data = [] } = useWinners();
 
   return (
-    <ListPageTemplate<Winner>
+    <ListPageTemplate<any>
       title="Winners List"
       description="Database of all competition champions, finalists, and prize recipients."
       crumbs={[

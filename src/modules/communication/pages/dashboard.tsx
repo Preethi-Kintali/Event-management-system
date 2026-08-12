@@ -2,19 +2,16 @@ import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
 import { Timeline } from "@/components/ds/timeline";
-import { CommunicationService } from "../services/communication.service";
-import { CommunicationSummary } from "../types/communication.types";
+import { useCommunicationsDashboard } from "../services/communications.api";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Megaphone } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 export function CommunicationDashboard() {
-  const [summary, setSummary] = useState<CommunicationSummary | null>(null);
+  const { data: summary, isLoading } = useCommunicationsDashboard();
 
-  useEffect(() => {
-    CommunicationService.getDashboardSummary().then(setSummary);
-  }, []);
+  if (isLoading) return null;
 
   return (
     <>

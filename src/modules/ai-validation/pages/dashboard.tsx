@@ -2,18 +2,13 @@ import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
 import { Timeline } from "@/components/ds/timeline";
-import { AIValidationService } from "../services/ai-validation.service";
-import { ValidationSummary } from "../types/ai-validation.types";
+import { useValidationSummary } from "../hooks/ai-validation.hooks";
 import { timeline } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
 import { ShieldAlert } from "lucide-react";
 
 export function AIValidationDashboard() {
-  const [summary, setSummary] = useState<ValidationSummary | null>(null);
-
-  useEffect(() => {
-    AIValidationService.getDashboardSummary().then(setSummary);
-  }, []);
+  const { data: summary } = useValidationSummary();
 
   return (
     <>

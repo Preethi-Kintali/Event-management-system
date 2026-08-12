@@ -1,9 +1,8 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { CommunicationService } from "../services/communication.service";
+import { useMessageLogs } from "../services/communications.api";
 import { MessageLog } from "../types/communication.types";
-import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
 const columns: Column<MessageLog>[] = [
@@ -47,14 +46,10 @@ const columns: Column<MessageLog>[] = [
 ];
 
 export function CommunicationLogsPage() {
-  const [data, setData] = useState<MessageLog[]>([]);
-
-  useEffect(() => {
-    CommunicationService.getMessageLogs().then(setData);
-  }, []);
+  const { data = [] } = useMessageLogs();
 
   return (
-    <ListPageTemplate<MessageLog>
+    <ListPageTemplate<any>
       title="Message Logs"
       description="Direct delivery tracking and error logs for all messages."
       crumbs={[

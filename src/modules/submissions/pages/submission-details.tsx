@@ -3,13 +3,29 @@ import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { scorecardCriteria } from "@/lib/mock-data";
+import { useParams } from "@tanstack/react-router";
+import { useSubmission } from "../services/submissions.api";
 
 export function SubmissionDetailsPage() {
+  const { id } = useParams({ strict: false }) as { id: string };
+  const { data: submission, isLoading } = useSubmission(id);
+
+  if (isLoading) {
+    return <div className="p-8">Loading submission details...</div>;
+  }
+
+  if (!submission) {
+    return <div className="p-8">Submission not found</div>;
+  }
+
+  const evaluations = submission.evaluations || [];
+  const validScores = evaluations.filter(e => e.score !== null).map(e => e.score as number);
+  const avgScore = validScores.length > 0 ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(1) : "0";
+
   return (
     <DetailsPageTemplate
-      title="SUB-2291 · SignBridge"
-      description="Realtime sign language captions · Neural Nomads · Round 2"
+      title={`${submission.id.substring(0, 8).toUpperCase()} · ${submission.title}`}
+      description={`${submission.competition?.name || "Competition"} · ${submission.team?.name || "Team"}`}
       crumbs={[
         { label: "Programs" },
         { label: "Submissions", to: "/submissions" },
@@ -17,8 +33,8 @@ export function SubmissionDetailsPage() {
       ]}
       meta={
         <>
-          <StatusChip status="active" />
-          <span className="text-xs text-muted-foreground">Last updated 12 minutes ago</span>
+          <StatusChip status={submission.status.toLowerCase() as any} />
+          <span className="text-xs text-muted-foreground">Created on {new Date(submission.createdAt).toLocaleDateString()}</span>
         </>
       }
       actions={
@@ -28,31 +44,31 @@ export function SubmissionDetailsPage() {
         </>
       }
       metrics={[
-        { label: "Score", value: "87.5", caption: "weighted average" },
-        { label: "Reviewers", value: "2 of 3" },
-        { label: "Plagiarism", value: "0 flags" },
-        { label: "Round", value: "Round 2" },
-      ]}
-      related={[
-        { id: "r1", label: "Neural Nomads", meta: "Team · 4 members" },
-        { id: "r2", label: "AI for Accessibility Track", meta: "Competition" },
-        { id: "r3", label: "Dr. Elena Marković", meta: "Reviewer · scored 88" },
+        { label: "Score", value: avgScore, caption: "average" },
+        { label: "Evaluations", value: `${evaluations.length}` },
+        { label: "Plagiarism", value: "0 flags" }, // Not real yet
       ]}
       overview={
-        <SectionCard title="Scorecard breakdown" description="Weighted criteria" padded={false}>
+        <SectionCard title="Evaluations breakdown" description="Judge feedback and scores" padded={false}>
           <ul className="divide-y divide-border">
-            {scorecardCriteria.map((c) => (
-              <li key={c.id} className="px-5 py-4">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                  <p className="truncate text-sm font-medium">{c.label}</p>
-                  <span className="shrink-0 text-sm tabular-nums">
-                    {c.score} / {c.weight}
-                  </span>
-                </div>
-                <Progress value={(c.score / c.weight) * 100} className="mt-2 h-1.5" />
-                <p className="mt-2 text-xs text-muted-foreground">{c.notes}</p>
-              </li>
-            ))}
+            {evaluations.length > 0 ? (
+              evaluations.map((e) => (
+                <li key={e.id} className="px-5 py-4">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                    <p className="truncate text-sm font-medium">{e.judge.firstName} {e.judge.lastName}</p>
+                    <span className="shrink-0 text-sm tabular-nums">
+                      {e.score || 0} / 100
+                    </span>
+                  </div>
+                  <Progress value={e.score || 0} className="mt-2 h-1.5" />
+                  <p className="mt-2 text-xs text-muted-foreground">{e.feedback || "No feedback provided."}</p>
+                </li>
+              ))
+            ) : (
+              <div className="p-8 text-center text-muted-foreground">
+                No evaluations yet.
+              </div>
+            )}
           </ul>
         </SectionCard>
       }

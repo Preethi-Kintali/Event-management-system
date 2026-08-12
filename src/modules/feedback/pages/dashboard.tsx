@@ -1,20 +1,17 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
-import { FeedbackService } from "../services/feedback.service";
-import { FeedbackDashboardSummary } from "../types/feedback.types";
-import { useEffect, useState } from "react";
+import { useSurveys, useFeedbackDashboard } from "../hooks/feedback.api";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { Progress } from "@/components/ui/progress";
 
 export function FeedbackDashboard() {
-  const [summary, setSummary] = useState<FeedbackDashboardSummary | null>(null);
+  const { data: surveys = [], isLoading: loadingSurveys } = useSurveys();
+  const { data: stats, isLoading: loadingStats } = useFeedbackDashboard();
 
-  useEffect(() => {
-    FeedbackService.getDashboardSummary().then(setSummary);
-  }, []);
+  const positiveFeedback = stats?.positiveSentiment || 0;
+  const negativeFeedback = stats?.totalResponses > 0 ? 100 - positiveFeedback - 8 : 0;
 
   return (
     <>
@@ -32,53 +29,51 @@ export function FeedbackDashboard() {
         }
       />
 
-      {summary && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            label="Total Responses"
-            value={summary.totalResponses.toString()}
-            delta={5.2}
-            index={0}
-          />
-          <StatCard
-            label="Average Rating"
-            value={`${summary.averageRating} / 5`}
-            progress={(summary.averageRating / 5) * 100}
-            index={1}
-          />
-          <StatCard
-            label="Response Rate"
-            value={`${summary.responseRate}%`}
-            delta={2.1}
-            index={2}
-          />
-          <StatCard
-            label="Pending Surveys"
-            value={summary.pendingSurveys.toString()}
-            hint="Awaiting publication"
-            index={3}
-          />
-        </div>
-      )}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Total Responses"
+          value={stats?.totalResponses?.toString() || "0"}
+          delta={5.2}
+          index={0}
+        />
+        <StatCard
+          label="Average Rating"
+          value={`${stats?.averageSatisfaction || 0} / 5`}
+          progress={((stats?.averageSatisfaction || 0) / 5) * 100}
+          index={1}
+        />
+        <StatCard
+          label="Positive Sentiment"
+          value={`${stats?.positiveSentiment || 0}%`}
+          delta={2.1}
+          index={2}
+        />
+        <StatCard
+          label="Actionable Insights"
+          value={stats?.actionableInsights?.toString() || "0"}
+          hint="From comments"
+          index={3}
+        />
+      </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-6 xl:grid-cols-2 mt-6">
         <SectionCard title="Sentiment Distribution" description="Analysis of text comments">
           <div className="flex flex-col gap-6 pt-4">
             <div>
               <div className="flex justify-between mb-2 text-sm font-medium">
-                <span className="text-emerald-500">Positive ({summary?.positiveFeedback}%)</span>
+                <span className="text-emerald-500">Positive ({positiveFeedback}%)</span>
                 <span>Neutral (8%)</span>
-                <span className="text-destructive">Negative ({summary?.negativeFeedback}%)</span>
+                <span className="text-destructive">Negative ({negativeFeedback}%)</span>
               </div>
               <div className="h-4 w-full flex rounded-full overflow-hidden">
                 <div
                   className="bg-emerald-500 h-full"
-                  style={{ width: `${summary?.positiveFeedback}%` }}
+                  style={{ width: `${positiveFeedback}%` }}
                 />
                 <div className="bg-amber-400 h-full" style={{ width: "8%" }} />
                 <div
                   className="bg-destructive h-full"
-                  style={{ width: `${summary?.negativeFeedback}%` }}
+                  style={{ width: `${negativeFeedback}%` }}
                 />
               </div>
             </div>
@@ -88,13 +83,13 @@ export function FeedbackDashboard() {
                 <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">
                   Top Positive Theme
                 </p>
-                <p className="font-semibold">Mentorship Quality</p>
+                <p className="font-semibold">{stats?.topPositiveTheme || "N/A"}</p>
               </div>
               <div className="rounded-lg border border-border bg-surface p-4 text-center">
                 <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">
                   Top Negative Theme
                 </p>
-                <p className="font-semibold">WiFi Connectivity</p>
+                <p className="font-semibold">{stats?.topNegativeTheme || "N/A"}</p>
               </div>
             </div>
           </div>
@@ -102,13 +97,7 @@ export function FeedbackDashboard() {
 
         <SectionCard title="Rating Trend" description="Average score over last 5 events">
           <GroupedBarChart
-            data={[
-              { event: "Hackthon 24", rating: 4.2 },
-              { event: "AI Summit", rating: 4.8 },
-              { event: "Design Cup", rating: 4.5 },
-              { event: "Web3 Sprint", rating: 4.1 },
-              { event: "Cloud Camp", rating: 4.7 },
-            ]}
+            data={stats?.ratingTrend || []}
             xKey="event"
             series={[{ key: "rating", label: "Average Rating out of 5" }]}
             height={260}
@@ -118,3 +107,4 @@ export function FeedbackDashboard() {
     </>
   );
 }
+

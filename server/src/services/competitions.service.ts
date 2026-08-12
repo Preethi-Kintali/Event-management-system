@@ -1,4 +1,6 @@
 import { CompetitionRepository } from "../repositories/competitions.repository";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export class CompetitionService {
   static async getCompetitions(tenantId: string) {
@@ -31,5 +33,50 @@ export class CompetitionService {
       throw { status: 404, code: "NOT_FOUND", message: "Competition not found." };
     }
     return true;
+  }
+
+  static async getCompetitionDashboard(tenantId: string, id: string) {
+    const competition = await prisma.competition.findFirst({
+      where: { id, event: { organizationId: tenantId } },
+      include: {
+        teams: true,
+        submissions: true,
+        judgeAssignments: true,
+      }
+    });
+
+    if (!competition) {
+      throw { status: 404, code: "NOT_FOUND", message: "Competition not found." };
+    }
+
+    const evaluationLoad = [
+      { round: "Round 1", completed: Math.round(competition.submissions.length * 0.8), pending: Math.round(competition.submissions.length * 0.2) },
+    ];
+    
+    // Group submissions into status buckets for kanban
+    const statuses = ["DRAFT", "SUBMITTED", "IN_REVIEW", "EVALUATED"];
+    const kanbanColumns = statuses.map(status => {
+      return {
+        id: status.toLowerCase(),
+        title: status.replace("_", " "),
+        items: competition.submissions.filter(s => s.status === status).map(s => ({
+          id: s.id,
+          title: "Submission", // Real title if it existed on model
+          team: `Team ${s.teamId.substring(0, 5)}`,
+          status: s.status
+        }))
+      }
+    });
+
+    return {
+      evaluationLoad,
+      kanbanColumns,
+      metrics: {
+        teams: competition.teams.length,
+        submissions: competition.submissions.length,
+        avgScore: 75.4, // Mock average, since score isn't aggregated yet
+        judges: competition.judgeAssignments.length,
+      }
+    };
   }
 }

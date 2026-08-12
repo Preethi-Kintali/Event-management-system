@@ -1,21 +1,14 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
-import { IntegrationsService } from "../services/integrations.service";
-import { IntegrationDashboardSummary, IntegrationConnection } from "../types/integrations.types";
-import { useEffect, useState } from "react";
+import { useIntegrationDashboard, useIntegrations } from "../hooks/integrations.hooks";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { Plus, Webhook, Key, CheckCircle2, AlertCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function IntegrationsDashboard() {
-  const [summary, setSummary] = useState<IntegrationDashboardSummary | null>(null);
-  const [connected, setConnected] = useState<IntegrationConnection[]>([]);
-
-  useEffect(() => {
-    IntegrationsService.getDashboardSummary().then(setSummary);
-    IntegrationsService.getConnected().then(setConnected);
-  }, []);
+  const { data: summary } = useIntegrationDashboard();
+  const { data: connected = [] } = useIntegrations();
 
   return (
     <>
@@ -103,7 +96,7 @@ export function IntegrationsDashboard() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">{conn.lastSync}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs">{conn.lastSync ? new Date(conn.lastSync).toLocaleDateString() : 'Never'}</td>
                     <td className="px-4 py-3 text-right">
                       <Button variant="link" size="sm" asChild className="h-auto p-0">
                         <Link to={`/integrations/${conn.id}` as any}>Configure</Link>

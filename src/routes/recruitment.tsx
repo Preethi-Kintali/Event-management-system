@@ -2,9 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { recruitment } from "@/lib/mock-data";
+import { useRecruitmentCandidates, useRecruitmentDashboard } from "@/modules/recruitment/hooks/recruitment.api";
 
-type Row = (typeof recruitment)[number];
+type Row = {
+  id: string;
+  candidate: string;
+  role: string;
+  company: string;
+  stage: string;
+  score: number;
+  source: string;
+  status: string;
+};
 
 const columns: Column<Row>[] = [
   {
@@ -27,7 +36,13 @@ const columns: Column<Row>[] = [
     key: "status",
     header: "Status",
     sortable: true,
-    render: (row) => <StatusChip status={row.status} />,
+    render: (row) => {
+      let statusId = "pending";
+      if (row.status === "ACTIVE") statusId = "active";
+      if (row.status === "HIRED") statusId = "published";
+      if (row.status === "REJECTED") statusId = "archived";
+      return <StatusChip status={statusId as any} />;
+    },
   },
 ];
 
@@ -50,19 +65,37 @@ export const Route = createFileRoute("/recruitment")({
 });
 
 function RecruitmentPage() {
+  const { data: candidates = [], isLoading: isCandidatesLoading } = useRecruitmentCandidates();
+  const { data: stats, isLoading: isStatsLoading } = useRecruitmentDashboard();
+
+  const rows: Row[] = candidates.map((c: any) => ({
+    id: c.id,
+    candidate: c.participant ? `${c.participant.firstName} ${c.participant.lastName}` : "Unknown",
+    role: c.role || "General",
+    company: c.company || "Internal",
+    stage: c.stage || "Shortlisted",
+    score: c.score || 0,
+    source: c.source || "Application",
+    status: c.status || "ACTIVE",
+  }));
+
+  if (isCandidatesLoading || isStatsLoading) {
+    return <div className="p-8">Loading recruitment pipeline...</div>;
+  }
+
   return (
     <ListPageTemplate<Row>
       title="Recruitment"
       description="Convert competition performance into hiring pipelines and offers."
       crumbs={[{ label: "People" }, { label: "Recruitment" }]}
       columns={columns}
-      rows={recruitment}
+      rows={rows}
       searchKeys={["candidate", "role", "company"]}
       stats={[
-        { label: "Candidates", value: "1,284", delta: 21.4 },
-        { label: "Interviews", value: "186", delta: 8.6 },
-        { label: "Offers", value: "42", delta: 14.9 },
-        { label: "Offer acceptance", value: "78%", progress: 78 },
+        { label: "Candidates", value: stats?.candidates?.toString() || "0" },
+        { label: "Interviews", value: stats?.interviews?.toString() || "0" },
+        { label: "Offers", value: stats?.offers?.toString() || "0" },
+        { label: "Offer acceptance", value: `${stats?.offerAcceptance || 0}%`, progress: stats?.offerAcceptance || 0 },
       ]}
       facet={{
         label: "Stage",
@@ -78,3 +111,4 @@ function RecruitmentPage() {
     />
   );
 }
+

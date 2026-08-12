@@ -43,7 +43,10 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SeverityChip } from "@/components/ds/status-chip";
-import { notifications, organizations } from "@/lib/mock-data";
+
+import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, Notification } from "@/modules/communication/services/notifications.api";
+import { CheckCheck, Trash2 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 const quickLinks = [
   { label: "Dashboard", to: "/" },
@@ -62,7 +65,13 @@ export function Topbar() {
   const { user, logout, activeOrganization, setActiveOrganization } = useAuth();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const unread = notifications.filter((n) => n.unread).length;
+  
+  const { data: notificationsData } = useNotifications(1, 10);
+  const markAsRead = useMarkNotificationAsRead();
+  const markAllAsRead = useMarkAllNotificationsAsRead();
+  
+  const notifications = notificationsData?.data || [];
+  const unread = notificationsData?.unreadCount || 0;
 
   const currentMembership = user?.memberships?.find(
     (m) => m.organization.id === activeOrganization
@@ -159,26 +168,42 @@ export function Topbar() {
             </Button>
           </SheetTrigger>
           <SheetContent className="w-full sm:max-w-md">
-            <SheetHeader>
-              <SheetTitle>Notifications</SheetTitle>
+            <SheetHeader className="mb-4">
+              <div className="flex items-center justify-between">
+                <SheetTitle>Notifications</SheetTitle>
+                {unread > 0 && (
+                  <Button variant="ghost" size="sm" onClick={() => markAllAsRead.mutate()} className="h-8 gap-1.5 text-xs">
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    Mark all as read
+                  </Button>
+                )}
+              </div>
               <SheetDescription>{unread} unread across your organizations</SheetDescription>
             </SheetHeader>
-            <ul className="mt-2 space-y-2 overflow-y-auto px-4 pb-4 scrollbar-thin">
-              {notifications.map((n) => (
-                <li
-                  key={n.id}
-                  className="rounded-lg border border-border bg-surface p-3 transition-colors hover:bg-accent/40"
-                >
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-                    <p className="text-sm font-medium leading-snug">{n.title}</p>
-                    <SeverityChip severity={n.type} />
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>
-                  <p className="mt-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                    {n.time}
-                  </p>
-                </li>
-              ))}
+            <ul className="space-y-2 overflow-y-auto pb-4 scrollbar-thin">
+              {notifications.length === 0 ? (
+                <div className="py-8 text-center text-sm text-muted-foreground">No notifications.</div>
+              ) : (
+                notifications.map((n: Notification) => (
+                  <li
+                    key={n.id}
+                    onClick={() => {
+                      if (!n.isRead) markAsRead.mutate(n.id);
+                      if (n.link) navigate({ to: n.link });
+                    }}
+                    className={`cursor-pointer rounded-lg border p-3 transition-colors hover:bg-accent/40 ${n.isRead ? "border-transparent bg-transparent" : "border-border bg-surface"}`}
+                  >
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                      <p className={`text-sm leading-snug ${n.isRead ? "text-muted-foreground" : "font-medium text-foreground"}`}>{n.title}</p>
+                      <SeverityChip severity={n.type === "CERTIFICATE" ? "success" : n.type === "ANNOUNCEMENT" ? "info" : "warning"} />
+                    </div>
+                    <p className={`mt-1 text-sm ${n.isRead ? "text-muted-foreground/70" : "text-muted-foreground"}`}>{n.message}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                    </p>
+                  </li>
+                ))
+              )}
             </ul>
           </SheetContent>
         </Sheet>

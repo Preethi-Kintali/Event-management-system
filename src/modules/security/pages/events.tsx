@@ -1,12 +1,11 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import type { Column } from "@/components/ds/data-table";
-import { SecurityService } from "../services/security.service";
-import { SecurityEvent } from "../types/security.types";
-import { useEffect, useState } from "react";
+import { useSecurityEvents } from "../hooks/security.hooks";
+import { useAuth } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle, AlertTriangle } from "lucide-react";
 
-const columns: Column<SecurityEvent>[] = [
+const columns: Column<any>[] = [
   {
     key: "timestamp",
     header: "Timestamp",
@@ -86,14 +85,12 @@ const columns: Column<SecurityEvent>[] = [
 ];
 
 export function EventsPage() {
-  const [data, setData] = useState<SecurityEvent[]>([]);
-
-  useEffect(() => {
-    SecurityService.getEvents().then(setData);
-  }, []);
+  const { activeOrganization } = useAuth();
+  const tenantId = activeOrganization || "";
+  const { data = [] } = useSecurityEvents(tenantId);
 
   return (
-    <ListPageTemplate<SecurityEvent>
+    <ListPageTemplate<any>
       title="Security Audit Logs"
       description="Immutable record of security-related events and access attempts."
       crumbs={[

@@ -9,14 +9,28 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save } from "lucide-react";
 
+import { useSecurityPolicy, useUpdateSecurityPolicy } from "../hooks/security.hooks";
+import { useAuth } from "@/lib/auth";
+
 export function AuthenticationSecurityPage() {
-  const [policy, setPolicy] = useState<SecurityPolicy | null>(null);
+  const { activeOrganization } = useAuth();
+  const tenantId = activeOrganization || "";
+  const { data: policy, isLoading } = useSecurityPolicy(tenantId);
+  const updatePolicyMutation = useUpdateSecurityPolicy(tenantId);
+  
+  const [formData, setFormData] = useState<SecurityPolicy | null>(null);
 
   useEffect(() => {
-    SecurityService.getPolicy().then(setPolicy);
-  }, []);
+    if (policy) setFormData(policy);
+  }, [policy]);
 
-  if (!policy) return null;
+  const handleSave = () => {
+    if (formData) {
+      updatePolicyMutation.mutate(formData);
+    }
+  };
+
+  if (isLoading || !formData) return null;
 
   return (
     <>
@@ -28,21 +42,21 @@ export function AuthenticationSecurityPage() {
           { label: "Security", to: "/security" },
           { label: "Authentication" },
         ]}
-        actions={
-          <Button>
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
-        }
       />
 
       <div className="max-w-4xl mt-6">
         <Tabs defaultValue="password">
-          <TabsList className="mb-6">
-            <TabsTrigger value="password">Password Policy</TabsTrigger>
-            <TabsTrigger value="mfa">Multi-Factor Auth</TabsTrigger>
-            <TabsTrigger value="sso">Single Sign-On (SSO)</TabsTrigger>
-          </TabsList>
+          <div className="flex justify-between items-center mt-6">
+            <TabsList>
+              <TabsTrigger value="password">Password Policy</TabsTrigger>
+              <TabsTrigger value="mfa">MFA</TabsTrigger>
+              <TabsTrigger value="sso">Single Sign-On (SSO)</TabsTrigger>
+            </TabsList>
+            <Button onClick={handleSave} disabled={updatePolicyMutation.isPending}>
+              <Save className="w-4 h-4 mr-2" />
+              {updatePolicyMutation.isPending ? "Saving..." : "Save Policies"}
+            </Button>
+          </div>
 
           <TabsContent value="password" className="space-y-6">
             <SectionCard
@@ -52,15 +66,27 @@ export function AuthenticationSecurityPage() {
               <div className="grid gap-6 sm:grid-cols-2 max-w-2xl">
                 <div className="space-y-2">
                   <Label>Minimum Password Length</Label>
-                  <Input type="number" defaultValue={policy.minPasswordLength} />
+                  <Input 
+                    type="number" 
+                    value={formData.minPasswordLength} 
+                    onChange={e => setFormData({ ...formData, minPasswordLength: parseInt(e.target.value) })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Password Expiry (Days)</Label>
-                  <Input type="number" defaultValue={policy.passwordExpiryDays} />
+                  <Input 
+                    type="number" 
+                    value={formData.passwordExpiryDays} 
+                    onChange={e => setFormData({ ...formData, passwordExpiryDays: parseInt(e.target.value) })}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Failed Login Lockout Threshold</Label>
-                  <Input type="number" defaultValue={policy.lockoutThreshold} />
+                  <Label>Account Lockout Threshold</Label>
+                  <Input 
+                    type="number" 
+                    value={formData.lockoutThreshold} 
+                    onChange={e => setFormData({ ...formData, lockoutThreshold: parseInt(e.target.value) })}
+                  />
                 </div>
               </div>
 
@@ -104,22 +130,27 @@ export function AuthenticationSecurityPage() {
               <div className="space-y-6 max-w-2xl">
                 <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-surface">
                   <div className="space-y-0.5">
-                    <Label className="text-base">Enable MFA Platform-wide</Label>
+                    <Label>Enforce MFA for all users</Label>
                     <p className="text-sm text-muted-foreground">
-                      Allow users to configure 2FA on their accounts.
+                      Require every user to configure MFA on their next login.
                     </p>
                   </div>
-                  <Switch defaultChecked={policy.mfaEnabled} />
+                  <Switch 
+                    checked={formData.mfaEnabled} 
+                    onCheckedChange={c => setFormData({ ...formData, mfaEnabled: c })} 
+                  />
                 </div>
-
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-surface">
+                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="space-y-0.5">
-                    <Label className="text-base">Enforce for Administrators</Label>
+                    <Label>Enforce MFA for Admins only</Label>
                     <p className="text-sm text-muted-foreground">
-                      Require MFA for any user with Admin privileges.
+                      Only require MFA for users with administrative roles.
                     </p>
                   </div>
-                  <Switch defaultChecked={policy.mfaRequiredForAdmins} />
+                  <Switch 
+                    checked={formData.mfaRequiredForAdmins}
+                    onCheckedChange={c => setFormData({ ...formData, mfaRequiredForAdmins: c })}
+                  />
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-border">
@@ -151,15 +182,20 @@ export function AuthenticationSecurityPage() {
               <div className="space-y-6 max-w-2xl">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>Enable Enterprise SSO</Label>
-                    <p className="text-xs text-muted-foreground">Allow login via SAML or OIDC.</p>
+                    <Label>Enable SAML/SSO Login</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Allow users to authenticate using your corporate Identity Provider.
+                    </p>
                   </div>
-                  <Switch defaultChecked={policy.ssoEnabled} />
+                  <Switch 
+                    checked={formData.ssoEnabled}
+                    onCheckedChange={c => setFormData({ ...formData, ssoEnabled: c })}
+                  />
                 </div>
-
+                  
                 <div className="space-y-4 pt-4 border-t border-border">
                   <div className="space-y-2">
-                    <Label>Identity Provider Type</Label>
+                    <Label>SSO Protocol</Label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                       <option>SAML 2.0</option>
                       <option>OpenID Connect</option>
@@ -167,7 +203,10 @@ export function AuthenticationSecurityPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Provider Name</Label>
-                    <Input defaultValue={policy.ssoProvider} />
+                    <Input 
+                      value={formData.ssoProvider || ""} 
+                      onChange={e => setFormData({ ...formData, ssoProvider: e.target.value })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Sign-On URL</Label>

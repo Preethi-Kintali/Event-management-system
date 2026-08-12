@@ -2,22 +2,15 @@ import { DetailsPageTemplate } from "@/components/templates/details-page";
 import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
-import { BadgesService } from "../services/badges.service";
-import { Badge } from "../types/badges.types";
-import { useEffect, useState } from "react";
-import { useRouterState } from "@tanstack/react-router";
+import { useBadge } from "../services/badges.api";
+import { useParams } from "@tanstack/react-router";
 import { Award, ShieldCheck } from "lucide-react";
 
 export function BadgeDetailsPage() {
-  const [record, setRecord] = useState<Badge | null>(null);
-  const routerState = useRouterState();
-  const id = routerState.location.pathname.split("/").pop() || "";
+  const { id } = useParams({ strict: false }) as any;
+  const { data: record, isLoading } = useBadge(id);
 
-  useEffect(() => {
-    BadgesService.getBadgeById(id).then((r) => setRecord(r || null));
-  }, [id]);
-
-  if (!record) return null;
+  if (isLoading || !record) return null;
 
   return (
     <DetailsPageTemplate
@@ -28,14 +21,14 @@ export function BadgeDetailsPage() {
         <>
           <StatusChip
             status={
-              record.status === "Active"
+              record.status === "ACTIVE"
                 ? "active"
-                : record.status === "Draft"
+                : record.status === "DRAFT"
                   ? "draft"
                   : "archived"
             }
           />
-          <span className="text-xs text-muted-foreground">Created {record.createdDate}</span>
+          <span className="text-xs text-muted-foreground">Created {new Date(record.createdAt).toLocaleDateString()}</span>
         </>
       }
       actions={
@@ -45,10 +38,9 @@ export function BadgeDetailsPage() {
         </>
       }
       metrics={[
-        { label: "Category", value: record.category },
-        { label: "Level", value: record.level },
-        { label: "XP Value", value: record.points.toString() },
-        { label: "Total Recipients", value: record.recipients.toString() },
+        { label: "Category", value: record.type },
+        { label: "Level", value: record.level || "Standard" },
+        { label: "Total Recipients", value: record.awards?.length?.toString() || "0" },
       ]}
       overview={
         <>

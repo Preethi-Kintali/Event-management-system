@@ -1,13 +1,20 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { CommunityService } from "../services/community.service";
-import { Group } from "../types/community.types";
-import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { useGroups } from "../hooks/community.api";
 import { TrendingUp, Activity, Minus } from "lucide-react";
 
-const columns: Column<Group>[] = [
+type GroupRow = {
+  id: string;
+  group: string;
+  category: string;
+  members: number;
+  activity: string;
+  createdDate: string;
+  status: string;
+};
+
+const columns: Column<GroupRow>[] = [
   {
     key: "group",
     header: "Group Name",
@@ -46,22 +53,32 @@ const columns: Column<Group>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Active") statusId = "active";
-      if (row.status === "Inactive") statusId = "archived";
+      if (row.status === "ACTIVE") statusId = "active";
+      if (row.status === "INACTIVE") statusId = "archived";
       return <StatusChip status={statusId as any} />;
     },
   },
 ];
 
 export function GroupsPage() {
-  const [data, setData] = useState<Group[]>([]);
+  const { data: groups = [], isLoading } = useGroups();
 
-  useEffect(() => {
-    CommunityService.getGroups().then(setData);
-  }, []);
+  const rows: GroupRow[] = groups.map((g: any) => ({
+    id: g.id,
+    group: g.name,
+    category: g.category,
+    members: g._count?.members || 0,
+    activity: "Medium", // Default fallback
+    createdDate: new Date(g.createdAt).toLocaleDateString(),
+    status: g.status,
+  }));
+
+  if (isLoading) {
+    return <div className="p-8">Loading groups...</div>;
+  }
 
   return (
-    <ListPageTemplate<Group>
+    <ListPageTemplate<GroupRow>
       title="Community Groups"
       description="Interest-based cohorts and member collectives."
       crumbs={[
@@ -70,9 +87,9 @@ export function GroupsPage() {
         { label: "Groups" },
       ]}
       columns={columns}
-      rows={data}
+      rows={rows}
       searchKeys={["group", "category"]}
-      facet={{ label: "Status", key: "status", options: ["Active", "Inactive"] }}
+      facet={{ label: "Status", key: "status", options: ["ACTIVE", "INACTIVE"] }}
       createLabel="Create Group"
       rowActions={[
         { label: "View Group", onSelect: () => {} },
@@ -82,3 +99,4 @@ export function GroupsPage() {
     />
   );
 }
+

@@ -27,44 +27,5 @@ export const PlatformAdminService = {
     }));
   },
 
-  async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
-    return [
-      {
-        id: "plan_1",
-        name: "Free",
-        price: 0,
-        billingPeriod: "monthly",
-        features: ["Up to 100 users", "Basic events"],
-        activeSubscribers: 120,
-        status: "active",
-      },
-      {
-        id: "plan_2",
-        name: "Starter",
-        price: 49,
-        billingPeriod: "monthly",
-        features: ["Up to 500 users", "Advanced events", "Basic reporting"],
-        activeSubscribers: 45,
-        status: "active",
-      },
-      {
-        id: "plan_3",
-        name: "Growth",
-        price: 199,
-        billingPeriod: "monthly",
-        features: ["Up to 5000 users", "Priority support", "Custom domains"],
-        activeSubscribers: 18,
-        status: "active",
-      },
-      {
-        id: "plan_4",
-        name: "Enterprise",
-        price: 999,
-        billingPeriod: "yearly",
-        features: ["Unlimited users", "Dedicated success manager", "SLA"],
-        activeSubscribers: 5,
-        status: "active",
-      },
-    ];
-  },
+
 };

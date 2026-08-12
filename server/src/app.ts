@@ -7,16 +7,27 @@ export const app = express();
 
 // Security middlewares
 app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:8081", credentials: true }));
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:8081",
+  "http://localhost:8080",
+  "http://localhost:8082",
+  "http://localhost:8083"
+];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use(limiter);
+
+// Webhook for Stripe must use raw body BEFORE express.json()
+import { PaymentsController } from "./controllers/payments.controller";
+app.post("/api/v1/payments/webhooks/stripe", express.raw({ type: "application/json" }), PaymentsController.handleWebhook);
+
 
 // Parsing middlewares
 app.use(express.json());
@@ -44,6 +55,29 @@ import { mentorRoutes } from "./routes/mentors.routes";
 import { volunteerRoutes } from "./routes/volunteers.routes";
 import { attendanceRoutes } from "./routes/attendance.routes";
 import { certificatesRouter } from "./routes/certificates.routes";
+import communicationRoutes from "./routes/communications.routes";
+import notificationRoutes from "./routes/notifications.routes";
+import winnersRoutes from "./routes/winners.routes";
+import badgesRoutes from "./routes/badges.routes";
+
+// Phase 4D Routes
+import learningRoutes from "./routes/learning.routes";
+import communityRoutes from "./routes/community.routes";
+import feedbackRoutes from "./routes/feedback.routes";
+import recruitmentRoutes from "./routes/recruitment.routes";
+import sponsorsRoutes from "./routes/sponsors.routes";
+
+// Phase 4E Routes
+import reportsRoutes from "./routes/reports.routes";
+
+// Phase 4F Routes
+import workflowsRoutes from "./routes/workflows.routes";
+import integrationsRoutes from "./routes/integrations.routes";
+import aiValidationRoutes from "./routes/ai-validation.routes";
+import aiCopilotRoutes from "./routes/ai-copilot.routes";
+import paymentsRoutes from "./routes/payments.routes";
+import { analyticsRoutes } from "./routes/analytics.routes";
+import securityRoutes from "./routes/security.routes";
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/events", eventRoutes);
@@ -61,6 +95,29 @@ app.use("/api/v1/mentors", mentorRoutes);
 app.use("/api/v1/volunteers", volunteerRoutes);
 app.use("/api/v1/attendance", attendanceRoutes);
 app.use("/api/v1/certificates", certificatesRouter);
+app.use("/api/v1/communications", communicationRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/winners", winnersRoutes);
+app.use("/api/v1/badges", badgesRoutes);
+
+// Phase 4D
+app.use("/api/v1/learning", learningRoutes);
+app.use("/api/v1/community", communityRoutes);
+app.use("/api/v1/feedback", feedbackRoutes);
+app.use("/api/v1/recruitment", recruitmentRoutes);
+app.use("/api/v1/sponsors", sponsorsRoutes);
+
+// Phase 4E
+app.use("/api/v1/reports", reportsRoutes);
+
+// Phase 4F
+app.use("/api/v1/workflows", workflowsRoutes);
+app.use("/api/v1/integrations", integrationsRoutes);
+app.use("/api/v1/ai-validation", aiValidationRoutes);
+app.use("/api/v1/ai-copilot", aiCopilotRoutes);
+app.use("/api/v1/payments", paymentsRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/security", securityRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", (req: Request, res: Response) => {

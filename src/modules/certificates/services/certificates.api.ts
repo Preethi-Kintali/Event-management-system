@@ -16,14 +16,14 @@ export const CERTIFICATE_KEYS = {
 export function useCertificates() {
   return useQuery({
     queryKey: CERTIFICATE_KEYS.list(),
-    queryFn: () => fetchApi("/api/v1/certificates") as Promise<Certificate[]>,
+    queryFn: () => fetchApi("/certificates") as Promise<Certificate[]>,
   });
 }
 
 export function useCertificate(id: string) {
   return useQuery({
     queryKey: CERTIFICATE_KEYS.detail(id),
-    queryFn: () => fetchApi(`/api/v1/certificates/${id}`) as Promise<Certificate>,
+    queryFn: () => fetchApi(`/certificates/${id}`) as Promise<Certificate>,
     enabled: !!id,
   });
 }
@@ -31,7 +31,7 @@ export function useCertificate(id: string) {
 export function useVerifyCertificate(code: string) {
   return useQuery({
     queryKey: CERTIFICATE_KEYS.verify(code),
-    queryFn: () => fetchApi(`/api/v1/certificates/verify/${code}`) as Promise<Certificate>,
+    queryFn: () => fetchApi(`/certificates/verify/${code}`) as Promise<Certificate>,
     enabled: !!code,
     retry: false,
   });
@@ -41,7 +41,7 @@ export function useCreateCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateCertificatePayload) =>
-      fetchApi("/api/v1/certificates", {
+      fetchApi("/certificates", {
         method: "POST",
         body: JSON.stringify(data),
       }) as Promise<Certificate>,
@@ -53,7 +53,7 @@ export function useUpdateCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CreateCertificatePayload> }) =>
-      fetchApi(`/api/v1/certificates/${id}`, {
+      fetchApi(`/certificates/${id}`, {
         method: "PATCH",
         body: JSON.stringify(data),
       }) as Promise<Certificate>,
@@ -68,7 +68,7 @@ export function useBulkIssueCertificates() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: BulkIssueCertificatePayload) =>
-      fetchApi("/api/v1/certificates/bulk-issue", {
+      fetchApi("/certificates/bulk-issue", {
         method: "POST",
         body: JSON.stringify(data),
       }) as Promise<any>,
@@ -80,7 +80,7 @@ export function useRevokeCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      fetchApi(`/api/v1/certificates/${id}/revoke`, {
+      fetchApi(`/certificates/${id}/revoke`, {
         method: "POST",
       }) as Promise<Certificate>,
     onSuccess: (_, id) => {
@@ -94,7 +94,7 @@ export function useDeleteCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      fetchApi(`/api/v1/certificates/${id}`, {
+      fetchApi(`/certificates/${id}`, {
         method: "DELETE",
       }) as Promise<void>,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CERTIFICATE_KEYS.list() }),

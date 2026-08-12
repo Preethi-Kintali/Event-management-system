@@ -1,9 +1,8 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { CommunicationService } from "../services/communication.service";
+import { useTemplates } from "../services/communications.api";
 import { MessageTemplate } from "../types/communication.types";
-import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
 const columns: Column<MessageTemplate>[] = [
@@ -36,14 +35,10 @@ const columns: Column<MessageTemplate>[] = [
 ];
 
 export function CommunicationTemplatesPage() {
-  const [data, setData] = useState<MessageTemplate[]>([]);
-
-  useEffect(() => {
-    CommunicationService.getTemplates().then(setData);
-  }, []);
+  const { data = [] } = useTemplates();
 
   return (
-    <ListPageTemplate<MessageTemplate>
+    <ListPageTemplate<any>
       title="Message Templates"
       description="Manage reusable content templates across all channels."
       crumbs={[

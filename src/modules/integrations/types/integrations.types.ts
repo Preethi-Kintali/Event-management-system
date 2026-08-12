@@ -16,6 +16,7 @@ export interface Integration {
   description: string;
   status: ConnectionStatus;
   logo: string;
+  lastSync?: string | Date;
 }
 
 export interface IntegrationConnection {

@@ -18,11 +18,19 @@ export type CreateRegistrationInput = {
   status?: string;
 };
 
-export function useRegistrations() {
+export function useRegistrations(eventId?: string, search?: string) {
   return useQuery({
-    queryKey: ["registrations"],
+    queryKey: ["registrations", { eventId, search }],
     queryFn: async () => {
-      const res = await fetchApi("/registrations");
+      const params = new URLSearchParams();
+      if (eventId) params.append("eventId", eventId);
+      if (search) params.append("search", search);
+      params.append("limit", "50");
+      
+      const queryString = params.toString();
+      const url = queryString ? `/registrations?${queryString}` : "/registrations";
+      
+      const res = await fetchApi(url);
       return res.data as ApiRegistration[];
     },
   });

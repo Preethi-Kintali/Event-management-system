@@ -2,28 +2,36 @@ import { DetailsPageTemplate } from "@/components/templates/details-page";
 import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
-import { CommunityService } from "../services/community.service";
-import { Discussion } from "../types/community.types";
-import { useEffect, useState } from "react";
+import { useDiscussion, useReplyDiscussion } from "../hooks/community.api";
 import { useRouterState } from "@tanstack/react-router";
 import { MessageSquare, ThumbsUp, Bookmark, Flag } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
 export function DiscussionDetailsPage() {
-  const [record, setRecord] = useState<Discussion | null>(null);
   const routerState = useRouterState();
   const id = routerState.location.pathname.split("/").pop() || "";
+  const { data: record, isLoading } = useDiscussion(id);
+  const { mutate: postReply, isPending } = useReplyDiscussion();
+  const [replyContent, setReplyContent] = useState("");
 
-  useEffect(() => {
-    CommunityService.getDiscussionById(id).then((r) => setRecord(r || null));
-  }, [id]);
+  const handleReply = () => {
+    if (!replyContent.trim()) return;
+    postReply({ discussionId: id, content: replyContent }, {
+      onSuccess: () => setReplyContent("")
+    });
+  };
 
-  if (!record) return null;
+  if (isLoading) return <div className="p-8">Loading discussion...</div>;
+  if (!record) return <div className="p-8">Discussion not found.</div>;
+
+  const authorName = (record as any).author ? `${(record as any).author.firstName} ${(record as any).author.lastName}` : "Unknown";
+  const repliesCount = (record as any)._count?.replies || 0;
 
   return (
     <DetailsPageTemplate
       title={record.title}
-      description={`Started by ${record.author} • Last active ${record.lastActivity}`}
+      description={`Started by ${authorName} • Last active ${new Date(record.updatedAt).toLocaleDateString()}`}
       crumbs={[
         { label: "Engagement" },
         { label: "Community", to: "/community" },
@@ -34,9 +42,9 @@ export function DiscussionDetailsPage() {
         <>
           <StatusChip
             status={
-              record.status === "Open"
+              record.status === "OPEN"
                 ? "active"
-                : record.status === "Resolved"
+                : record.status === "RESOLVED"
                   ? "published"
                   : "archived"
             }
@@ -57,7 +65,7 @@ export function DiscussionDetailsPage() {
         </>
       }
       metrics={[
-        { label: "Replies", value: record.replies.toString() },
+        { label: "Replies", value: repliesCount.toString() },
         { label: "Views", value: record.views.toString() },
         { label: "Likes", value: record.likes.toString() },
       ]}
@@ -66,9 +74,7 @@ export function DiscussionDetailsPage() {
           <SectionCard title="Original Post" description="">
             <div className="space-y-4">
               <p className="text-sm">
-                Hello everyone! I'm looking for teammates to join me for the upcoming AI Hackathon.
-                I have experience in Python and TensorFlow, but I'm looking for someone with strong
-                frontend skills and maybe a UI/UX designer. Let me know if you're interested!
+                {record.title} (Content goes here)
               </p>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" className="h-8 px-2">
@@ -81,11 +87,34 @@ export function DiscussionDetailsPage() {
             </div>
           </SectionCard>
 
+          {/* Render Replies here if any */}
+          {(record as any).replies && (record as any).replies.length > 0 && (
+            <SectionCard title="Replies" description="">
+              <div className="space-y-4">
+                {(record as any).replies.map((reply: any) => (
+                  <div key={reply.id} className="p-4 border rounded-lg bg-muted/50">
+                    <p className="text-sm mb-2">{reply.content}</p>
+                    <p className="text-xs text-muted-foreground">
+                      By {reply.author ? `${reply.author.firstName} ${reply.author.lastName}` : "Unknown"} on {new Date(reply.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+          )}
+
           <SectionCard title="Join the Conversation" description="">
             <div className="space-y-4">
-              <Textarea placeholder="Write a reply..." rows={4} />
+              <Textarea 
+                placeholder="Write a reply..." 
+                rows={4} 
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+              />
               <div className="flex justify-end">
-                <Button>Post Reply</Button>
+                <Button onClick={handleReply} disabled={isPending || !replyContent.trim()}>
+                  {isPending ? "Posting..." : "Post Reply"}
+                </Button>
               </div>
             </div>
           </SectionCard>
@@ -94,3 +123,4 @@ export function DiscussionDetailsPage() {
     />
   );
 }
+

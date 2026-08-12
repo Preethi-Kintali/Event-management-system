@@ -25,7 +25,7 @@ export const AICopilotService = {
         tokens: 450,
         durationMs: 1200,
         status: "Success",
-        timestamp: "2 mins ago",
+        createdAt: "2 mins ago",
       },
       {
         id: "req_2",
@@ -33,7 +33,7 @@ export const AICopilotService = {
         tokens: 850,
         durationMs: 2100,
         status: "Success",
-        timestamp: "15 mins ago",
+        createdAt: "15 mins ago",
       },
       {
         id: "req_3",
@@ -41,7 +41,7 @@ export const AICopilotService = {
         tokens: 320,
         durationMs: 800,
         status: "Success",
-        timestamp: "1 hour ago",
+        createdAt: "1 hour ago",
       },
       {
         id: "req_4",
@@ -49,7 +49,7 @@ export const AICopilotService = {
         tokens: 120,
         durationMs: 400,
         status: "Failed",
-        timestamp: "2 hours ago",
+        createdAt: "2 hours ago",
       },
     ];
   },

@@ -1,21 +1,14 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
-import { WorkflowsService } from "../services/workflows.service";
-import { WorkflowDashboardSummary, WorkflowExecution } from "../types/workflows.types";
-import { useEffect, useState } from "react";
+import { useWorkflowDashboard, useWorkflowExecutions } from "../hooks/workflows.hooks";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { Plus, CheckCircle2, AlertCircle, PlayCircle, Loader2 } from "lucide-react";
 import { TrendAreaChart } from "@/components/ds/charts";
 
 export function WorkflowsDashboard() {
-  const [summary, setSummary] = useState<WorkflowDashboardSummary | null>(null);
-  const [executions, setExecutions] = useState<WorkflowExecution[]>([]);
-
-  useEffect(() => {
-    WorkflowsService.getDashboardSummary().then(setSummary);
-    WorkflowsService.getExecutions().then(setExecutions);
-  }, []);
+  const { data: summary } = useWorkflowDashboard();
+  const { data: executions = [] } = useWorkflowExecutions();
 
   return (
     <>
@@ -110,7 +103,7 @@ export function WorkflowsDashboard() {
                   <div className="flex justify-between items-start mb-0.5">
                     <p className="text-sm font-medium truncate pr-2">{exec.workflowName}</p>
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                      {exec.started.split(" ")[1]}
+                      {new Date(exec.started).toLocaleTimeString()}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">{exec.triggerEvent}</p>

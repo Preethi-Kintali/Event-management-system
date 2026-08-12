@@ -14,7 +14,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function fetchApi(endpoint: string, options: RequestInit = {}) {
+export async function fetchApi<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = typeof window !== "undefined" ? localStorage.getItem('ascent_token') : null;
   
   const headers = new Headers(options.headers);
@@ -58,12 +58,16 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
       window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     }
 
+    if (errorCode === "MFA_REQUIRED_FOR_TENANT") {
+      window.dispatchEvent(new CustomEvent('auth:mfa_required'));
+    }
+
     throw new ApiError(response.status, errorMessage, errorCode, errorDetails);
   }
 
   // Handle 204 No Content
   if (response.status === 204) {
-    return null;
+    return null as T;
   }
 
   return response.json();

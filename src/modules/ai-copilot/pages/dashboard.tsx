@@ -1,20 +1,13 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
-import { AICopilotService } from "../services/ai-copilot.service";
-import { AICopilotDashboardSummary, AIRequest } from "../types/ai-copilot.types";
-import { useEffect, useState } from "react";
+import { useCopilotUsage, useRecentRequests } from "../hooks/ai-copilot.hooks";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { Sparkles, MessageSquare, FileText, CheckCircle2, XCircle } from "lucide-react";
 
 export function AICopilotDashboard() {
-  const [summary, setSummary] = useState<AICopilotDashboardSummary | null>(null);
-  const [requests, setRequests] = useState<AIRequest[]>([]);
-
-  useEffect(() => {
-    AICopilotService.getDashboardSummary().then(setSummary);
-    AICopilotService.getRecentRequests().then(setRequests);
-  }, []);
+  const { data: summary } = useCopilotUsage();
+  const { data: requests = [] } = useRecentRequests();
 
   return (
     <>
@@ -48,16 +41,10 @@ export function AICopilotDashboard() {
           />
           <StatCard
             label="Tokens Used"
-            value={(summary.tokensUsed / 1000000).toFixed(1) + "M"}
+            value={(summary.totalTokens / 1000).toFixed(1) + "k"}
             index={2}
           />
-          <StatCard
-            label="Avg Latency"
-            value={`${summary.avgResponseTimeMs}ms`}
-            delta={-4.2}
-            index={3}
-          />
-          <StatCard label="Est. Cost" value={`$${summary.estimatedCostUSD.toFixed(2)}`} index={4} />
+          <StatCard label="Est. Cost" value={`$${((summary.totalTokens / 1000) * 0.02).toFixed(2)}`} index={4} />
         </div>
       )}
 
@@ -130,7 +117,7 @@ export function AICopilotDashboard() {
                     <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
                       {req.durationMs}ms
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">{req.timestamp}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs">{new Date(req.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

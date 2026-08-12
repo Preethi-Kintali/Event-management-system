@@ -1,12 +1,10 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { BadgesService } from "../services/badges.service";
-import { Achievement } from "../types/badges.types";
-import { useEffect, useState } from "react";
+import { useAchievements } from "../services/badges.api";
 import { Progress } from "@/components/ui/progress";
 
-const columns: Column<Achievement>[] = [
+const columns: Column<any>[] = [
   {
     key: "name",
     header: "Milestone",
@@ -52,23 +50,24 @@ const columns: Column<Achievement>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Completed") statusId = "published";
-      if (row.status === "In Progress") statusId = "active";
-      if (row.status === "Locked") statusId = "archived";
+      if (row.status === "ACTIVE") statusId = "active";
+      if (row.status === "ARCHIVED") statusId = "archived";
       return <StatusChip status={statusId as any} />;
     },
+  },
+  { 
+    key: "createdAt", 
+    header: "Created Date", 
+    sortable: true,
+    render: (row) => <span className="text-xs text-muted-foreground">{new Date(row.createdAt).toLocaleDateString()}</span>
   },
 ];
 
 export function AchievementsPage() {
-  const [data, setData] = useState<Achievement[]>([]);
-
-  useEffect(() => {
-    BadgesService.getAchievements().then(setData);
-  }, []);
+  const { data = [] } = useAchievements();
 
   return (
-    <ListPageTemplate<Achievement>
+    <ListPageTemplate<any>
       title="Global Achievements"
       description="Manage overarching platform milestones and quests."
       crumbs={[
@@ -79,7 +78,7 @@ export function AchievementsPage() {
       columns={columns}
       rows={data}
       searchKeys={["name", "criteria"]}
-      facet={{ label: "Status", key: "status", options: ["In Progress", "Completed", "Locked"] }}
+      facet={{ label: "Status", key: "status", options: ["ACTIVE", "ARCHIVED"] }}
       createLabel="New Milestone"
       rowActions={[
         { label: "View Details", onSelect: () => {} },

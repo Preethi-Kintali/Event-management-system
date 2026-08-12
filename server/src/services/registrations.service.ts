@@ -1,8 +1,8 @@
 import { RegistrationRepository } from "../repositories/registrations.repository";
 
 export class RegistrationService {
-  static async getRegistrations(tenantId: string) {
-    return RegistrationRepository.findAll(tenantId);
+  static async getRegistrations(tenantId: string, filters?: { eventId?: string, search?: string, limit?: number }) {
+    return RegistrationRepository.findAll(tenantId, filters);
   }
 
   static async getRegistration(tenantId: string, id: string) {

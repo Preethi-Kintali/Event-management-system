@@ -1,11 +1,19 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { LearningService } from "../services/learning.service";
-import { Workshop } from "../types/learning.types";
-import { useEffect, useState } from "react";
+import { useWorkshops } from "../hooks/learning.api";
 
-const columns: Column<Workshop>[] = [
+type WorkshopRow = {
+  id: string;
+  workshop: string;
+  instructor: string;
+  date: string;
+  duration: string;
+  participants: number;
+  status: string;
+};
+
+const columns: Column<WorkshopRow>[] = [
   {
     key: "workshop",
     header: "Workshop",
@@ -32,24 +40,34 @@ const columns: Column<Workshop>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Completed") statusId = "published";
-      if (row.status === "Live") statusId = "active";
-      if (row.status === "Upcoming") statusId = "draft";
-      if (row.status === "Cancelled") statusId = "suspended";
+      if (row.status === "COMPLETED") statusId = "published";
+      if (row.status === "LIVE") statusId = "active";
+      if (row.status === "UPCOMING") statusId = "draft";
+      if (row.status === "CANCELLED") statusId = "suspended";
       return <StatusChip status={statusId as any} />;
     },
   },
 ];
 
 export function WorkshopsPage() {
-  const [data, setData] = useState<Workshop[]>([]);
+  const { data: workshops = [], isLoading } = useWorkshops();
 
-  useEffect(() => {
-    LearningService.getWorkshops().then(setData);
-  }, []);
+  const rows: WorkshopRow[] = workshops.map((w: any) => ({
+    id: w.id,
+    workshop: w.title,
+    instructor: w.instructor ? `${w.instructor.firstName} ${w.instructor.lastName}` : "Unknown",
+    date: new Date(w.date).toLocaleString(),
+    duration: w.duration,
+    participants: 0, // Mocked until we add workshop registrations
+    status: w.status,
+  }));
+
+  if (isLoading) {
+    return <div className="p-8">Loading workshops...</div>;
+  }
 
   return (
-    <ListPageTemplate<Workshop>
+    <ListPageTemplate<WorkshopRow>
       title="Live Workshops"
       description="Manage synchronous virtual and in-person sessions."
       crumbs={[
@@ -58,12 +76,12 @@ export function WorkshopsPage() {
         { label: "Workshops" },
       ]}
       columns={columns}
-      rows={data}
+      rows={rows}
       searchKeys={["workshop", "instructor"]}
       facet={{
         label: "Status",
         key: "status",
-        options: ["Upcoming", "Live", "Completed", "Cancelled"],
+        options: ["UPCOMING", "LIVE", "COMPLETED", "CANCELLED"],
       }}
       createLabel="Schedule Workshop"
       rowActions={[
@@ -74,3 +92,4 @@ export function WorkshopsPage() {
     />
   );
 }
+

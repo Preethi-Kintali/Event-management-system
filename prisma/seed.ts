@@ -16,7 +16,30 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
-  // 1. Clear existing data (idempotent for dev)
+  // Phase 4D cleanup
+  await prisma.sponsorship.deleteMany();
+  await prisma.sponsorContact.deleteMany();
+  await prisma.sponsor.deleteMany();
+  await prisma.jobApplication.deleteMany();
+  await prisma.jobPosting.deleteMany();
+  await prisma.surveyResponse.deleteMany();
+  await prisma.surveyQuestion.deleteMany();
+  await prisma.survey.deleteMany();
+  await prisma.discussionReply.deleteMany();
+  await prisma.discussion.deleteMany();
+  await prisma.groupMembership.deleteMany();
+  await prisma.communityGroup.deleteMany();
+  await prisma.workshop.deleteMany();
+  await prisma.learningResource.deleteMany();
+  await prisma.courseEnrollment.deleteMany();
+  await prisma.course.deleteMany();
+
+  // Phase 4C cleanup
+  await prisma.badgeAward.deleteMany();
+  await prisma.badge.deleteMany();
+  await prisma.achievement.deleteMany();
+  await prisma.winner.deleteMany();
+  await prisma.prize.deleteMany();
   await prisma.attendanceRecord.deleteMany();
   await prisma.attendanceSession.deleteMany();
   await prisma.volunteerEvent.deleteMany();
@@ -52,6 +75,21 @@ async function main() {
     'submissions.read', 'submissions.manage',
     'evaluations.read', 'evaluations.manage',
     'certificates.read', 'certificates.manage', 'certificates.create', 'certificates.update', 'certificates.delete', 'certificates.issue', 'certificates.revoke',
+    'settings.read', 'settings.manage',
+    'communications.read', 'communications.create', 'communications.update', 'communications.publish', 'communications.delete',
+    'notifications.read', 'notifications.manage',
+    'winners.read', 'winners.manage', 'winners.finalize',
+    'badges.read', 'badges.manage', 'badges.award',
+    'learning.read', 'learning.manage',
+    'community.read', 'community.manage',
+    'feedback.read', 'feedback.manage',
+    'recruitment.read', 'recruitment.manage',
+    'sponsors.read', 'sponsors.manage',
+    
+    // Payments
+    'payments.read', 'payments.manage', 'payments.refund', 'payments.export',
+    'reports.read', 'reports.export',
+    'security.read', 'security.manage',
   ];
 
   const permissions: Record<string, { id: string; action: string }> = {};
@@ -151,19 +189,27 @@ async function main() {
     'submissions.read', 'submissions.manage',
     'evaluations.read', 'evaluations.manage',
     'certificates.read', 'certificates.create', 'certificates.update', 'certificates.delete', 'certificates.issue', 'certificates.revoke',
+    'communications.read', 'communications.create', 'communications.update', 'communications.publish', 'communications.delete',
+    'notifications.read', 'notifications.manage',
+    'winners.read', 'winners.manage', 'winners.finalize',
+    'badges.read', 'badges.manage', 'badges.award',
+    'reports.read', 'reports.export',
   ];
   for (const p of orgAdminPerms) {
     await prisma.rolePermission.create({ data: { roleId: orgAdminRole.id, permissionId: permissions[p].id } });
   }
 
-  const judgePerms = ['evaluations.read', 'submissions.read'];
+  const judgePerms = ['evaluations.read', 'submissions.read', 'notifications.read'];
   for (const p of judgePerms) {
     await prisma.rolePermission.create({ data: { roleId: judgeRole.id, permissionId: permissions[p].id } });
   }
 
   await prisma.rolePermission.create({ data: { roleId: participantRole.id, permissionId: permissions['events.read'].id } });
+  await prisma.rolePermission.create({ data: { roleId: participantRole.id, permissionId: permissions['notifications.read'].id } });
   await prisma.rolePermission.create({ data: { roleId: mentorRole.id, permissionId: permissions['events.read'].id } });
+  await prisma.rolePermission.create({ data: { roleId: mentorRole.id, permissionId: permissions['notifications.read'].id } });
   await prisma.rolePermission.create({ data: { roleId: volunteerRole.id, permissionId: permissions['events.read'].id } });
+  await prisma.rolePermission.create({ data: { roleId: volunteerRole.id, permissionId: permissions['notifications.read'].id } });
 
   // 6. Organization Memberships
   const allUsersForOrg = [
@@ -293,7 +339,7 @@ async function main() {
   await prisma.judgeCompetition.create({ data: { judgeId: judge1.id, competitionId: comp1.id } });
   await prisma.judgeCompetition.create({ data: { judgeId: judge2.id, competitionId: comp1.id } });
 
-  // 13. Evaluations — assign submissions to judges
+  // 13. Evaluations
   await prisma.evaluation.create({
     data: {
       submissionId: sub1.id,
@@ -356,7 +402,7 @@ async function main() {
   // Assign mentors to teams
   await prisma.teamMentor.create({ data: { mentorId: mentor1.id, teamId: team1.id } });
   await prisma.teamMentor.create({ data: { mentorId: mentor2.id, teamId: team2.id } });
-  await prisma.teamMentor.create({ data: { mentorId: mentor1.id, teamId: team2.id } }); // mentor1 also mentors team2
+  await prisma.teamMentor.create({ data: { mentorId: mentor1.id, teamId: team2.id } });
 
   // 15. Volunteers
   const volunteer1 = await prisma.volunteer.create({
@@ -422,58 +468,7 @@ async function main() {
     },
   });
 
-  // 17. Attendance Records (manual check-ins)
-  await prisma.attendanceRecord.create({
-    data: {
-      sessionId: session1.id,
-      userId: participant1.id,
-      method: AttendanceMethod.MANUAL,
-      status: AttendanceStatus.PRESENT,
-      checkInTime: new Date('2026-10-01T08:55:00Z'),
-    },
-  });
-
-  await prisma.attendanceRecord.create({
-    data: {
-      sessionId: session1.id,
-      userId: participant2.id,
-      method: AttendanceMethod.MANUAL,
-      status: AttendanceStatus.LATE,
-      checkInTime: new Date('2026-10-01T09:15:00Z'),
-    },
-  });
-
-  await prisma.attendanceRecord.create({
-    data: {
-      sessionId: session1.id,
-      userId: judgeUser1.id,
-      method: AttendanceMethod.MANUAL,
-      status: AttendanceStatus.PRESENT,
-      checkInTime: new Date('2026-10-01T08:50:00Z'),
-    },
-  });
-
-  await prisma.attendanceRecord.create({
-    data: {
-      sessionId: session2.id,
-      userId: judgeUser1.id,
-      method: AttendanceMethod.MANUAL,
-      status: AttendanceStatus.PRESENT,
-      checkInTime: new Date('2026-10-02T13:58:00Z'),
-    },
-  });
-
-  await prisma.attendanceRecord.create({
-    data: {
-      sessionId: session2.id,
-      userId: judgeUser2.id,
-      method: AttendanceMethod.MANUAL,
-      status: AttendanceStatus.PRESENT,
-      checkInTime: new Date('2026-10-02T14:02:00Z'),
-    },
-  });
-
-  // 17. Certificates
+  // 17. Certificates & Communications
   await prisma.certificate.create({
     data: {
       userId: participant1.id,
@@ -489,31 +484,283 @@ async function main() {
     }
   });
 
-  await prisma.certificate.create({
+  await prisma.communication.create({
     data: {
-      userId: participant2.id,
       organizationId: org1.id,
-      eventId: event1.id,
-      certificateNumber: 'CERT-2026-PART-002',
-      type: 'PARTICIPATION',
-      title: 'Certificate of Participation',
-      description: 'Awarded for participating in Global AI Hackathon 2026.',
-      status: 'ISSUED',
-      verificationCode: 'VERIFY-XYZ-5678',
+      title: "Hackathon Registration Reminder",
+      content: "Don't forget to submit your final projects by midnight!",
+      type: "REMINDER",
+      status: "PUBLISHED",
+      audience: "ALL",
+      createdBy: platformAdmin.id,
+      publishedAt: new Date()
     }
   });
 
-  await prisma.certificate.create({
+  await prisma.notification.create({
     data: {
-      userId: judgeUser1.id,
       organizationId: org1.id,
+      recipientUserId: participant1.id,
+      title: "Registration Approved",
+      message: "Your registration was approved.",
+      type: "REGISTRATION",
+      isRead: false
+    }
+  });
+
+  // 17. Seed Prizes and Winners
+  const prize1 = await prisma.prize.create({
+    data: {
+      organizationId: org1.id,
+      competitionId: comp1.id,
+      name: 'First Place',
+      position: '1',
+      value: 50000,
+      currency: 'INR',
+      description: 'Cash prize for the best overall solution.',
+      status: 'PENDING',
+    }
+  });
+
+  await prisma.winner.create({
+    data: {
+      organizationId: org1.id,
+      competitionId: comp1.id,
+      submissionId: sub1.id,
+      teamId: team1.id,
+      position: '1',
+      status: 'PENDING',
+      prizeId: prize1.id,
+      selectedBy: orgManager.id,
+    }
+  });
+
+  // 18. Seed Badges and Achievements
+  const badge1 = await prisma.badge.create({
+    data: {
+      organizationId: org1.id,
+      name: 'Hackathon Winner',
+      description: 'Awarded to winners of official hackathons.',
+      type: 'WINNER',
+      status: 'ACTIVE',
+    }
+  });
+
+  await prisma.badgeAward.create({
+    data: {
+      organizationId: org1.id,
+      badgeId: badge1.id,
+      recipientUserId: participant1.id,
+      reason: 'Won AI for Accessibility Track',
+      awardedBy: orgManager.id,
+    }
+  });
+
+  await prisma.achievement.create({
+    data: {
+      organizationId: org1.id,
+      name: 'First Hackathon',
+      description: 'Completed your first hackathon',
+      criteria: 'COMPLETED_1_EVENT',
+      status: 'ACTIVE',
+    }
+  });
+
+  // ---------------------------------------------------------
+  // Phase 4D: Seed Data
+  // ---------------------------------------------------------
+  
+  // 19. Learning
+  const course1 = await prisma.course.create({
+    data: {
+      organizationId: org1.id,
+      title: 'Introduction to React 19',
+      category: 'Web Development',
+      instructorId: orgManager.id,
+      level: 'Beginner',
+      status: 'PUBLISHED',
+    }
+  });
+  await prisma.courseEnrollment.create({
+    data: {
+      courseId: course1.id,
+      userId: participant1.id,
+      status: 'ENROLLED',
+      progress: 45,
+    }
+  });
+  await prisma.learningResource.create({
+    data: {
+      organizationId: org1.id,
+      title: 'React 19 Cheat Sheet',
+      type: 'Guide',
+      category: 'Web Development',
+      uploadedById: orgManager.id,
+      status: 'ACTIVE',
+    }
+  });
+  await prisma.workshop.create({
+    data: {
+      organizationId: org1.id,
+      title: 'Live Q&A: Frontend Architecture',
+      instructorId: orgManager.id,
+      date: new Date(Date.now() + 86400000 * 7),
+      duration: '1.5 hours',
+      status: 'UPCOMING',
+    }
+  });
+
+  // 20. Community
+  const group1 = await prisma.communityGroup.create({
+    data: {
+      organizationId: org1.id,
+      name: 'Frontend Developers',
+      category: 'Web Development',
+      status: 'ACTIVE',
+    }
+  });
+  await prisma.groupMembership.create({
+    data: {
+      groupId: group1.id,
+      userId: participant1.id,
+    }
+  });
+  const discussion1 = await prisma.discussion.create({
+    data: {
+      organizationId: org1.id,
+      title: 'Best practices for React Query?',
+      category: 'Web Development',
+      authorId: participant1.id,
+      status: 'OPEN',
+    }
+  });
+  await prisma.discussionReply.create({
+    data: {
+      discussionId: discussion1.id,
+      authorId: orgManager.id,
+      content: 'I highly recommend reading the official TkDodo blog.',
+    }
+  });
+
+  // 21. Feedback
+  const survey1 = await prisma.survey.create({
+    data: {
+      organizationId: org1.id,
+      name: 'Hackathon Post-Event Survey',
       eventId: event1.id,
-      certificateNumber: 'CERT-2026-JDG-003',
-      type: 'JUDGE',
-      title: 'Certificate of Appreciation',
-      description: 'Awarded for valuable contribution as a Judge.',
-      status: 'ISSUED',
-      verificationCode: 'VERIFY-DEF-9012',
+      audience: 'ALL',
+      status: 'PUBLISHED',
+    }
+  });
+  await prisma.surveyQuestion.create({
+    data: {
+      surveyId: survey1.id,
+      text: 'How satisfied were you with the event?',
+      type: 'RATING',
+      order: 1,
+    }
+  });
+  await prisma.surveyResponse.create({
+    data: {
+      surveyId: survey1.id,
+      participantId: participant1.id,
+      sentiment: 'Positive',
+      rating: 5,
+      comments: 'Great event!',
+    }
+  });
+  await prisma.surveyResponse.create({
+    data: {
+      surveyId: survey1.id,
+      participantId: participant2.id,
+      sentiment: 'Positive',
+      rating: 4,
+      comments: 'Good organization.',
+    }
+  });
+
+  // 22. Recruitment
+  const job1 = await prisma.jobPosting.create({
+    data: {
+      organizationId: org1.id,
+      title: 'Junior Frontend Developer',
+      company: 'Contoso Labs',
+      roleType: 'Full-time',
+      status: 'OPEN',
+    }
+  });
+  await prisma.jobApplication.create({
+    data: {
+      jobId: job1.id,
+      candidateId: participant1.id,
+      stage: 'INTERVIEW',
+      score: 85.5,
+      source: 'Hackathon Event',
+    }
+  });
+  await prisma.jobApplication.create({
+    data: {
+      jobId: job1.id,
+      candidateId: participant2.id,
+      stage: 'OFFER',
+      score: 92.0,
+      source: 'Referral',
+    }
+  });
+  await prisma.jobApplication.create({
+    data: {
+      jobId: job1.id,
+      candidateId: orgManager.id,
+      stage: 'OFFER_ACCEPTED',
+      score: 95.0,
+      source: 'Direct',
+    }
+  });
+
+  // 23. Sponsors
+  const sponsor1 = await prisma.sponsor.create({
+    data: {
+      organizationId: org1.id,
+      name: 'TechCorp',
+      tier: 'Platinum',
+      committedValue: 2000000,
+      status: 'ACTIVE',
+      renewalDate: new Date(Date.now() + 86400000 * 15),
+    }
+  });
+  await prisma.sponsorContact.create({
+    data: {
+      sponsorId: sponsor1.id,
+      name: 'Jane Doe',
+      email: 'jane@techcorp.com',
+      role: 'Marketing Director',
+    }
+  });
+  await prisma.sponsorship.create({
+    data: {
+      sponsorId: sponsor1.id,
+      eventId: event1.id,
+      deliverablesMet: 9,
+      deliverablesTarget: 10,
+    }
+  });
+
+  const sponsor2 = await prisma.sponsor.create({
+    data: {
+      organizationId: org1.id,
+      name: 'CloudScale',
+      tier: 'Gold',
+      committedValue: 2100000,
+      status: 'ACTIVE',
+      renewalDate: new Date(Date.now() + 86400000 * 45),
+    }
+  });
+  await prisma.sponsorship.create({
+    data: {
+      sponsorId: sponsor2.id,
+      eventId: event1.id,
+      deliverablesMet: 4,
+      deliverablesTarget: 5,
     }
   });
 
@@ -539,6 +786,7 @@ async function main() {
   console.log(`Mentors: ${mentorUser1.firstName} ${mentorUser1.lastName}, ${mentorUser2.firstName} ${mentorUser2.lastName}`);
   console.log(`Volunteers: ${volunteerUser1.firstName} ${volunteerUser1.lastName}, ${volunteerUser2.firstName} ${volunteerUser2.lastName}`);
   console.log(`Attendance Sessions: ${session1.name}, ${session2.name}, ${session3.name}`);
+  console.log("Database seeding completed.");
 }
 
 main()

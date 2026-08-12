@@ -1,7 +1,6 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
-import { SecurityService } from "../services/security.service";
-import { ComplianceStatus } from "../types/security.types";
-import { useEffect, useState } from "react";
+import { useComplianceStatus } from "../hooks/security.hooks";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -9,13 +8,11 @@ import { Input } from "@/components/ui/input";
 import { ShieldCheck, Download, Trash2, Globe2 } from "lucide-react";
 
 export function CompliancePage() {
-  const [status, setStatus] = useState<ComplianceStatus | null>(null);
+  const { activeOrganization } = useAuth();
+  const tenantId = activeOrganization || "";
+  const { data: status, isLoading } = useComplianceStatus(tenantId);
 
-  useEffect(() => {
-    SecurityService.getComplianceStatus().then(setStatus);
-  }, []);
-
-  if (!status) return null;
+  if (isLoading || !status) return null;
 
   return (
     <>

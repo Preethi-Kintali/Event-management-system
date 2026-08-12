@@ -14,6 +14,8 @@ router.use(requireTenant);
 
 router.get("/", requirePermission("events.read"), EventController.findAll);
 router.get("/:id", requirePermission("events.read"), EventController.findById);
+router.get("/:id/dashboard", requirePermission("events.read"), EventController.getEventDashboard);
+router.get("/:id/sessions", requirePermission("events.read"), EventController.getEventSessions);
 
 router.post("/", requirePermission("events.create"), validateRequest(createEventSchema), EventController.create);
 

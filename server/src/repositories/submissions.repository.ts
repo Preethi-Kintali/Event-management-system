@@ -19,7 +19,12 @@ export class SubmissionRepository {
       where: { id, competition: { event: { organizationId: tenantId } } },
       include: { 
         competition: { select: { name: true, event: { select: { name: true } } } },
-        team: { select: { name: true } }
+        team: { select: { name: true, members: { select: { user: { select: { firstName: true, lastName: true } } } } } },
+        evaluations: {
+          include: {
+            judge: { select: { firstName: true, lastName: true } }
+          }
+        }
       }
     });
   }

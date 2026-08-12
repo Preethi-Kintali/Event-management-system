@@ -15,7 +15,7 @@ import { useRegistrations } from "@/modules/registrations/services/registrations
 import { BulkIssueCertificatePayload } from "../types/certificate.types";
 
 const bulkSchema = z.object({
-  eventId: z.string().uuid("Event selection is required"),
+  eventId: z.string().min(1, "Event selection is required").uuid("Must be a valid event ID"),
   type: z.enum(["PARTICIPATION", "COMPLETION", "WINNER", "FINALIST", "JUDGE", "MENTOR", "VOLUNTEER"]),
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),

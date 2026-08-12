@@ -1,20 +1,17 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
-import { SecurityService } from "../services/security.service";
-import { SecurityDashboardSummary, SecurityAlert } from "../types/security.types";
-import { useEffect, useState } from "react";
+import { useSecurityDashboard, useSecurityAlerts } from "../hooks/security.hooks";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck, ShieldAlert, AlertTriangle, UserCheck, Lock } from "lucide-react";
 
 export function SecurityDashboard() {
-  const [summary, setSummary] = useState<SecurityDashboardSummary | null>(null);
-  const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+  const { activeOrganization } = useAuth();
+  const tenantId = activeOrganization || "";
 
-  useEffect(() => {
-    SecurityService.getDashboardSummary().then(setSummary);
-    SecurityService.getAlerts().then(setAlerts);
-  }, []);
+  const { data: summary, isLoading: isSummaryLoading } = useSecurityDashboard(tenantId);
+  const { data: alerts = [], isLoading: isAlertsLoading } = useSecurityAlerts(tenantId);
 
   return (
     <>

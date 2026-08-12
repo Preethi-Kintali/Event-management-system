@@ -40,6 +40,18 @@ export class CompetitionController {
       const tenantId = req.tenantId as string;
       await CompetitionService.deleteCompetition(tenantId, req.params.id);
       res.json({ success: true, data: { deleted: true } });
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getCompetitionDashboard(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const tenantId = req.tenantId as string;
+      const dashboard = await CompetitionService.getCompetitionDashboard(tenantId, req.params.id);
+      res.json({ success: true, data: dashboard });
+    } catch (error) {
+      next(error);
+    }
   }
 }

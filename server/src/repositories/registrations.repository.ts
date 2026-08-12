@@ -2,14 +2,31 @@ import { prisma } from "../utils/prisma";
 import { Prisma } from "@prisma/client";
 
 export class RegistrationRepository {
-  static async findAll(tenantId: string) {
+  static async findAll(tenantId: string, filters?: { eventId?: string, search?: string, limit?: number }) {
+    const where: Prisma.RegistrationWhereInput = {
+      event: { organizationId: tenantId }
+    };
+    
+    if (filters?.eventId) {
+      where.eventId = filters.eventId;
+    }
+
+    if (filters?.search) {
+      where.OR = [
+        { user: { firstName: { contains: filters.search, mode: 'insensitive' } } },
+        { user: { lastName: { contains: filters.search, mode: 'insensitive' } } },
+        { user: { email: { contains: filters.search, mode: 'insensitive' } } }
+      ];
+    }
+
     return prisma.registration.findMany({
-      where: { event: { organizationId: tenantId } },
+      where,
       include: { 
         event: { select: { name: true } },
         user: { select: { firstName: true, lastName: true, email: true } }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: filters?.limit ? Number(filters.limit) : 50
     });
   }
 

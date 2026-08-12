@@ -3,27 +3,20 @@ import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
 import { Timeline } from "@/components/ds/timeline";
-import { WinnersService } from "../services/winners.service";
-import { Winner } from "../types/winners.types";
-import { useEffect, useState } from "react";
-import { useRouterState } from "@tanstack/react-router";
+import { useWinner } from "../services/winners.api";
+import { useParams } from "@tanstack/react-router";
 import { Trophy, FileBadge, Gift } from "lucide-react";
 
 export function WinnerDetailsPage() {
-  const [record, setRecord] = useState<Winner | null>(null);
-  const routerState = useRouterState();
-  const id = routerState.location.pathname.split("/").pop() || "";
+  const { id } = useParams({ strict: false }) as any;
+  const { data: record, isLoading } = useWinner(id);
 
-  useEffect(() => {
-    WinnersService.getWinnerById(id).then((r) => setRecord(r || null));
-  }, [id]);
-
-  if (!record) return null;
+  if (isLoading || !record) return null;
 
   return (
     <DetailsPageTemplate
-      title={record.winner}
-      description={record.team ? `Team: ${record.team}` : "Individual Participant"}
+      title={record.user ? `${record.user.firstName} ${record.user.lastName}` : record.team?.name || "Unknown"}
+      description={record.team ? `Team: ${record.team.name}` : "Individual Participant"}
       crumbs={[
         { label: "Engagement" },
         { label: "Winners", to: "/winners" },
@@ -31,8 +24,8 @@ export function WinnerDetailsPage() {
       ]}
       meta={
         <>
-          <StatusChip status={record.status === "Prize Distributed" ? "published" : "active"} />
-          <span className="text-xs text-muted-foreground">{record.competition}</span>
+          <StatusChip status={record.status === "FINALIZED" ? "published" : "active"} />
+          <span className="text-xs text-muted-foreground">{record.competition?.name}</span>
         </>
       }
       actions={
@@ -49,9 +42,9 @@ export function WinnerDetailsPage() {
       }
       metrics={[
         { label: "Position", value: record.position },
-        { label: "Final Score", value: record.score.toString() },
-        { label: "Prize Allocation", value: record.prize },
-        { label: "Announced", value: record.announcementDate || "Pending" },
+        { label: "Score", value: record.submission?.evaluations?.[0]?.score?.toString() || "N/A" },
+        { label: "Prize Allocation", value: record.prize?.name || "None" },
+        { label: "Announced", value: new Date(record.createdAt).toLocaleDateString() },
       ]}
       overview={
         <>
@@ -62,7 +55,7 @@ export function WinnerDetailsPage() {
                 <p className="text-sm font-medium mb-1">Project Payload</p>
                 <p className="text-sm text-muted-foreground mb-4">
                   View the repository, presentation, and judge feedback that contributed to the
-                  final score of {record.score}.
+                  final score of {record.submission?.evaluations?.[0]?.score || 0}.
                 </p>
                 <Button variant="outline" size="sm">
                   Open Submission Details
@@ -85,8 +78,8 @@ export function WinnerDetailsPage() {
                   id: "2",
                   title: "Winner Announced",
                   detail: "Public announcement made.",
-                  time: record.announcementDate || "Pending",
-                  state: record.status === "Announced" ? "done" : "current",
+                  time: new Date(record.createdAt).toLocaleDateString(),
+                  state: record.status === "FINALIZED" ? "done" : "current",
                 },
                 {
                   id: "3",

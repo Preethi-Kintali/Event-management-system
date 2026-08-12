@@ -3,7 +3,7 @@ import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { DonutChart, GroupedBarChart, TrendAreaChart } from "@/components/ds/charts";
 import { Progress } from "@/components/ui/progress";
-import { categoryMix, funnel, participationByRegion, registrationTrend } from "@/lib/mock-data";
+import { useParticipationAnalytics } from "@/modules/analytics/hooks/analytics.hooks";
 
 export const Route = createFileRoute("/analytics/participation")({
   head: () => ({
@@ -24,7 +24,13 @@ export const Route = createFileRoute("/analytics/participation")({
 });
 
 function ParticipationAnalyticsPage() {
-  const top = funnel[0]!.value;
+  const { data, isLoading } = useParticipationAnalytics();
+
+  if (isLoading || !data) return <div className="p-8">Loading analytics...</div>;
+
+  const { kpis, funnel, registrationTrend, categoryMix, participationByRegion } = data;
+  const top = funnel[0]?.value || 1;
+
   return (
     <>
       <PageHeader
@@ -34,10 +40,10 @@ function ParticipationAnalyticsPage() {
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Participants", value: "68,800", delta: 16.2 },
-          { label: "Teams formed", value: "12,400", delta: 9.4 },
-          { label: "Submission rate", value: "72%", progress: 72 },
-          { label: "Repeat participation", value: "38%", delta: 4.6 },
+          { label: "Participants", value: kpis.participants.toLocaleString(), delta: 16.2 },
+          { label: "Teams formed", value: kpis.teams.toLocaleString(), delta: 9.4 },
+          { label: "Submission rate", value: `${kpis.submissionRate}%`, progress: kpis.submissionRate },
+          { label: "Repeat participation", value: `${kpis.repeatParticipation}%`, delta: 4.6 },
         ].map((s, i) => (
           <StatCard key={s.label} {...s} index={i} />
         ))}
@@ -71,7 +77,7 @@ function ParticipationAnalyticsPage() {
       </div>
       <SectionCard title="Conversion funnel" description="Discovery to evaluation">
         <div className="space-y-4">
-          {funnel.map((stage) => (
+          {funnel.map((stage: any) => (
             <div key={stage.stage}>
               <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-sm">
                 <span className="truncate">{stage.stage}</span>

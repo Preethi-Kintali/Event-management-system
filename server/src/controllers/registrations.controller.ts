@@ -6,7 +6,11 @@ export class RegistrationController {
   static async findAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const tenantId = req.tenantId as string;
-      const regs = await RegistrationService.getRegistrations(tenantId);
+      const eventId = req.query.eventId as string | undefined;
+      const search = req.query.search as string | undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+      
+      const regs = await RegistrationService.getRegistrations(tenantId, { eventId, search, limit });
       res.json({ success: true, data: regs });
     } catch (error) { next(error); }
   }

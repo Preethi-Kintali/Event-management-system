@@ -11,3 +11,8 @@ export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
+
+export const verifyMfaSchema = z.object({
+  challengeToken: z.string(),
+  code: z.string().min(6),
+});

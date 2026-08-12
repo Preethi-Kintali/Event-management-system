@@ -4,7 +4,7 @@ export interface AIRequest {
   tokens: number;
   durationMs: number;
   status: "Success" | "Failed";
-  timestamp: string;
+  createdAt: string;
 }
 
 export interface AIConversation {

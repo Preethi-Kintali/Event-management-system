@@ -1,12 +1,21 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { LearningService } from "../services/learning.service";
-import { Resource } from "../types/learning.types";
-import { useEffect, useState } from "react";
+import { useResources } from "../hooks/learning.api";
 import { Badge } from "@/components/ui/badge";
 
-const columns: Column<Resource>[] = [
+type ResourceRow = {
+  id: string;
+  resource: string;
+  type: string;
+  category: string;
+  downloads: number;
+  uploadedBy: string;
+  date: string;
+  status: string;
+};
+
+const columns: Column<ResourceRow>[] = [
   {
     key: "resource",
     header: "Resource Name",
@@ -39,22 +48,33 @@ const columns: Column<Resource>[] = [
     sortable: true,
     render: (row) => {
       let statusId = "pending";
-      if (row.status === "Active") statusId = "active";
-      if (row.status === "Archived") statusId = "archived";
+      if (row.status === "ACTIVE") statusId = "active";
+      if (row.status === "ARCHIVED") statusId = "archived";
       return <StatusChip status={statusId as any} />;
     },
   },
 ];
 
 export function ResourcesPage() {
-  const [data, setData] = useState<Resource[]>([]);
+  const { data: resources = [], isLoading } = useResources();
 
-  useEffect(() => {
-    LearningService.getResources().then(setData);
-  }, []);
+  const rows: ResourceRow[] = resources.map((r: any) => ({
+    id: r.id,
+    resource: r.title,
+    type: r.type,
+    category: r.category,
+    downloads: r.downloads || 0,
+    uploadedBy: r.uploadedBy ? `${r.uploadedBy.firstName} ${r.uploadedBy.lastName}` : "Unknown",
+    date: new Date(r.createdAt).toLocaleDateString(),
+    status: r.status,
+  }));
+
+  if (isLoading) {
+    return <div className="p-8">Loading resources...</div>;
+  }
 
   return (
-    <ListPageTemplate<Resource>
+    <ListPageTemplate<ResourceRow>
       title="Resource Library"
       description="Central repository for problem statements, datasets, and guides."
       crumbs={[
@@ -63,7 +83,7 @@ export function ResourcesPage() {
         { label: "Resources" },
       ]}
       columns={columns}
-      rows={data}
+      rows={rows}
       searchKeys={["resource", "type", "category", "uploadedBy"]}
       facet={{
         label: "Type",
@@ -87,3 +107,4 @@ export function ResourcesPage() {
     />
   );
 }
+

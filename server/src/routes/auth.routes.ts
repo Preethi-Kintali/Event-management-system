@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller";
 import { validateRequest } from "../middleware/validate.middleware";
-import { registerSchema, loginSchema } from "../validators/auth.validator";
+import { registerSchema, loginSchema, verifyMfaSchema } from "../validators/auth.validator";
 import { requireAuth } from "../middleware/auth.middleware";
 
 const router = Router();
@@ -13,5 +13,6 @@ router.post("/logout", requireAuth, (req, res) => {
   res.json({ success: true, message: "Logged out successfully" });
 });
 router.get("/me", requireAuth, AuthController.me);
+router.post("/mfa/verify", validateRequest(verifyMfaSchema), AuthController.verifyMfa);
 
 export { router as authRoutes };
