@@ -1,9 +1,8 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { IntegrationsService } from "../services/integrations.service";
+import { useIntegrations } from "../hooks/integrations.hooks";
 import { IntegrationConnection } from "../types/integrations.types";
-import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
 const columns: Column<IntegrationConnection>[] = [
@@ -53,11 +52,8 @@ const columns: Column<IntegrationConnection>[] = [
 ];
 
 export function ConnectedIntegrationsPage() {
-  const [data, setData] = useState<IntegrationConnection[]>([]);
-
-  useEffect(() => {
-    IntegrationsService.getConnected().then(setData);
-  }, []);
+  const { data = [], isLoading } = useIntegrations();
+  const connectedData = data as any as IntegrationConnection[];
 
   return (
     <ListPageTemplate<IntegrationConnection>
@@ -69,7 +65,8 @@ export function ConnectedIntegrationsPage() {
         { label: "Connected" },
       ]}
       columns={columns}
-      rows={data}
+      rows={connectedData}
+      loading={isLoading}
       searchKeys={["name", "category", "connectedBy"]}
       facet={{ label: "Status", key: "status", options: ["Connected", "Disconnected", "Error"] }}
       createLabel="Add Integration"

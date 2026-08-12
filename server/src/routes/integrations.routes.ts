@@ -14,4 +14,13 @@ router.get("/dashboard", requirePermission("integrations.read"), IntegrationsCon
 router.get("/api-keys", requirePermission("integrations.read"), IntegrationsController.getApiKeys);
 router.get("/webhooks", requirePermission("integrations.read"), IntegrationsController.getWebhooks);
 
+router.post("/api-keys", requirePermission("integrations.manage"), IntegrationsController.createApiKey);
+router.post("/api-keys/:id/revoke", requirePermission("integrations.manage"), IntegrationsController.revokeApiKey);
+
+router.post("/webhooks", requirePermission("integrations.manage"), IntegrationsController.createWebhook);
+router.put("/webhooks/:id", requirePermission("integrations.manage"), IntegrationsController.updateWebhook);
+router.delete("/webhooks/:id", requirePermission("integrations.manage"), IntegrationsController.deleteWebhook);
+router.get("/webhooks/:id/deliveries", requirePermission("integrations.read"), IntegrationsController.getWebhookDeliveries);
+router.post("/webhooks/:id/ping", requirePermission("integrations.manage"), IntegrationsController.pingWebhook);
+
 export default router;

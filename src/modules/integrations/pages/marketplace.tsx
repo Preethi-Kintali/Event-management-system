@@ -1,7 +1,6 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
-import { IntegrationsService } from "../services/integrations.service";
-import { Integration } from "../types/integrations.types";
-import { useEffect, useState } from "react";
+import { useIntegrations } from "../hooks/integrations.hooks";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Link as LinkIcon, CheckCircle2 } from "lucide-react";
@@ -9,12 +8,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 export function MarketplacePage() {
-  const [data, setData] = useState<Integration[]>([]);
+  const { data = [], isLoading } = useIntegrations();
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    IntegrationsService.getMarketplace().then(setData);
-  }, []);
 
   const filtered = data.filter(
     (d) =>

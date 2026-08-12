@@ -2,23 +2,17 @@ import { DetailsPageTemplate } from "@/components/templates/details-page";
 import { SectionCard } from "@/components/ds/page-header";
 import { StatusChip } from "@/components/ds/status-chip";
 import { Button } from "@/components/ui/button";
-import { IntegrationsService } from "../services/integrations.service";
+import { useIntegrations } from "../hooks/integrations.hooks";
 import { IntegrationConnection } from "../types/integrations.types";
-import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { RefreshCw, Unplug, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function IntegrationDetailsPage() {
-  const [record, setRecord] = useState<IntegrationConnection | null>(null);
+  const { data = [] } = useIntegrations();
   const routerState = useRouterState();
   const id = routerState.location.pathname.split("/").pop() || "";
 
-  useEffect(() => {
-    IntegrationsService.getConnected().then((data) => {
-      const found = data.find((c) => c.id === id);
-      setRecord(found || data[0] || null);
-    });
-  }, [id]);
+  const record = (data.find((c) => c.id === id) || data[0] || null) as any as IntegrationConnection;
 
   if (!record) return null;
 
