@@ -84,4 +84,13 @@ export class RecruitmentController {
       res.json({ success: true, data: stats });
     } catch (error) { next(error); }
   }
+
+  static async createCandidate(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      // Create candidate is fundamentally creating a JobApplication
+      // The frontend sends candidateId, jobId, stage, source etc.
+      const app = await RecruitmentService.createApplication(req.body, req.tenantId!, req.user!.id);
+      res.status(201).json({ success: true, data: app });
+    } catch (error) { next(error); }
+  }
 }

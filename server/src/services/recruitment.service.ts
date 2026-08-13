@@ -43,6 +43,12 @@ export class RecruitmentService {
     return app;
   }
 
+  static async createApplication(data: any, organizationId: string, actorId: string): Promise<JobApplication> {
+    const app = await RecruitmentRepository.createApplication(data);
+    await AuditService.log(organizationId, actorId, "APPLICATION_CREATE", app.id);
+    return app;
+  }
+
   static async getDashboardStats(organizationId: string) {
     const apps = await RecruitmentRepository.findApplications(organizationId);
     

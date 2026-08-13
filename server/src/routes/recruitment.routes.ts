@@ -23,5 +23,6 @@ router.patch("/applications/:id/stage", requirePermission("recruitment.manage"),
 // Phase 4D: Candidates (mapped to Applications internally)
 router.get("/dashboard", requirePermission("recruitment.read"), RecruitmentController.getDashboardStats);
 router.get("/candidates", requirePermission("recruitment.read"), RecruitmentController.getCandidates);
+router.post("/candidates", requirePermission("recruitment.manage"), RecruitmentController.createCandidate);
 
 export default router;

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { OrganizationController } from "../controllers/organizations.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 import { requireTenant } from "../middleware/tenant.middleware";
-import { requirePermission } from "../middleware/rbac.middleware";
+import { requirePermission, requireGlobalPermission } from "../middleware/rbac.middleware";
 import { validateRequest } from "../middleware/validate.middleware";
 import { createOrganizationSchema, updateOrganizationSchema, addMemberSchema, updateMemberSchema } from "../validators/organizations.validator";
 
@@ -22,19 +22,6 @@ router.use(requireAuth);
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "../middleware/auth.middleware";
 import { prisma } from "../utils/prisma";
-
-const requireGlobalPermission = (action: string) => async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const membership = await prisma.organizationMember.findFirst({
-      where: { userId: req.user!.id, role: { permissions: { some: { permission: { action } } } } },
-      include: { role: { include: { permissions: { include: { permission: true } } } } }
-    });
-    if (!membership) {
-      return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Global permission required.", details: [] } });
-    }
-    next();
-  } catch (error) { next(error); }
-};
 
 router.get("/", requireGlobalPermission("platform.read"), OrganizationController.findAll);
 router.post("/", requireGlobalPermission("platform.manage"), validateRequest(createOrganizationSchema), OrganizationController.create);

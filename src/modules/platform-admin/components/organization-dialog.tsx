@@ -31,7 +31,7 @@ export function OrganizationDialog({ open, onOpenChange, organization }: Organiz
   useEffect(() => {
     if (organization) {
       setName(organization.name);
-      // Mock data doesn't have slug, but real API expects it. Generate one if missing.
+      // Generate slug if missing.
       setSlug(organization.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
     } else {
       setName("");

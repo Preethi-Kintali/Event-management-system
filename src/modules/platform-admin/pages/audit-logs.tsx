@@ -1,8 +1,7 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import type { Column } from "@/components/ds/data-table";
-import { PlatformAdminService } from "../services/platform-admin.service";
 import { AuditLog } from "../types/platform-admin.types";
-import { useEffect, useState } from "react";
+import { usePlatformAuditLogs } from "../hooks/platform-admin.hooks";
 import { Badge } from "@/components/ui/badge";
 
 const columns: Column<AuditLog>[] = [
@@ -10,7 +9,7 @@ const columns: Column<AuditLog>[] = [
     key: "timestamp",
     header: "Timestamp",
     sortable: true,
-    render: (row) => <span className="font-mono text-xs">{row.timestamp}</span>,
+    render: (row) => <span className="font-mono text-xs">{new Date(row.timestamp).toLocaleString()}</span>,
   },
   {
     key: "actor",
@@ -49,11 +48,7 @@ const columns: Column<AuditLog>[] = [
 ];
 
 export function AuditLogsPage() {
-  const [data, setData] = useState<AuditLog[]>([]);
-
-  useEffect(() => {
-    PlatformAdminService.getAuditLogs().then(setData);
-  }, []);
+  const { data = [], isLoading, isError } = usePlatformAuditLogs();
 
   return (
     <ListPageTemplate<AuditLog>
@@ -62,6 +57,8 @@ export function AuditLogsPage() {
       crumbs={[{ label: "Platform" }, { label: "Audit Logs" }]}
       columns={columns}
       rows={data}
+      loading={isLoading}
+      error={isError}
       searchKeys={["actor", "action", "target"]}
       facet={{
         label: "Severity",

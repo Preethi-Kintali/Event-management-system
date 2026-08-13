@@ -1,21 +1,15 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
-import { DeveloperService } from "../services/developer.service";
 import { SystemDashboardSummary, ServiceHealth } from "../types/developer.types";
-import { useEffect, useState } from "react";
+import { useDeveloperSummary, useDeveloperHealth } from "../hooks/developer.hooks";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { Server, Activity, Database, CloudRain, Cpu, DatabaseZap, Clock } from "lucide-react";
 import { TrendAreaChart } from "@/components/ds/charts";
 
 export function DeveloperDashboard() {
-  const [summary, setSummary] = useState<SystemDashboardSummary | null>(null);
-  const [health, setHealth] = useState<ServiceHealth[]>([]);
-
-  useEffect(() => {
-    DeveloperService.getDashboardSummary().then(setSummary);
-    DeveloperService.getHealth().then(setHealth);
-  }, []);
+  const { data: summary } = useDeveloperSummary();
+  const { data: health } = useDeveloperHealth();
 
   return (
     <>

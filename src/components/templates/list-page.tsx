@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { exportToCsv } from "@/lib/export";
 import { PageHeader, type Crumb } from "@/components/ds/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
 import { DatePicker, MultiSelect, SearchInput } from "@/components/ds/form-controls";
@@ -123,7 +124,11 @@ export function ListPageTemplate<T extends { id: string }>({
         crumbs={crumbs}
         actions={
           <>
-            <Button variant="outline" onClick={() => toast.success("Export queued as CSV")}>
+            <Button variant="outline" onClick={() => {
+              const filename = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-export';
+              exportToCsv(filtered, filename);
+              toast.success("Export downloaded successfully");
+            }}>
               <Download className="h-4 w-4" />
               Export
             </Button>
@@ -242,7 +247,11 @@ export function ListPageTemplate<T extends { id: string }>({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => toast.success("Export started for selection")}
+                onClick={() => {
+                  const filename = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-selection-export';
+                  exportToCsv(filtered.filter(row => selected.includes(row.id)), filename);
+                  toast.success("Export downloaded successfully");
+                }}
               >
                 <Download className="h-3.5 w-3.5" />
                 Export

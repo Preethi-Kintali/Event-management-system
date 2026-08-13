@@ -3,6 +3,7 @@ import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
 import { QrCode, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 import { useAttendanceSummary, useAttendanceSessions } from "../services/attendance.api";
 
 export function AttendanceDashboard() {
@@ -24,9 +25,11 @@ export function AttendanceDashboard() {
         description="Monitor live check-ins and session participation."
         crumbs={[{ label: "Event Operations" }, { label: "Attendance" }]}
         actions={
-          <Button>
-            <QrCode className="w-4 h-4 mr-2" />
-            Open Scanner
+          <Button asChild>
+            <Link to="/attendance/qr">
+              <QrCode className="w-4 h-4 mr-2" />
+              Open Scanner
+            </Link>
           </Button>
         }
       />

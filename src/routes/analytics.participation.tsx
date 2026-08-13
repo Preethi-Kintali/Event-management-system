@@ -24,9 +24,11 @@ export const Route = createFileRoute("/analytics/participation")({
 });
 
 function ParticipationAnalyticsPage() {
-  const { data, isLoading } = useParticipationAnalytics();
+  const { data, isLoading, isError, error } = useParticipationAnalytics();
 
-  if (isLoading || !data) return <div className="p-8">Loading analytics...</div>;
+  if (isLoading) return <div className="p-8">Loading analytics...</div>;
+  if (isError) return <div className="p-8 text-red-500">Error: {(error as any)?.message || "Failed to load"}</div>;
+  if (!data) return <div className="p-8">No data available.</div>;
 
   const { kpis, funnel, registrationTrend, categoryMix, participationByRegion } = data;
   const top = funnel[0]?.value || 1;

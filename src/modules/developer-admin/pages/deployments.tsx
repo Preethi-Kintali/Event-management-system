@@ -1,9 +1,8 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { DeveloperService } from "../services/developer.service";
 import { Deployment } from "../types/developer.types";
-import { useEffect, useState } from "react";
+import { useDeveloperDeployments } from "../hooks/developer.hooks";
 import { Badge } from "@/components/ui/badge";
 
 const columns: Column<Deployment>[] = [
@@ -25,7 +24,7 @@ const columns: Column<Deployment>[] = [
     key: "date",
     header: "Deployed At",
     sortable: true,
-    render: (row) => <span className="text-sm">{row.date}</span>,
+    render: (row) => <span className="text-sm">{new Date(row.date).toLocaleString()}</span>,
   },
   { key: "deployedBy", header: "Deployed By", sortable: true },
   {
@@ -43,11 +42,7 @@ const columns: Column<Deployment>[] = [
 ];
 
 export function DeploymentsPage() {
-  const [data, setData] = useState<Deployment[]>([]);
-
-  useEffect(() => {
-    DeveloperService.getDeployments().then(setData);
-  }, []);
+  const { data = [], isLoading } = useDeveloperDeployments();
 
   return (
     <ListPageTemplate<Deployment>

@@ -1,9 +1,8 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { PlatformAdminService } from "../services/platform-admin.service";
 import { License } from "../types/platform-admin.types";
-import { useEffect, useState } from "react";
+import { usePlatformSubscriptions } from "../hooks/platform-admin.hooks";
 import { Progress } from "@/components/ui/progress";
 
 const columns: Column<License>[] = [
@@ -23,14 +22,24 @@ const columns: Column<License>[] = [
       <div className="space-y-1.5 w-full min-w-24">
         <div className="flex justify-between text-xs">
           <span>{row.usedSeats} used</span>
-          <span>{row.seats - row.usedSeats} remaining</span>
+          <span>{Math.max(0, row.seats - row.usedSeats)} remaining</span>
         </div>
         <Progress value={(row.usedSeats / row.seats) * 100} className="h-1.5" />
       </div>
     ),
   },
-  { key: "startDate", header: "Start Date", sortable: true },
-  { key: "expiryDate", header: "Expiry Date", sortable: true },
+  { 
+    key: "startDate", 
+    header: "Start Date", 
+    sortable: true,
+    render: (row) => <span>{new Date(row.startDate).toLocaleDateString()}</span>
+  },
+  { 
+    key: "expiryDate", 
+    header: "Expiry Date", 
+    sortable: true,
+    render: (row) => <span>{new Date(row.expiryDate).toLocaleDateString()}</span>
+  },
   {
     key: "status",
     header: "Status",
@@ -40,11 +49,10 @@ const columns: Column<License>[] = [
 ];
 
 export function LicensesPage() {
-  const [data, setData] = useState<License[]>([]);
+  const { data = [], isLoading, isError } = usePlatformSubscriptions();
 
-  useEffect(() => {
-    PlatformAdminService.getLicenses().then(setData);
-  }, []);
+  const totalSeats = data.reduce((acc, curr) => acc + curr.seats, 0);
+  const totalUsed = data.reduce((acc, curr) => acc + curr.usedSeats, 0);
 
   return (
     <ListPageTemplate<License>
@@ -53,13 +61,16 @@ export function LicensesPage() {
       crumbs={[{ label: "Platform" }, { label: "Licenses" }]}
       columns={columns}
       rows={data}
+      loading={isLoading}
+      error={isError}
       searchKeys={["org", "type"]}
       stats={[
-        { label: "Total Licenses", value: "128", delta: 5 },
-        { label: "Active Seats", value: "30,120", progress: 85 },
+        { label: "Total Licenses", value: data.length.toString(), delta: 0 },
+        { label: "Active Seats", value: totalUsed.toLocaleString(), progress: totalSeats > 0 ? Math.round((totalUsed / totalSeats) * 100) : 0 },
       ]}
-      facet={{ label: "Type", key: "type", options: ["Starter", "Growth", "Enterprise"] }}
+      facet={{ label: "Type", key: "type", options: Array.from(new Set(data.map(l => l.type))) }}
       createLabel="Allocate License"
     />
   );
 }
+

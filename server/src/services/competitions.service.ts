@@ -50,7 +50,7 @@ export class CompetitionService {
     }
 
     const evaluationLoad = [
-      { round: "Round 1", completed: Math.round(competition.submissions.length * 0.8), pending: Math.round(competition.submissions.length * 0.2) },
+      { round: "Round 1", completed: 0, pending: competition.submissions.length },
     ];
     
     // Group submissions into status buckets for kanban
@@ -74,7 +74,7 @@ export class CompetitionService {
       metrics: {
         teams: competition.teams.length,
         submissions: competition.submissions.length,
-        avgScore: 75.4, // Mock average, since score isn't aggregated yet
+        avgScore: 0, // Mock removed
         judges: competition.judgeAssignments.length,
       }
     };

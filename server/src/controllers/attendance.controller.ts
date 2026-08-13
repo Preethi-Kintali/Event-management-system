@@ -78,4 +78,21 @@ export class AttendanceController {
       res.json({ success: true, data });
     } catch (error) { next(error); }
   }
+
+  static async generateQr(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { sessionId } = req.body;
+      const data = await AttendanceService.generateQr(req.tenantId as string, sessionId);
+      res.status(201).json({ success: true, data });
+    } catch (error) { next(error); }
+  }
+
+  static async scanQr(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.body;
+      const userId = req.user!.id; // Authenticated attendee
+      const data = await AttendanceService.scanQr(req.tenantId as string, token, userId);
+      res.status(201).json({ success: true, data });
+    } catch (error) { next(error); }
+  }
 }

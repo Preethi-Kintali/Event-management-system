@@ -92,7 +92,14 @@ export function EvaluationsPage() {
         description="Your evaluation queue, scorecards and round progress."
         crumbs={[{ label: "Evaluation" }, { label: "Evaluations" }]}
         actions={
-          <Button onClick={() => toast.info("Select a submission from the queue below")}>
+          <Button onClick={() => {
+            const nextPending = myEvals.find(e => e.status !== "COMPLETED");
+            if (nextPending) {
+              handleSelectSubmission(nextPending);
+            } else {
+              toast.info("No pending evaluations to score.");
+            }
+          }}>
             <Gavel className="h-4 w-4" />
             Start evaluating
           </Button>

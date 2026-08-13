@@ -15,11 +15,13 @@ const columns: Column<Organization>[] = [
     sortable: true,
     render: (row) => <span className="font-medium">{row.name}</span>,
   },
-  { key: "type", header: "Type", sortable: true },
-  { key: "plan", header: "Plan", sortable: true },
-  { key: "members", header: "Users", sortable: true },
-  { key: "events", header: "Events", sortable: true },
-  { key: "created", header: "Created Date", sortable: true },
+  { key: "slug", header: "Slug", sortable: true },
+  { 
+    key: "createdAt" as any, 
+    header: "Created Date", 
+    sortable: true,
+    render: (row: any) => <span>{new Date(row.createdAt).toLocaleDateString()}</span>
+  },
   {
     key: "status",
     header: "Status",
@@ -65,16 +67,11 @@ export function OrganizationsPage() {
         rows={data}
         loading={isLoading}
         error={isError}
-        searchKeys={["name", "type", "plan"]}
+        searchKeys={["name", "slug", "plan"]}
         stats={[
           { label: "Total Organizations", value: String(data.length) },
           { label: "Active Organizations", value: String(data.filter((o) => o.status === "ACTIVE").length) },
         ]}
-        facet={{
-          label: "Type",
-          key: "type",
-          options: ["University", "Corporate", "Non-profit", "Government", "Community"],
-        }}
         createLabel="Add Organization"
         onCreate={handleCreate}
         rowActions={[

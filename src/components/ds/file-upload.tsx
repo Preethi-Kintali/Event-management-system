@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
-interface MockFile {
+interface UploadedFile {
   id: string;
   name: string;
   size: string;
@@ -21,10 +21,7 @@ export function FileUpload({
   onUpload?: (() => void) | undefined;
 }) {
   const [dragging, setDragging] = useState(false);
-  const [files, setFiles] = useState<MockFile[]>([
-    { id: "f1", name: "problem-statement.pdf", size: "1.8 MB", progress: 100 },
-    { id: "f2", name: "brand-kit.zip", size: "12.4 MB", progress: 64 },
-  ]);
+  const [files, setFiles] = useState<UploadedFile[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addMock = () =>

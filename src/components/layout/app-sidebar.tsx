@@ -1,57 +1,22 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Award,
-  BarChart3,
-  Bell,
-  Building2,
-  CalendarDays,
-  ClipboardCheck,
-  FileBarChart,
-  FileCheck2,
-  Gavel,
-  GraduationCap,
-  Handshake,
-  HeartHandshake,
-  LayoutDashboard,
-  ScrollText,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  UserRoundSearch,
-  Users,
-  UsersRound,
-  Wallet,
-  Bot,
-  MessageSquare,
-  BadgeAlert,
-  Medal,
-  Users2,
-  BookOpen,
-  MessageCircle,
-  Cpu,
-  Workflow,
-  Network,
-  TerminalSquare,
-  MonitorPlay,
-  ClipboardList,
+  Award, BarChart3, Bell, Building2, CalendarDays, ClipboardCheck,
+  FileBarChart, FileCheck2, Gavel, GraduationCap, Handshake,
+  HeartHandshake, LayoutDashboard, Settings, ShieldCheck,
+  Sparkles, Trophy, UserRoundSearch, Users, UsersRound,
+  Wallet, Bot, MessageSquare, BadgeAlert, Medal, Users2,
+  BookOpen, MessageCircle, Cpu, Workflow, Network,
+  TerminalSquare, MonitorPlay, ClipboardList, Compass
 } from "lucide-react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
+  SidebarGroupContent, SidebarGroupLabel, SidebarHeader,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/lib/auth";
 
-const sections = [
+const orgAdminSections = [
   {
     label: "Platform",
     items: [
@@ -120,17 +85,89 @@ const sections = [
   },
 ];
 
+const managerSections = [
+  {
+    label: "Overview",
+    items: [
+      { title: "Manager Dashboard", url: "/manager", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Managed Operations",
+    items: [
+      { title: "Events", url: "/manager/events", icon: CalendarDays },
+      { title: "Registrations", url: "/manager/registrations", icon: ClipboardCheck },
+      { title: "Teams", url: "/manager/teams", icon: UsersRound },
+      { title: "Submissions", url: "/manager/submissions", icon: Sparkles },
+      { title: "Evaluations", url: "/manager/evaluations", icon: FileCheck2 },
+      { title: "Judges", url: "/manager/judges", icon: Gavel },
+      { title: "Mentors", url: "/manager/mentors", icon: GraduationCap },
+      { title: "Volunteers", url: "/manager/volunteers", icon: HeartHandshake },
+      { title: "Attendance", url: "/manager/attendance", icon: ClipboardList },
+      { title: "Certificates", url: "/manager/certificates", icon: Award },
+      { title: "Reports", url: "/manager/reports", icon: FileBarChart },
+    ],
+  },
+];
+
+const participantSections = [
+  {
+    label: "My Space",
+    items: [
+      { title: "Dashboard", url: "/participant", icon: LayoutDashboard },
+      { title: "Discover Events", url: "/participant/discover-events", icon: Compass },
+    ],
+  },
+  {
+    label: "My Activities",
+    items: [
+      { title: "My Registrations", url: "/participant/registrations", icon: ClipboardCheck },
+      { title: "My Teams", url: "/participant/teams", icon: UsersRound },
+      { title: "My Submissions", url: "/participant/submissions", icon: Sparkles },
+    ],
+  },
+  {
+    label: "My Profile",
+    items: [
+      { title: "Certificates", url: "/participant/certificates", icon: Award },
+      { title: "Achievements", url: "/participant/achievements", icon: Medal },
+      { title: "Notifications", url: "/participant/notifications", icon: Bell },
+    ],
+  },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { user } = useAuth();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname === url);
+  const isActive = (url: string) => {
+    if (url === "/" || url === "/manager" || url === "/participant") {
+      return pathname === url;
+    }
+    return pathname.startsWith(url);
+  };
+
+  const roleName = user?.memberships?.[0]?.role?.name;
+  
+  let sections = orgAdminSections;
+  let basePath = "/";
+  if (roleName === "Organization Admin" || roleName === "Manager") {
+    sections = managerSections;
+    basePath = "/manager";
+  } else if (roleName === "Participant") {
+    sections = participantSections;
+    basePath = "/participant";
+  } else if (roleName === "Platform Admin") {
+    sections = orgAdminSections;
+    basePath = "/";
+  }
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border px-3 py-3.5">
-        <Link to="/" className="flex min-w-0 items-center gap-2.5">
+        <Link to={basePath} className="flex min-w-0 items-center gap-2.5">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Trophy className="h-4 w-4" />
           </span>
@@ -140,7 +177,7 @@ export function AppSidebar() {
                 Ascent Platform
               </span>
               <span className="block truncate text-[11px] text-muted-foreground">
-                Events · Competitions · Innovation
+                {roleName || "Events · Competitions"}
               </span>
             </span>
           ) : null}
@@ -160,7 +197,7 @@ export function AppSidebar() {
                 {section.items.map((item) => (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                      <Link to={item.url} className="flex items-center gap-2.5">
+                      <Link to={item.url as any} className="flex items-center gap-2.5">
                         <item.icon className="h-4 w-4 shrink-0" />
                         {!collapsed ? (
                           <>
@@ -185,7 +222,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      {!collapsed ? (
+      {!collapsed && roleName !== "Participant" && roleName !== "Manager" ? (
         <SidebarFooter className="border-t border-sidebar-border p-3">
           <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/60 p-3">
             <p className="text-xs font-medium">Enterprise trial</p>

@@ -1,9 +1,8 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { DeveloperService } from "../services/developer.service";
 import { ApiMetric } from "../types/developer.types";
-import { useEffect, useState } from "react";
+import { useDeveloperApiMetrics } from "../hooks/developer.hooks";
 import { Badge } from "@/components/ui/badge";
 
 const columns: Column<ApiMetric>[] = [
@@ -77,11 +76,7 @@ const columns: Column<ApiMetric>[] = [
 ];
 
 export function ApiManagementPage() {
-  const [data, setData] = useState<ApiMetric[]>([]);
-
-  useEffect(() => {
-    DeveloperService.getApiMetrics().then(setData);
-  }, []);
+  const { data = [], isLoading, isError } = useDeveloperApiMetrics();
 
   return (
     <ListPageTemplate<ApiMetric>

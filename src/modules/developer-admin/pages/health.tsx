@@ -1,18 +1,13 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
-import { DeveloperService } from "../services/developer.service";
 import { ServiceHealth } from "../types/developer.types";
-import { useEffect, useState } from "react";
+import { useDeveloperHealth } from "../hooks/developer.hooks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle, AlertCircle, RefreshCw, Activity } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export function HealthPage() {
-  const [health, setHealth] = useState<ServiceHealth[]>([]);
-
-  useEffect(() => {
-    DeveloperService.getHealth().then(setHealth);
-  }, []);
+  const { data: health = [], isLoading, refetch } = useDeveloperHealth();
 
   return (
     <>
@@ -25,7 +20,7 @@ export function HealthPage() {
           { label: "Health" },
         ]}
         actions={
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => refetch()}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh Status
           </Button>
@@ -63,7 +58,7 @@ export function HealthPage() {
             </div>
 
             <div className="text-xs text-muted-foreground mb-6 font-mono">
-              v{svc.version} • Checked {svc.lastCheck}
+              v{svc.version} • Checked {new Date(svc.lastCheck).toLocaleTimeString()}
             </div>
 
             <div className="space-y-4 mt-auto border-t border-border pt-4">

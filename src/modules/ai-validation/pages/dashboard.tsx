@@ -3,7 +3,7 @@ import { StatCard } from "@/components/ds/stat-card";
 import { GroupedBarChart } from "@/components/ds/charts";
 import { Timeline } from "@/components/ds/timeline";
 import { useValidationSummary } from "../hooks/ai-validation.hooks";
-import { timeline } from "@/lib/mock-data";
+
 import { useEffect, useState } from "react";
 import { ShieldAlert } from "lucide-react";
 
@@ -112,7 +112,7 @@ export function AIValidationDashboard() {
           </SectionCard>
 
           <SectionCard title="System Activity" description="Validation engine">
-            <Timeline items={timeline.slice(0, 4)} />
+            <Timeline items={[]} />
           </SectionCard>
         </aside>
       </div>

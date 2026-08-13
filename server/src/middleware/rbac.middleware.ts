@@ -62,3 +62,33 @@ export const requirePermission = (requiredPermission: string) => {
     }
   };
 };
+
+export const requireGlobalPermission = (action: string) => async (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: { code: "UNAUTHORIZED", message: "User missing in request.", details: [] }
+    });
+  }
+
+  try {
+    const membership = await prisma.organizationMember.findFirst({
+      where: { 
+        userId: req.user.id, 
+        role: { permissions: { some: { permission: { action } } } } 
+      },
+      include: { role: { include: { permissions: { include: { permission: true } } } } }
+    });
+
+    if (!membership) {
+      return res.status(403).json({ 
+        success: false, 
+        error: { code: "FORBIDDEN", message: `Global permission required: ${action}`, details: [] } 
+      });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};

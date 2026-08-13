@@ -26,3 +26,11 @@ export const checkOutSchema = z.object({
   sessionId: z.string().uuid(),
   userId: z.string().uuid(),
 });
+
+export const generateQrSchema = z.object({
+  sessionId: z.string().uuid(),
+});
+
+export const scanQrSchema = z.object({
+  token: z.string(),
+});

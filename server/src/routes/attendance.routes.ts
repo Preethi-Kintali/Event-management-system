@@ -9,6 +9,8 @@ import {
   updateSessionSchema,
   checkInSchema,
   checkOutSchema,
+  generateQrSchema,
+  scanQrSchema,
 } from "../validators/attendance.validator";
 
 const router = Router();
@@ -49,6 +51,22 @@ router.post(
   requirePermission("events.read"),
   validateRequest(checkOutSchema),
   AttendanceController.checkOut
+);
+
+// QR Code
+router.post(
+  "/qr/generate",
+  requirePermission("events.read"),
+  validateRequest(generateQrSchema),
+  AttendanceController.generateQr
+);
+
+// This endpoint is used by the attendee when they scan the QR code.
+// No explicit permission is required to check *oneself* in, only an active session and a valid JWT token.
+router.post(
+  "/qr/checkin",
+  validateRequest(scanQrSchema),
+  AttendanceController.scanQr
 );
 
 export { router as attendanceRoutes };

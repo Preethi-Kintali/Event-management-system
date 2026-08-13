@@ -4,18 +4,7 @@ import type { Column } from "@/components/ds/data-table";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
-// Local mock data since developer API keys are similar to integration API keys
-interface DevApiKey {
-  id: string;
-  name: string;
-  environment: "Production" | "Staging" | "Development";
-  owner: string;
-  created: string;
-  lastUsed: string;
-  expiry: string;
-  status: "Active" | "Revoked";
-  maskedKey: string;
-}
+import { ApiKey as DevApiKey } from "../types/developer.types";
 
 const columns: Column<DevApiKey>[] = [
   {
@@ -36,18 +25,18 @@ const columns: Column<DevApiKey>[] = [
     sortable: true,
     render: (row) => <Badge variant="outline">{row.environment}</Badge>,
   },
-  { key: "owner", header: "Owner", sortable: true },
+
   {
-    key: "created",
+    key: "createdAt",
     header: "Created",
     sortable: true,
-    render: (row) => <span className="text-xs text-muted-foreground">{row.created}</span>,
+    render: (row) => <span className="text-xs text-muted-foreground">{new Date(row.createdAt).toLocaleDateString()}</span>,
   },
   {
     key: "lastUsed",
     header: "Last Used",
     sortable: true,
-    render: (row) => <span className="text-xs text-muted-foreground">{row.lastUsed}</span>,
+    render: (row) => <span className="text-xs text-muted-foreground">{row.lastUsed ? new Date(row.lastUsed).toLocaleDateString() : 'Never'}</span>,
   },
   {
     key: "status",
@@ -61,50 +50,14 @@ const columns: Column<DevApiKey>[] = [
     key: "expiry",
     header: "Expires",
     sortable: true,
-    render: (row) => <span className="text-xs text-muted-foreground">{row.expiry}</span>,
+    render: (row) => <span className="text-xs text-muted-foreground">{row.expiry ? new Date(row.expiry).toLocaleDateString() : 'Never'}</span>,
   },
 ];
 
-export function DevApiKeysPage() {
-  const [data, setData] = useState<DevApiKey[]>([]);
+import { useDeveloperApiKeys } from "../hooks/developer.hooks";
 
-  useEffect(() => {
-    setData([
-      {
-        id: "k1",
-        name: "Mobile Client Main",
-        environment: "Production",
-        owner: "App Team",
-        created: "2025-01-01",
-        lastUsed: "Just now",
-        expiry: "Never",
-        status: "Active",
-        maskedKey: "sk_live_••••••••••••2f9a",
-      },
-      {
-        id: "k2",
-        name: "Internal Admin Script",
-        environment: "Production",
-        owner: "SysAdmin",
-        created: "2025-10-15",
-        lastUsed: "Yesterday",
-        expiry: "2026-10-15",
-        status: "Active",
-        maskedKey: "sk_live_••••••••••••7c4b",
-      },
-      {
-        id: "k3",
-        name: "Staging Test Key",
-        environment: "Staging",
-        owner: "QA Team",
-        created: "2026-05-20",
-        lastUsed: "2 hours ago",
-        expiry: "Never",
-        status: "Active",
-        maskedKey: "sk_test_••••••••••••1b8c",
-      },
-    ]);
-  }, []);
+export function DevApiKeysPage() {
+  const { data = [], isLoading, isError } = useDeveloperApiKeys();
 
   return (
     <ListPageTemplate<DevApiKey>
@@ -117,7 +70,7 @@ export function DevApiKeysPage() {
       ]}
       columns={columns}
       rows={data}
-      searchKeys={["name", "owner"]}
+      searchKeys={["name"]}
       facet={{
         label: "Environment",
         key: "environment",

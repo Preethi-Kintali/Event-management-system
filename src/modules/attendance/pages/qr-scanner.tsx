@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,10 +8,98 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { QrCode, Scan, Users } from "lucide-react";
+import { QrCode, Scan, Users, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useEvents } from "@/modules/events/services/events.api";
+import { useAttendanceSessions, useGenerateSessionQr, useAttendanceSession, useCheckIn } from "../services/attendance.api";
+import { QRCodeSVG } from "qrcode.react";
+import { toast } from "sonner";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 export function QRScannerPage() {
+  const { data: events = [], isLoading: eventsLoading } = useEvents();
+  const { data: sessions = [], isLoading: sessionsLoading } = useAttendanceSessions();
+  const generateQrMutation = useGenerateSessionQr();
+  const checkInMutation = useCheckIn();
+
+  const [selectedEventId, setSelectedEventId] = useState<string>("");
+  const [selectedSessionId, setSelectedSessionId] = useState<string>("");
+  const [qrToken, setQrToken] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
+  const [cameraMode, setCameraMode] = useState<boolean>(false);
+
+  const { data: activeSession } = useAttendanceSession(selectedSessionId);
+
+  // Filter sessions for selected event
+  const availableSessions = sessions.filter(s => s.eventId === selectedEventId);
+
+  useEffect(() => {
+    // Reset session if event changes
+    setSelectedSessionId("");
+    setQrToken(null);
+  }, [selectedEventId]);
+
+  useEffect(() => {
+    let interval: any;
+    if (expiresAt) {
+      interval = setInterval(() => {
+        if (new Date() > expiresAt) {
+          setQrToken(null);
+          setExpiresAt(null);
+          toast.error("QR Code expired. Please generate a new one.");
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  const handleGenerateQr = async () => {
+    if (!selectedSessionId) {
+      toast.error("Please select a session first.");
+      return;
+    }
+    setCameraMode(false);
+    try {
+      const res = await generateQrMutation.mutateAsync(selectedSessionId);
+      setQrToken(res.token);
+      setExpiresAt(new Date(res.expiresAt));
+      toast.success("QR Code generated successfully.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate QR code.");
+    }
+  };
+
+  const handleStartCamera = () => {
+    if (!selectedSessionId) {
+      toast.error("Please select a session before scanning.");
+      return;
+    }
+    setQrToken(null);
+    setCameraMode(true);
+  };
+
+  useEffect(() => {
+    if (!cameraMode) return;
+    
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+    scanner.render((decodedText) => {
+      scanner.clear();
+      setCameraMode(false);
+      checkInMutation.mutateAsync({ sessionId: selectedSessionId, userId: decodedText, method: "QR" })
+        .then(() => toast.success("Attendee checked in successfully."))
+        .catch((err) => toast.error(err.message || "Invalid badge or check-in failed."));
+    }, (error) => {
+      // ignore errors to avoid spamming the console
+    });
+    
+    return () => {
+      scanner.clear().catch(() => {});
+    };
+  }, [cameraMode, selectedSessionId]);
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:8081";
+  const qrUrl = qrToken ? `${origin}/attendance/check-in?token=${qrToken}` : "";
+
   return (
     <>
       <PageHeader
@@ -28,36 +117,40 @@ export function QRScannerPage() {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="event">Event</Label>
-              <Select defaultValue="e1">
+              <Select value={selectedEventId} onValueChange={setSelectedEventId}>
                 <SelectTrigger id="event">
-                  <SelectValue />
+                  <SelectValue placeholder={eventsLoading ? "Loading..." : "Select Event"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="e1">Global AI Innovation Summit 2026</SelectItem>
-                  <SelectItem value="e2">Northwind Hack the Campus</SelectItem>
+                  {events.map((e) => (
+                    <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="session">Session</Label>
-              <Select defaultValue="s1">
+              <Select value={selectedSessionId} onValueChange={setSelectedSessionId} disabled={!selectedEventId}>
                 <SelectTrigger id="session">
-                  <SelectValue />
+                  <SelectValue placeholder={sessionsLoading ? "Loading..." : "Select Session"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="s1">Opening Keynote</SelectItem>
-                  <SelectItem value="s2">Workshop A</SelectItem>
-                  <SelectItem value="s3">Networking Lunch</SelectItem>
+                  {availableSessions.length === 0 && (
+                    <SelectItem value="none" disabled>No sessions available</SelectItem>
+                  )}
+                  {availableSessions.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Button className="w-full mt-2">
-              <QrCode className="w-4 h-4 mr-2" />
+            <Button className="w-full mt-2" onClick={handleGenerateQr} disabled={generateQrMutation.isPending || !selectedSessionId}>
+              {generateQrMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <QrCode className="w-4 h-4 mr-2" />}
               Generate Session QR
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleStartCamera} disabled={!selectedSessionId}>
               <Scan className="w-4 h-4 mr-2" />
               Use Camera Scanner
             </Button>
@@ -66,14 +159,36 @@ export function QRScannerPage() {
 
         <div className="flex flex-col gap-6">
           <SectionCard title="QR Code Display" className="flex-1 flex flex-col items-center justify-center p-12 text-center border-dashed">
-            <div className="bg-muted p-6 rounded-2xl mb-6">
-              <QrCode className="w-32 h-32 opacity-20" />
-            </div>
-            <h3 className="text-xl font-medium mb-2">Display QR for Attendees</h3>
-            <p className="text-muted-foreground max-w-md">
-              Select an event and session from the left panel to generate a unique QR code.
-              Attendees can scan this code with their mobile device to check in.
-            </p>
+            {cameraMode ? (
+              <div className="w-full max-w-md mx-auto">
+                <div id="reader"></div>
+                <Button variant="ghost" className="mt-4" onClick={() => setCameraMode(false)}>Cancel Scanner</Button>
+              </div>
+            ) : qrToken ? (
+              <>
+                <div className="bg-white p-6 rounded-2xl mb-6 shadow-sm">
+                  <QRCodeSVG value={qrUrl} size={256} />
+                </div>
+                <h3 className="text-xl font-medium mb-2">Display QR for Attendees</h3>
+                <p className="text-muted-foreground max-w-md mb-2">
+                  Attendees can scan this code with their mobile device to check in.
+                </p>
+                <p className="text-sm font-semibold text-primary">
+                  Expires at {expiresAt?.toLocaleTimeString()}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="bg-muted p-6 rounded-2xl mb-6">
+                  <QrCode className="w-32 h-32 opacity-20" />
+                </div>
+                <h3 className="text-xl font-medium mb-2">Display QR for Attendees</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Select an event and session from the left panel to generate a unique QR code.
+                  Attendees can scan this code with their mobile device to check in.
+                </p>
+              </>
+            )}
           </SectionCard>
 
           <div className="grid grid-cols-2 gap-4">
@@ -87,7 +202,7 @@ export function QRScannerPage() {
                   <p className="text-xs text-muted-foreground">This session</p>
                 </div>
               </div>
-              <span className="text-2xl font-bold">0</span>
+              <span className="text-2xl font-bold">{activeSession?._count?.records ?? 0}</span>
             </div>
             <div className="rounded-lg border border-border bg-surface p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -95,10 +210,13 @@ export function QRScannerPage() {
                   <Scan className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Recent Scan</p>
-                  <p className="text-xs text-muted-foreground">Awaiting check-in...</p>
+                  <p className="text-sm font-medium">Session Status</p>
+                  <p className="text-xs text-muted-foreground">Is Active?</p>
                 </div>
               </div>
+              <span className="text-xl font-bold">
+                {activeSession ? activeSession.status : "—"}
+              </span>
             </div>
           </div>
         </div>

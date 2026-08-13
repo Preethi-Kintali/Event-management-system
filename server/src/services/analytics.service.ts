@@ -53,20 +53,11 @@ export class AnalyticsService {
       registrationTrend.push({ month: "Current", registrations: 0, participants: 0 });
     }
 
-    // Category Mix (Mocked since Event Category doesn't exist)
-    const categoryMix = [
-      { name: "Hackathons", value: registrations * 0.5 || 50 },
-      { name: "Ideathons", value: registrations * 0.3 || 30 },
-      { name: "Workshops", value: registrations * 0.2 || 20 },
-    ];
+    // Category Mix - Empty until schema supports event categories
+    const categoryMix: any[] = [];
 
-    // Participation by Region (Mocked since User Region doesn't exist)
-    const participationByRegion = [
-      { region: "North America", participants: 450, teams: 120 },
-      { region: "Europe", participants: 320, teams: 85 },
-      { region: "Asia Pacific", participants: 550, teams: 150 },
-      { region: "Rest of World", participants: 180, teams: 45 },
-    ];
+    // Participation by Region - Empty until schema supports user regions
+    const participationByRegion: any[] = [];
 
     return {
       kpis: {

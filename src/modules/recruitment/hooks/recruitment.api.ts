@@ -20,6 +20,13 @@ export function useRecruitmentDashboard() {
   });
 }
 
+export function useRecruitmentJobs() {
+  return useQuery({
+    queryKey: ["recruitment", "jobs"],
+    queryFn: () => fetchApi<{ success: boolean; data: any[] }>("/api/v1/recruitment/jobs").then(r => r.data),
+  });
+}
+
 export function useRecruitmentCandidates() {
   return useQuery({
     queryKey: ["recruitment", "candidates"],
@@ -38,7 +45,7 @@ export function useRecruitmentCandidate(id: string) {
 export function useAddRecruitmentCandidate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<RecruitmentCandidate>) => 
+    mutationFn: (data: any) => 
       fetchApi("/api/v1/recruitment/candidates", { 
         method: "POST", 
         body: JSON.stringify(data) 

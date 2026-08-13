@@ -3,6 +3,8 @@ import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
 import { useRecruitmentCandidates, useRecruitmentDashboard } from "@/modules/recruitment/hooks/recruitment.api";
+import { CandidateCreateDialog } from "@/modules/recruitment/components/candidate-create-dialog";
+import { useState } from "react";
 
 type Row = {
   id: string;
@@ -65,6 +67,7 @@ export const Route = createFileRoute("/recruitment")({
 });
 
 function RecruitmentPage() {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { data: candidates = [], isLoading: isCandidatesLoading } = useRecruitmentCandidates();
   const { data: stats, isLoading: isStatsLoading } = useRecruitmentDashboard();
 
@@ -84,6 +87,7 @@ function RecruitmentPage() {
   }
 
   return (
+    <>
     <ListPageTemplate<Row>
       title="Recruitment"
       description="Convert competition performance into hiring pipelines and offers."
@@ -103,12 +107,15 @@ function RecruitmentPage() {
         options: ["Shortlisted", "Interview", "Offer", "Rejected"],
       }}
       createLabel="Add candidate"
+      onCreate={() => setIsCreateOpen(true)}
       rowActions={[
         { label: "View details", onSelect: () => {} },
         { label: "Duplicate", onSelect: () => {} },
         { label: "Archive", onSelect: () => {} },
       ]}
     />
+    <CandidateCreateDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+    </>
   );
 }
 

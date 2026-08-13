@@ -58,7 +58,7 @@ export function WorkshopsPage() {
     instructor: w.instructor ? `${w.instructor.firstName} ${w.instructor.lastName}` : "Unknown",
     date: new Date(w.date).toLocaleString(),
     duration: w.duration,
-    participants: 0, // Mocked until we add workshop registrations
+    participants: 0,
     status: w.status,
   }));
 

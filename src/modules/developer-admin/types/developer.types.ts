@@ -69,3 +69,14 @@ export interface SystemDashboardSummary {
   memoryUsagePct: number;
   storageUsagePct: number;
 }
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  environment: "Production" | "Staging" | "Development";
+  maskedKey: string;
+  lastUsed: string | null;
+  status: "Active" | "Revoked";
+  expiry: string | null;
+  createdAt: string;
+}

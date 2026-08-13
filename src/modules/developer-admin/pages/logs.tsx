@@ -1,7 +1,6 @@
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
-import { DeveloperService } from "../services/developer.service";
 import { ApplicationLog } from "../types/developer.types";
-import { useEffect, useState } from "react";
+import { useDeveloperLogs } from "../hooks/developer.hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,11 +14,7 @@ import { Search, Download, Terminal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export function LogsPage() {
-  const [logs, setLogs] = useState<ApplicationLog[]>([]);
-
-  useEffect(() => {
-    DeveloperService.getLogs().then(setLogs);
-  }, []);
+  const { data: logs = [], isLoading } = useDeveloperLogs();
 
   const getLevelColor = (level: string) => {
     switch (level) {

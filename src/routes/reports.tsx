@@ -75,8 +75,9 @@ function ReportsPage() {
       const token = localStorage.getItem("ascent_token"); // if using token based download
       // Since we need to attach auth headers, we can't just window.open.
       // We will fetch the CSV text and trigger download.
-      const url = `/api/v1/reports/${selectedReport}/export?format=csv`;
-      const baseUrl = import.meta.env && import.meta.env['VITE_API_URL'] ? import.meta.env['VITE_API_URL'] : "";
+      const url = `/reports/${selectedReport}/export?format=csv`;
+      const baseUrl = import.meta.env['VITE_API_URL'] || 'http://localhost:3000/api/v1';
+      
       const response = await fetch(`${baseUrl}${url}`, {
         headers: {
           Authorization: `Bearer ${token}`,

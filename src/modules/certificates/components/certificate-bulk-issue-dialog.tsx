@@ -45,7 +45,7 @@ export function CertificateBulkIssueDialog({ open, onOpenChange }: Props) {
   const selectedEventId = watch("eventId");
   const selectedType = watch("type");
 
-  // Mock finding eligible participants: filtering registrations by approved status for the selected event
+  // Find eligible participants: filtering registrations by approved status for the selected event
   const eligibleUsers = registrations
     .filter(r => r.eventId === selectedEventId && r.status === "APPROVED")
     .map(r => ({ ...r.user, id: r.userId }));

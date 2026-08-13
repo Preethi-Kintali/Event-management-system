@@ -23,9 +23,11 @@ export const Route = createFileRoute("/analytics/revenue")({
 });
 
 function RevenueAnalyticsPage() {
-  const { data, isLoading } = useRevenueAnalytics();
+  const { data, isLoading, isError, error } = useRevenueAnalytics();
 
-  if (isLoading || !data) return <div className="p-8">Loading analytics...</div>;
+  if (isLoading) return <div className="p-8">Loading analytics...</div>;
+  if (isError) return <div className="p-8 text-red-500">Error: {(error as any)?.message || "Failed to load"}</div>;
+  if (!data) return <div className="p-8">No data available.</div>;
 
   const { kpis, revenueTrend, revenueByPlan } = data;
 

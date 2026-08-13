@@ -55,4 +55,8 @@ export class RecruitmentRepository {
       data: { stage },
     });
   }
+
+  static async createApplication(data: any): Promise<JobApplication> {
+    return prisma.jobApplication.create({ data });
+  }
 }

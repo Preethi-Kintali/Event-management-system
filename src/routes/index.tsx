@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import {
   Award,
   CalendarDays,
@@ -8,6 +8,7 @@ import {
   Trophy,
   Wallet,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { PageHeader, SectionCard } from "@/components/ds/page-header";
 import { StatCard } from "@/components/ds/stat-card";
 import { DonutChart, GroupedBarChart, TrendAreaChart } from "@/components/ds/charts";
@@ -16,14 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  activities,
-  categoryMix,
-  deadlines,
-  events,
-  submissions,
-} from "@/lib/mock-data";
-import { registrationTrend, evaluationLoad } from "@/lib/mock-analytics";
+const activities: any[] = [];
+const categoryMix: any[] = [];
+const deadlines: any[] = [];
+const events: any[] = [];
+const registrationTrend: any[] = [];
+const evaluationLoad: any[] = [];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,6 +74,16 @@ const stats = [
 ];
 
 function DashboardPage() {
+  const { user } = useAuth();
+  
+  if (user && user.memberships && user.memberships.length > 0) {
+    const roleName = user.memberships[0]?.role?.name;
+    // Allow Platform Admin to see the main dashboard
+    if (roleName !== "Platform Admin") {
+      return <Navigate to="/unauthorized" />;
+    }
+  }
+
   return (
     <>
       <PageHeader

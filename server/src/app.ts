@@ -18,7 +18,7 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 10000,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -79,6 +79,9 @@ import paymentsRoutes from "./routes/payments.routes";
 import { analyticsRoutes } from "./routes/analytics.routes";
 import securityRoutes from "./routes/security.routes";
 
+import managerRoutes from "./routes/manager.routes";
+import participantRoutes from "./routes/participant.routes";
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/organizations", organizationRoutes);
@@ -118,6 +121,8 @@ app.use("/api/v1/ai-copilot", aiCopilotRoutes);
 app.use("/api/v1/payments", paymentsRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/security", securityRoutes);
+app.use("/api/v1/manager", managerRoutes);
+app.use("/api/v1/participant", participantRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", (req: Request, res: Response) => {

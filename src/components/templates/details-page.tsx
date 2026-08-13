@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHeader, SectionCard, type Crumb } from "@/components/ds/page-header";
 import { Timeline } from "@/components/ds/timeline";
 import { MetricWidget } from "@/components/ds/stat-card";
-import { attachments, comments, timeline } from "@/lib/mock-data";
 
 export interface RelatedRecord {
   id: string;
@@ -26,6 +25,9 @@ export function DetailsPageTemplate({
   metrics,
   related,
   relatedTitle = "Related records",
+  timeline = [],
+  attachments = [],
+  comments = [],
 }: {
   title: string;
   description: string;
@@ -36,6 +38,9 @@ export function DetailsPageTemplate({
   metrics: { label: string; value: string; caption?: string }[];
   related?: RelatedRecord[];
   relatedTitle?: string;
+  timeline?: any[];
+  attachments?: any[];
+  comments?: any[];
 }) {
   return (
     <>

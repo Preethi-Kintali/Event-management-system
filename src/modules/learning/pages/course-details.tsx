@@ -43,7 +43,7 @@ export function CourseDetailsPage() {
       }
       metrics={[
         { label: "Level", value: record.level },
-        { label: "Rating", value: `⭐ 5.0` }, // Mocked
+        { label: "Rating", value: "No ratings yet" },
         { label: "Enrollments", value: enrollmentsCount.toString() },
         { label: "Completion", value: `${completionRate}%` },
       ]}

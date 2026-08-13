@@ -1,10 +1,12 @@
 import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
-import { DeveloperService } from "../services/developer.service";
 import { CronJob } from "../types/developer.types";
-import { useEffect, useState } from "react";
+import { useDeveloperCron } from "../hooks/developer.hooks";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon } from "lucide-react";
+import { PageHeader } from "@/components/ds/page-header";
 import { PlayCircle } from "lucide-react";
 
 const columns: Column<CronJob>[] = [
@@ -71,11 +73,34 @@ const columns: Column<CronJob>[] = [
 ];
 
 export function CronJobsPage() {
-  const [data, setData] = useState<CronJob[]>([]);
+  const { data, isLoading } = useDeveloperCron();
 
-  useEffect(() => {
-    DeveloperService.getCronJobs().then(setData);
-  }, []);
+  if (isLoading) {
+    return <div className="p-8">Loading cron jobs...</div>;
+  }
+
+  if (data === null) {
+    return (
+      <>
+        <PageHeader
+          title="Cron Jobs"
+          description="Manage recurring background tasks and scheduled routines."
+          crumbs={[
+            { label: "System / Admin" },
+            { label: "Developer", to: "/developer" },
+            { label: "Cron Jobs" },
+          ]}
+        />
+        <Alert className="mt-8">
+          <InfoIcon className="w-4 h-4" />
+          <AlertTitle>Scheduler Infrastructure Not Configured</AlertTitle>
+          <AlertDescription>
+            The Ascent platform is currently operating synchronously. A dedicated cron or scheduled task execution backend is not currently active in this environment.
+          </AlertDescription>
+        </Alert>
+      </>
+    );
+  }
 
   return (
     <ListPageTemplate<CronJob>
@@ -87,7 +112,7 @@ export function CronJobsPage() {
         { label: "Cron Jobs" },
       ]}
       columns={columns}
-      rows={data}
+      rows={data || []}
       searchKeys={["name"]}
       facet={{ label: "Status", key: "status", options: ["Enabled", "Disabled"] }}
       rowActions={[

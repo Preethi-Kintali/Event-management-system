@@ -8,6 +8,8 @@ import {
   AttendanceMethod,
   AttendanceStatus,
   SessionStatus,
+  PaymentStatus,
+  PaymentProvider,
 } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
@@ -59,6 +61,8 @@ async function main() {
   await prisma.rolePermission.deleteMany();
   await prisma.permission.deleteMany();
   await prisma.organizationMember.deleteMany();
+  await prisma.aIRequest.deleteMany();
+  await prisma.payment.deleteMany();
   await prisma.role.deleteMany();
   await prisma.organization.deleteMany();
   await prisma.user.deleteMany();
@@ -111,7 +115,7 @@ async function main() {
   });
 
   const participant1 = await prisma.user.create({
-    data: { email: 'bob@gmail.com', firstName: 'Bob', lastName: 'Participant', passwordHash, status: UserStatus.ACTIVE },
+    data: { email: 'participant@gmail.com', firstName: 'Bob', lastName: 'Participant', passwordHash, status: UserStatus.ACTIVE },
   });
 
   const judgeUser1 = await prisma.user.create({
@@ -764,12 +768,61 @@ async function main() {
     }
   });
 
+  // 24. Payments & Revenue
+  await prisma.payment.create({
+    data: {
+      organizationId: org1.id,
+      amount: 15000,
+      currency: 'USD',
+      status: PaymentStatus.SUCCEEDED,
+      provider: PaymentProvider.STRIPE,
+      providerPaymentId: 'pi_3M2X1XYZ1',
+      description: 'Enterprise Plan Subscription',
+    }
+  });
+  await prisma.payment.create({
+    data: {
+      organizationId: org1.id,
+      amount: 2500,
+      currency: 'USD',
+      status: PaymentStatus.SUCCEEDED,
+      provider: PaymentProvider.STRIPE,
+      providerPaymentId: 'pi_3M2X2XYZ2',
+      description: 'Event Add-on',
+      createdAt: new Date(Date.now() - 86400000 * 5)
+    }
+  });
+
+  // 25. AI Copilot Requests
+  await prisma.aIRequest.create({
+    data: {
+      organizationId: org1.id,
+      feature: 'Event Description',
+      tokens: 450,
+      durationMs: 1200,
+      status: 'Success',
+      requestedById: orgManager.id,
+      createdAt: new Date(Date.now() - 3600000)
+    }
+  });
+  await prisma.aIRequest.create({
+    data: {
+      organizationId: org1.id,
+      feature: 'Rubric Generation',
+      tokens: 850,
+      durationMs: 2100,
+      status: 'Success',
+      requestedById: orgManager.id,
+      createdAt: new Date(Date.now() - 86400000)
+    }
+  });
+
   console.log("\n✅ Seeding complete!");
   console.log("─────────────────────────────────────────────");
   console.log("TEST CREDENTIALS (DEVELOPMENT ONLY):");
   console.log("  Platform Admin:  admin@ascent.dev       / password123");
   console.log("  Org Manager:     manager@contoso.com    / password123");
-  console.log("  Participant:     bob@gmail.com          / password123");
+  console.log("  Participant:     participant@gmail.com  / password123");
   console.log("  Judge 1:         elena@ascent.dev       / password123");
   console.log("  Judge 2:         rajat@ascent.dev       / password123");
   console.log("  Mentor 1:        arjun@ascent.dev       / password123");

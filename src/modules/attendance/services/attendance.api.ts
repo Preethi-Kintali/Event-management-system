@@ -167,3 +167,31 @@ export function useCheckOut() {
     },
   });
 }
+
+export function useGenerateSessionQr() {
+  return useMutation({
+    mutationFn: async (sessionId: string) => {
+      const res = await fetchApi("/attendance/qr/generate", {
+        method: "POST",
+        body: JSON.stringify({ sessionId }),
+      });
+      return res.data as { token: string; expiresAt: string };
+    },
+  });
+}
+
+export function useScanAttendance() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const res = await fetchApi("/attendance/qr/checkin", {
+        method: "POST",
+        body: JSON.stringify({ token }),
+      });
+      return res.data as ApiAttendanceRecord;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendance"] });
+    },
+  });
+}
