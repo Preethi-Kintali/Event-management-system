@@ -1,5 +1,5 @@
 import { prisma } from "../utils/prisma";
-import { Prisma, SubscriptionStatus, PaymentStatus, InvoiceStatus, PaymentProvider } from "@prisma/client";
+import { Prisma, SubscriptionStatus, PaymentStatus, InvoiceStatus, PaymentProvider, PaymentType } from "@prisma/client";
 
 export class PaymentsRepository {
   // ---------------------------------------------------------
@@ -82,11 +82,11 @@ export class PaymentsRepository {
   // ---------------------------------------------------------
   // Payment / Transaction
   // ---------------------------------------------------------
-  static async createPayment(organizationId: string, data: Omit<Prisma.PaymentCreateInput, "organization">) {
+  static async createPayment(organizationId: string, data: Omit<Prisma.PaymentUncheckedCreateInput, "organizationId">) {
     return prisma.payment.create({
       data: {
         ...data,
-        organization: { connect: { id: organizationId } }
+        organizationId
       }
     });
   }
@@ -105,11 +105,99 @@ export class PaymentsRepository {
     });
   }
 
-  static async getPayments(organizationId: string) {
+  static async getPayments(organizationId: string, filter?: { type?: PaymentType, status?: PaymentStatus }) {
+    const userFilter = {
+      user: {
+        memberships: {
+          none: {
+            role: {
+              name: { in: ["Platform Admin", "Organization Admin"] }
+            }
+          }
+        }
+      }
+    };
+    
+    const where: Prisma.PaymentWhereInput = { organizationId, ...userFilter };
+    if (filter?.type) where.type = filter.type;
+    if (filter?.status) where.status = filter.status;
     return prisma.payment.findMany({
-      where: { organizationId },
+      where,
       orderBy: { createdAt: "desc" }
     });
+  }
+
+  static async getUserTransactions(userId: string) {
+    return prisma.payment.findMany({
+      where: { userId, type: "EVENT_REGISTRATION" },
+      include: {
+        event: { select: { name: true } },
+        registration: { select: { status: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+  }
+
+  static async getManagerTransactions(organizationId: string, eventId?: string) {
+    const where: Prisma.PaymentWhereInput = {
+      organizationId,
+      type: "EVENT_REGISTRATION",
+      user: {
+        memberships: {
+          none: {
+            role: {
+              name: { in: ["Platform Admin", "Organization Admin"] }
+            }
+          }
+        }
+      }
+    };
+    if (eventId) {
+      where.eventId = eventId;
+    }
+    return prisma.payment.findMany({
+      where,
+      include: {
+        user: { select: { firstName: true, lastName: true, email: true } },
+        event: { select: { name: true } },
+        registration: { select: { status: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+  }
+
+  static async getManagerEventRevenue(organizationId: string, eventId: string) {
+    const userFilter = {
+      user: {
+        memberships: {
+          none: {
+            role: {
+              name: { in: ["Platform Admin", "Organization Admin"] }
+            }
+          }
+        }
+      }
+    };
+
+    const agg = await prisma.payment.aggregate({
+      where: { organizationId, eventId, type: "EVENT_REGISTRATION", status: "SUCCEEDED", ...userFilter },
+      _sum: { amount: true },
+      _count: { id: true }
+    });
+
+    const refunds = await prisma.payment.aggregate({
+      where: { organizationId, eventId, type: "EVENT_REGISTRATION", status: "REFUNDED", ...userFilter },
+      _sum: { amount: true },
+      _count: { id: true }
+    });
+
+    return {
+      totalRevenue: agg._sum.amount || 0,
+      successfulPayments: agg._count.id,
+      totalRefunds: refunds._sum.amount || 0,
+      refundedPayments: refunds._count.id,
+      netRevenue: (agg._sum.amount || 0) - (refunds._sum.amount || 0)
+    };
   }
 
   static async getPayment(id: string, organizationId: string) {
@@ -212,21 +300,33 @@ export class PaymentsRepository {
   // Dashboard Aggregations
   // ---------------------------------------------------------
   static async getDashboardStats(organizationId: string) {
+    const userFilter = {
+      user: {
+        memberships: {
+          none: {
+            role: {
+              name: { in: ["Platform Admin", "Organization Admin"] }
+            }
+          }
+        }
+      }
+    };
+
     const totalPayments = await prisma.payment.count({
-      where: { organizationId, status: "SUCCEEDED" }
+      where: { organizationId, status: "SUCCEEDED", ...userFilter }
     });
     
     const revenueObj = await prisma.payment.aggregate({
-      where: { organizationId, status: "SUCCEEDED" },
+      where: { organizationId, status: "SUCCEEDED", ...userFilter },
       _sum: { amount: true }
     });
 
     const pendingPayments = await prisma.payment.count({
-      where: { organizationId, status: { in: ["PENDING", "PROCESSING"] } }
+      where: { organizationId, status: { in: ["PENDING", "PROCESSING"] }, ...userFilter }
     });
 
     const failedPayments = await prisma.payment.count({
-      where: { organizationId, status: "FAILED" }
+      where: { organizationId, status: "FAILED", ...userFilter }
     });
 
     const refunds = await prisma.refund.count({

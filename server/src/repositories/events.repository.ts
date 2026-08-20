@@ -3,9 +3,33 @@ import { Prisma } from "@prisma/client";
 
 export class EventRepository {
   static async findAll(tenantId: string) {
-    return prisma.event.findMany({
+    const events = await prisma.event.findMany({
       where: { organizationId: tenantId },
+      include: {
+        payments: {
+          where: {
+            status: 'SUCCEEDED',
+            type: 'EVENT_REGISTRATION',
+            user: {
+              memberships: {
+                none: {
+                  role: { name: { in: ["Platform Admin", "Organization Admin"] } }
+                }
+              }
+            }
+          },
+          select: { amount: true }
+        }
+      },
       orderBy: { createdAt: 'desc' }
+    });
+
+    return events.map(e => {
+      const { payments, ...rest } = e;
+      return {
+        ...rest,
+        revenue: payments.reduce((sum, p) => sum + p.amount, 0)
+      };
     });
   }
 

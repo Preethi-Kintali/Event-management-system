@@ -31,7 +31,10 @@ export class AuthService {
     console.log("AuthService.login: Start");
     const user = await prisma.user.findUnique({ 
       where: { email: data.email },
-      include: { mfa: true }
+      include: { 
+        mfa: true,
+        memberships: { include: { role: true } }
+      }
     });
     console.log("AuthService.login: User found?", !!user);
     if (!user) {
@@ -137,7 +140,11 @@ export class AuthService {
     const userId = decoded.userId;
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { mfa: true, recoveryCodes: true }
+      include: { 
+        mfa: true, 
+        recoveryCodes: true,
+        memberships: { include: { role: true } }
+      }
     });
 
     if (!user || !user.mfa || !user.mfa.enabled) {

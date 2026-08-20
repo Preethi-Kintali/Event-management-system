@@ -66,7 +66,7 @@ function LoginPage() {
     } else if (roleName === "Organization Admin" || roleName === "Manager") {
       router.navigate({ to: "/manager" });
     } else if (roleName === "Participant") {
-      router.navigate({ to: "/events" });
+      router.navigate({ to: "/participant" });
     } else if (roleName === "Judge") {
       router.navigate({ to: "/evaluations" });
     } else if (roleName === "Mentor") {

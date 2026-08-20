@@ -2,6 +2,7 @@ import { PaymentsRepository } from "../repositories/payments.repository";
 import { StripeService, stripe } from "./stripe.service";
 import Stripe from "stripe";
 import { Prisma } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export class PaymentsService {
   static async getPlans() {
@@ -101,11 +102,41 @@ export class PaymentsService {
       }
   
       // Create refund in Stripe
+    let stripeRefundId = "unknown";
+    try {
       const stripeRefund = await StripeService.createRefund(payment.providerPaymentId, amount ? Math.round(amount * 100) : undefined, reason);
-      
-      // The local db refund record will be handled by the charge.refunded webhook, 
-      // but we can create a pending record if we want. For simplicity, we rely on the webhook sync as requested.
-      return { success: true, refundId: stripeRefund.id };
+      stripeRefundId = stripeRefund.id;
+    } catch (error: any) {
+      if (error.message && error.message.includes("has already been refunded")) {
+        // Stripe already processed this refund previously, but our DB is out of sync.
+        // We will proceed to sync the local DB.
+        stripeRefundId = `sync_${Date.now()}`;
+      } else {
+        throw error;
+      }
+    }
+    
+    // Update local db immediately for better UX
+    const isPartial = amount !== undefined && amount < payment.amount;
+    await PaymentsRepository.updatePayment(payment.id, payment.organizationId, {
+      status: isPartial ? "PARTIALLY_REFUNDED" : "REFUNDED",
+    });
+
+    await PaymentsRepository.createRefund(payment.organizationId, payment.id, {
+      amount: amount || payment.amount,
+      reason: reason || "Refunded by Manager",
+      status: "SUCCEEDED",
+      providerRefundId: stripeRefundId,
+    });
+
+    if (!isPartial && payment.registrationId) {
+      await prisma.registration.update({
+        where: { id: payment.registrationId },
+        data: { status: "CANCELLED" }
+      });
+    }
+
+    return { success: true, refundId: stripeRefundId };
     }
   
     static async exportPaymentsCSV(organizationId: string) {
@@ -189,6 +220,43 @@ export class PaymentsService {
     const organizationId = session.metadata?.organizationId;
     if (!organizationId) throw new Error("Missing organizationId in session metadata");
 
+    const sessionType = session.metadata?.type;
+
+    if (sessionType === "event_registration") {
+      const registrationId = session.metadata?.registrationId;
+      const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+      
+      if (!registrationId) throw new Error("Missing registrationId for event registration payment");
+
+      // Update the payment record to SUCCEEDED and link the provider ID
+      const payment = await prisma.payment.findUnique({ where: { registrationId } });
+      if (payment) {
+        if (payment.organizationId !== organizationId) {
+          throw new Error("Tenant mismatch on webhook payment update");
+        }
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: "SUCCEEDED",
+            providerPaymentId: paymentIntentId || session.id
+          }
+        });
+      }
+
+      // Update Registration to PAID
+      const registration = await prisma.registration.findUnique({ where: { id: registrationId }, include: { event: true } });
+      if (registration && registration.event.organizationId === organizationId) {
+        await prisma.registration.update({
+          where: { id: registrationId },
+          data: { status: "PAID" }
+        });
+      } else if (registration) {
+         throw new Error("Tenant mismatch on webhook registration update");
+      }
+      return;
+    }
+
+    // Default: Subscription
     const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
     if (subscriptionId) {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
@@ -278,6 +346,13 @@ export class PaymentsService {
       status: "SUCCEEDED",
       providerRefundId: refund?.id,
     });
+
+    if (charge.refunded && payment.registrationId) {
+      await prisma.registration.update({
+        where: { id: payment.registrationId },
+        data: { status: "CANCELLED" }
+      });
+    }
   }
 
   static async getPayments(organizationId: string) {
@@ -290,5 +365,101 @@ export class PaymentsService {
 
   static async getDashboardStats(organizationId: string) {
     return PaymentsRepository.getDashboardStats(organizationId);
+  }
+
+  // --- Event Registration Payments ---
+
+  static async createEventRegistrationCheckout(
+    organizationId: string,
+    userId: string,
+    eventId: string,
+    successUrl: string,
+    cancelUrl: string
+  ) {
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) throw Object.assign(new Error("Event not found"), { status: 404 });
+
+    if (event.price <= 0) {
+      throw Object.assign(new Error("Event is free, no checkout required"), { status: 400 });
+    }
+
+    let registration = await prisma.registration.findUnique({
+      where: { eventId_userId: { eventId, userId } }
+    });
+
+    if (!registration) {
+      registration = await prisma.registration.create({
+        data: {
+          eventId,
+          userId,
+          status: "PENDING"
+        }
+      });
+    }
+
+    if (registration.status === "PAID") {
+      throw Object.assign(new Error("Registration already paid"), { status: 400 });
+    }
+
+    const existingPayment = await prisma.payment.findUnique({
+      where: { registrationId: registration.id }
+    });
+
+    if (existingPayment && existingPayment.status === "SUCCEEDED") {
+      throw Object.assign(new Error("Registration already paid"), { status: 400 });
+    }
+
+    const session = await StripeService.createEventRegistrationCheckout(
+      event.name,
+      event.price,
+      event.currency,
+      organizationId,
+      eventId,
+      registration.id,
+      userId,
+      successUrl,
+      cancelUrl
+    );
+
+    if (existingPayment) {
+      await PaymentsRepository.updatePayment(existingPayment.id, organizationId, {
+        status: "PENDING",
+        providerPaymentId: session.id,
+        amount: event.price,
+        currency: event.currency
+      });
+    } else {
+      // Create the pending Payment
+      await PaymentsRepository.createPayment(organizationId, {
+        amount: event.price,
+        currency: event.currency,
+        status: "PENDING",
+        provider: "STRIPE",
+        providerPaymentId: session.id, // Using session ID temporarily until webhook provides payment intent
+        description: `Registration for ${event.name}`,
+        type: "EVENT_REGISTRATION",
+        userId,
+        eventId,
+        registrationId: registration.id
+      });
+    }
+
+    return { url: session.url };
+  }
+
+  static async getUserTransactions(userId: string) {
+    return PaymentsRepository.getUserTransactions(userId);
+  }
+
+  static async getManagerTransactions(organizationId: string, eventId?: string) {
+    return PaymentsRepository.getManagerTransactions(organizationId, eventId);
+  }
+
+  static async getManagerEventRevenue(organizationId: string, eventId: string) {
+    return PaymentsRepository.getManagerEventRevenue(organizationId, eventId);
+  }
+
+  static async refundEventPayment(organizationId: string, paymentId: string, amount?: number, reason?: string) {
+    return this.refundPayment(organizationId, paymentId, amount, reason);
   }
 }

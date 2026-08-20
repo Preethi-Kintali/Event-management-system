@@ -103,8 +103,10 @@ import { Route as ManagerJudgesRouteImport } from './routes/manager.judges'
 import { Route as ManagerMentorsRouteImport } from './routes/manager.mentors'
 import { Route as ManagerRegistrationsRouteImport } from './routes/manager.registrations'
 import { Route as ManagerReportsRouteImport } from './routes/manager.reports'
+import { Route as ManagerRevenueRouteImport } from './routes/manager.revenue'
 import { Route as ManagerSubmissionsRouteImport } from './routes/manager.submissions'
 import { Route as ManagerTeamsRouteImport } from './routes/manager.teams'
+import { Route as ManagerTransactionsRouteImport } from './routes/manager.transactions'
 import { Route as ManagerVolunteersRouteImport } from './routes/manager.volunteers'
 import { Route as ParticipantIndexRouteImport } from './routes/participant.index'
 import { Route as ParticipantAchievementsRouteImport } from './routes/participant.achievements'
@@ -114,6 +116,7 @@ import { Route as ParticipantNotificationsRouteImport } from './routes/participa
 import { Route as ParticipantRegistrationsRouteImport } from './routes/participant.registrations'
 import { Route as ParticipantSubmissionsRouteImport } from './routes/participant.submissions'
 import { Route as ParticipantTeamsRouteImport } from './routes/participant.teams'
+import { Route as ParticipantTransactionsRouteImport } from './routes/participant.transactions'
 import { Route as PlatformAdminIndexRouteImport } from './routes/platform-admin.index'
 import { Route as PlatformAdminAuditLogsRouteImport } from './routes/platform-admin.audit-logs'
 import { Route as PlatformAdminConfigurationRouteImport } from './routes/platform-admin.configuration'
@@ -148,6 +151,7 @@ import { Route as FeedbackSurveysIndexRouteImport } from './routes/feedback.surv
 import { Route as FeedbackSurveysNewRouteImport } from './routes/feedback.surveys.new'
 import { Route as LearningCoursesIndexRouteImport } from './routes/learning.courses.index'
 import { Route as LearningCoursesIdRouteImport } from './routes/learning.courses.$id'
+import { Route as ManagerEventsIdRevenueRouteImport } from './routes/manager.events.$id.revenue'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -621,6 +625,11 @@ const ManagerReportsRoute = ManagerReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => ManagerRoute,
 } as any)
+const ManagerRevenueRoute = ManagerRevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => ManagerRoute,
+} as any)
 const ManagerSubmissionsRoute = ManagerSubmissionsRouteImport.update({
   id: '/submissions',
   path: '/submissions',
@@ -629,6 +638,11 @@ const ManagerSubmissionsRoute = ManagerSubmissionsRouteImport.update({
 const ManagerTeamsRoute = ManagerTeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerTransactionsRoute = ManagerTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
   getParentRoute: () => ManagerRoute,
 } as any)
 const ManagerVolunteersRoute = ManagerVolunteersRouteImport.update({
@@ -677,6 +691,11 @@ const ParticipantSubmissionsRoute = ParticipantSubmissionsRouteImport.update({
 const ParticipantTeamsRoute = ParticipantTeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => ParticipantRoute,
+} as any)
+const ParticipantTransactionsRoute = ParticipantTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
   getParentRoute: () => ParticipantRoute,
 } as any)
 const PlatformAdminIndexRoute = PlatformAdminIndexRouteImport.update({
@@ -853,6 +872,11 @@ const LearningCoursesIdRoute = LearningCoursesIdRouteImport.update({
   path: '/learning/courses/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerEventsIdRevenueRoute = ManagerEventsIdRevenueRouteImport.update({
+  id: '/$id/revenue',
+  path: '/$id/revenue',
+  getParentRoute: () => ManagerEventsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -930,13 +954,15 @@ export interface FileRoutesByFullPath {
   '/manager/attendance': typeof ManagerAttendanceRoute
   '/manager/certificates': typeof ManagerCertificatesRoute
   '/manager/evaluations': typeof ManagerEvaluationsRoute
-  '/manager/events': typeof ManagerEventsRoute
+  '/manager/events': typeof ManagerEventsRouteWithChildren
   '/manager/judges': typeof ManagerJudgesRoute
   '/manager/mentors': typeof ManagerMentorsRoute
   '/manager/registrations': typeof ManagerRegistrationsRoute
   '/manager/reports': typeof ManagerReportsRoute
+  '/manager/revenue': typeof ManagerRevenueRoute
   '/manager/submissions': typeof ManagerSubmissionsRoute
   '/manager/teams': typeof ManagerTeamsRoute
+  '/manager/transactions': typeof ManagerTransactionsRoute
   '/manager/volunteers': typeof ManagerVolunteersRoute
   '/participant/achievements': typeof ParticipantAchievementsRoute
   '/participant/certificates': typeof ParticipantCertificatesRoute
@@ -945,6 +971,7 @@ export interface FileRoutesByFullPath {
   '/participant/registrations': typeof ParticipantRegistrationsRoute
   '/participant/submissions': typeof ParticipantSubmissionsRoute
   '/participant/teams': typeof ParticipantTeamsRoute
+  '/participant/transactions': typeof ParticipantTransactionsRoute
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
   '/platform-admin/configuration': typeof PlatformAdminConfigurationRoute
   '/platform-admin/licenses': typeof PlatformAdminLicensesRoute
@@ -994,6 +1021,7 @@ export interface FileRoutesByFullPath {
   '/community/discussions/': typeof CommunityDiscussionsIndexRoute
   '/feedback/surveys/': typeof FeedbackSurveysIndexRoute
   '/learning/courses/': typeof LearningCoursesIndexRoute
+  '/manager/events/$id/revenue': typeof ManagerEventsIdRevenueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1069,13 +1097,15 @@ export interface FileRoutesByTo {
   '/manager/attendance': typeof ManagerAttendanceRoute
   '/manager/certificates': typeof ManagerCertificatesRoute
   '/manager/evaluations': typeof ManagerEvaluationsRoute
-  '/manager/events': typeof ManagerEventsRoute
+  '/manager/events': typeof ManagerEventsRouteWithChildren
   '/manager/judges': typeof ManagerJudgesRoute
   '/manager/mentors': typeof ManagerMentorsRoute
   '/manager/registrations': typeof ManagerRegistrationsRoute
   '/manager/reports': typeof ManagerReportsRoute
+  '/manager/revenue': typeof ManagerRevenueRoute
   '/manager/submissions': typeof ManagerSubmissionsRoute
   '/manager/teams': typeof ManagerTeamsRoute
+  '/manager/transactions': typeof ManagerTransactionsRoute
   '/manager/volunteers': typeof ManagerVolunteersRoute
   '/participant/achievements': typeof ParticipantAchievementsRoute
   '/participant/certificates': typeof ParticipantCertificatesRoute
@@ -1084,6 +1114,7 @@ export interface FileRoutesByTo {
   '/participant/registrations': typeof ParticipantRegistrationsRoute
   '/participant/submissions': typeof ParticipantSubmissionsRoute
   '/participant/teams': typeof ParticipantTeamsRoute
+  '/participant/transactions': typeof ParticipantTransactionsRoute
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
   '/platform-admin/configuration': typeof PlatformAdminConfigurationRoute
   '/platform-admin/licenses': typeof PlatformAdminLicensesRoute
@@ -1133,6 +1164,7 @@ export interface FileRoutesByTo {
   '/community/discussions': typeof CommunityDiscussionsIndexRoute
   '/feedback/surveys': typeof FeedbackSurveysIndexRoute
   '/learning/courses': typeof LearningCoursesIndexRoute
+  '/manager/events/$id/revenue': typeof ManagerEventsIdRevenueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1211,13 +1243,15 @@ export interface FileRoutesById {
   '/manager/attendance': typeof ManagerAttendanceRoute
   '/manager/certificates': typeof ManagerCertificatesRoute
   '/manager/evaluations': typeof ManagerEvaluationsRoute
-  '/manager/events': typeof ManagerEventsRoute
+  '/manager/events': typeof ManagerEventsRouteWithChildren
   '/manager/judges': typeof ManagerJudgesRoute
   '/manager/mentors': typeof ManagerMentorsRoute
   '/manager/registrations': typeof ManagerRegistrationsRoute
   '/manager/reports': typeof ManagerReportsRoute
+  '/manager/revenue': typeof ManagerRevenueRoute
   '/manager/submissions': typeof ManagerSubmissionsRoute
   '/manager/teams': typeof ManagerTeamsRoute
+  '/manager/transactions': typeof ManagerTransactionsRoute
   '/manager/volunteers': typeof ManagerVolunteersRoute
   '/participant/achievements': typeof ParticipantAchievementsRoute
   '/participant/certificates': typeof ParticipantCertificatesRoute
@@ -1226,6 +1260,7 @@ export interface FileRoutesById {
   '/participant/registrations': typeof ParticipantRegistrationsRoute
   '/participant/submissions': typeof ParticipantSubmissionsRoute
   '/participant/teams': typeof ParticipantTeamsRoute
+  '/participant/transactions': typeof ParticipantTransactionsRoute
   '/platform-admin/audit-logs': typeof PlatformAdminAuditLogsRoute
   '/platform-admin/configuration': typeof PlatformAdminConfigurationRoute
   '/platform-admin/licenses': typeof PlatformAdminLicensesRoute
@@ -1275,6 +1310,7 @@ export interface FileRoutesById {
   '/community/discussions/': typeof CommunityDiscussionsIndexRoute
   '/feedback/surveys/': typeof FeedbackSurveysIndexRoute
   '/learning/courses/': typeof LearningCoursesIndexRoute
+  '/manager/events/$id/revenue': typeof ManagerEventsIdRevenueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1359,8 +1395,10 @@ export interface FileRouteTypes {
     | '/manager/mentors'
     | '/manager/registrations'
     | '/manager/reports'
+    | '/manager/revenue'
     | '/manager/submissions'
     | '/manager/teams'
+    | '/manager/transactions'
     | '/manager/volunteers'
     | '/participant/achievements'
     | '/participant/certificates'
@@ -1369,6 +1407,7 @@ export interface FileRouteTypes {
     | '/participant/registrations'
     | '/participant/submissions'
     | '/participant/teams'
+    | '/participant/transactions'
     | '/platform-admin/audit-logs'
     | '/platform-admin/configuration'
     | '/platform-admin/licenses'
@@ -1418,6 +1457,7 @@ export interface FileRouteTypes {
     | '/community/discussions/'
     | '/feedback/surveys/'
     | '/learning/courses/'
+    | '/manager/events/$id/revenue'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1498,8 +1538,10 @@ export interface FileRouteTypes {
     | '/manager/mentors'
     | '/manager/registrations'
     | '/manager/reports'
+    | '/manager/revenue'
     | '/manager/submissions'
     | '/manager/teams'
+    | '/manager/transactions'
     | '/manager/volunteers'
     | '/participant/achievements'
     | '/participant/certificates'
@@ -1508,6 +1550,7 @@ export interface FileRouteTypes {
     | '/participant/registrations'
     | '/participant/submissions'
     | '/participant/teams'
+    | '/participant/transactions'
     | '/platform-admin/audit-logs'
     | '/platform-admin/configuration'
     | '/platform-admin/licenses'
@@ -1557,6 +1600,7 @@ export interface FileRouteTypes {
     | '/community/discussions'
     | '/feedback/surveys'
     | '/learning/courses'
+    | '/manager/events/$id/revenue'
   id:
     | '__root__'
     | '/'
@@ -1639,8 +1683,10 @@ export interface FileRouteTypes {
     | '/manager/mentors'
     | '/manager/registrations'
     | '/manager/reports'
+    | '/manager/revenue'
     | '/manager/submissions'
     | '/manager/teams'
+    | '/manager/transactions'
     | '/manager/volunteers'
     | '/participant/achievements'
     | '/participant/certificates'
@@ -1649,6 +1695,7 @@ export interface FileRouteTypes {
     | '/participant/registrations'
     | '/participant/submissions'
     | '/participant/teams'
+    | '/participant/transactions'
     | '/platform-admin/audit-logs'
     | '/platform-admin/configuration'
     | '/platform-admin/licenses'
@@ -1698,6 +1745,7 @@ export interface FileRouteTypes {
     | '/community/discussions/'
     | '/feedback/surveys/'
     | '/learning/courses/'
+    | '/manager/events/$id/revenue'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2482,6 +2530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerReportsRouteImport
       parentRoute: typeof ManagerRoute
     }
+    '/manager/revenue': {
+      id: '/manager/revenue'
+      path: '/revenue'
+      fullPath: '/manager/revenue'
+      preLoaderRoute: typeof ManagerRevenueRouteImport
+      parentRoute: typeof ManagerRoute
+    }
     '/manager/submissions': {
       id: '/manager/submissions'
       path: '/submissions'
@@ -2494,6 +2549,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/manager/teams'
       preLoaderRoute: typeof ManagerTeamsRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/manager/transactions': {
+      id: '/manager/transactions'
+      path: '/transactions'
+      fullPath: '/manager/transactions'
+      preLoaderRoute: typeof ManagerTransactionsRouteImport
       parentRoute: typeof ManagerRoute
     }
     '/manager/volunteers': {
@@ -2557,6 +2619,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/participant/teams'
       preLoaderRoute: typeof ParticipantTeamsRouteImport
+      parentRoute: typeof ParticipantRoute
+    }
+    '/participant/transactions': {
+      id: '/participant/transactions'
+      path: '/transactions'
+      fullPath: '/participant/transactions'
+      preLoaderRoute: typeof ParticipantTransactionsRouteImport
       parentRoute: typeof ParticipantRoute
     }
     '/platform-admin/': {
@@ -2797,20 +2866,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearningCoursesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/events/$id/revenue': {
+      id: '/manager/events/$id/revenue'
+      path: '/$id/revenue'
+      fullPath: '/manager/events/$id/revenue'
+      preLoaderRoute: typeof ManagerEventsIdRevenueRouteImport
+      parentRoute: typeof ManagerEventsRoute
+    }
   }
 }
+
+interface ManagerEventsRouteChildren {
+  ManagerEventsIdRevenueRoute: typeof ManagerEventsIdRevenueRoute
+}
+
+const ManagerEventsRouteChildren: ManagerEventsRouteChildren = {
+  ManagerEventsIdRevenueRoute: ManagerEventsIdRevenueRoute,
+}
+
+const ManagerEventsRouteWithChildren = ManagerEventsRoute._addFileChildren(
+  ManagerEventsRouteChildren,
+)
 
 interface ManagerRouteChildren {
   ManagerAttendanceRoute: typeof ManagerAttendanceRoute
   ManagerCertificatesRoute: typeof ManagerCertificatesRoute
   ManagerEvaluationsRoute: typeof ManagerEvaluationsRoute
-  ManagerEventsRoute: typeof ManagerEventsRoute
+  ManagerEventsRoute: typeof ManagerEventsRouteWithChildren
   ManagerJudgesRoute: typeof ManagerJudgesRoute
   ManagerMentorsRoute: typeof ManagerMentorsRoute
   ManagerRegistrationsRoute: typeof ManagerRegistrationsRoute
   ManagerReportsRoute: typeof ManagerReportsRoute
+  ManagerRevenueRoute: typeof ManagerRevenueRoute
   ManagerSubmissionsRoute: typeof ManagerSubmissionsRoute
   ManagerTeamsRoute: typeof ManagerTeamsRoute
+  ManagerTransactionsRoute: typeof ManagerTransactionsRoute
   ManagerVolunteersRoute: typeof ManagerVolunteersRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
 }
@@ -2819,13 +2909,15 @@ const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerAttendanceRoute: ManagerAttendanceRoute,
   ManagerCertificatesRoute: ManagerCertificatesRoute,
   ManagerEvaluationsRoute: ManagerEvaluationsRoute,
-  ManagerEventsRoute: ManagerEventsRoute,
+  ManagerEventsRoute: ManagerEventsRouteWithChildren,
   ManagerJudgesRoute: ManagerJudgesRoute,
   ManagerMentorsRoute: ManagerMentorsRoute,
   ManagerRegistrationsRoute: ManagerRegistrationsRoute,
   ManagerReportsRoute: ManagerReportsRoute,
+  ManagerRevenueRoute: ManagerRevenueRoute,
   ManagerSubmissionsRoute: ManagerSubmissionsRoute,
   ManagerTeamsRoute: ManagerTeamsRoute,
+  ManagerTransactionsRoute: ManagerTransactionsRoute,
   ManagerVolunteersRoute: ManagerVolunteersRoute,
   ManagerIndexRoute: ManagerIndexRoute,
 }
@@ -2841,6 +2933,7 @@ interface ParticipantRouteChildren {
   ParticipantRegistrationsRoute: typeof ParticipantRegistrationsRoute
   ParticipantSubmissionsRoute: typeof ParticipantSubmissionsRoute
   ParticipantTeamsRoute: typeof ParticipantTeamsRoute
+  ParticipantTransactionsRoute: typeof ParticipantTransactionsRoute
   ParticipantIndexRoute: typeof ParticipantIndexRoute
 }
 
@@ -2852,6 +2945,7 @@ const ParticipantRouteChildren: ParticipantRouteChildren = {
   ParticipantRegistrationsRoute: ParticipantRegistrationsRoute,
   ParticipantSubmissionsRoute: ParticipantSubmissionsRoute,
   ParticipantTeamsRoute: ParticipantTeamsRoute,
+  ParticipantTransactionsRoute: ParticipantTransactionsRoute,
   ParticipantIndexRoute: ParticipantIndexRoute,
 }
 

@@ -22,8 +22,15 @@ router.get("/plans", requirePermission("payments.read"), PaymentsController.getP
 router.get("/subscription", requirePermission("payments.read"), PaymentsController.getSubscription);
 router.put("/billing-profile", requirePermission("payments.manage"), PaymentsController.updateBillingProfile);
 
-// Checkout
+// Checkout (Subscriptions)
 router.post("/checkout", requirePermission("payments.manage"), PaymentsController.createCheckoutSession);
+
+// Event Registration Checkout (Participant)
+// No explicit 'payments.manage' needed since participants are paying for themselves.
+router.post("/event-registration/checkout", PaymentsController.createEventRegistrationCheckout);
+
+// Participant's own transactions
+router.get("/my-transactions", PaymentsController.getMyTransactions);
 
 // Transactions / Payments
 router.get("/transactions", requirePermission("payments.read"), PaymentsController.getTransactions);
@@ -38,5 +45,10 @@ router.get("/invoices", requirePermission("payments.read"), PaymentsController.g
 
 // Dashboard stats
 router.get("/dashboard", requirePermission("payments.read"), PaymentsController.getDashboard);
+
+// Manager specific payment routes
+router.get("/manager/events/:eventId/revenue", requirePermission("events.manage"), PaymentsController.getManagerEventRevenue);
+router.get("/manager/transactions", requirePermission("payments.read"), PaymentsController.getManagerTransactions);
+router.post("/manager/payments/:id/refund", requirePermission("payments.refund"), PaymentsController.refundEventPayment);
 
 export default router;

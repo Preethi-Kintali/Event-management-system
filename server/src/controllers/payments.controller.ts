@@ -75,7 +75,9 @@ export class PaymentsController {
   static async getTransactions(req: AuthRequest, res: Response) {
     try {
       const tenantId = req.tenantId!;
-      const transactions = await PaymentsService.getPayments(tenantId);
+      const type = req.query.type as any;
+      const filter = type ? { type } : undefined;
+      const transactions = await PaymentsService.getPayments(tenantId, filter);
       res.json({ success: true, data: transactions });
     } catch (error: any) {
       res.status(500).json({ success: false, error: { message: error.message } });
@@ -181,6 +183,87 @@ export class PaymentsController {
       return res.send(csvData);
     } catch (error: any) {
       res.status(500).json({ success: false, error: { message: error.message } });
+    }
+  }
+
+  // --- Event Registration Payments ---
+
+  static async createEventRegistrationCheckout(req: AuthRequest, res: Response) {
+    try {
+      const tenantId = req.tenantId!;
+      const userId = req.user!.id;
+      const { eventId, successUrl, cancelUrl } = req.body;
+
+      if (!eventId || !successUrl || !cancelUrl) {
+        return res.status(400).json({ success: false, error: { message: "Missing required fields" } });
+      }
+
+      const session = await PaymentsService.createEventRegistrationCheckout(
+        tenantId,
+        userId,
+        eventId,
+        successUrl,
+        cancelUrl
+      );
+
+      res.json({ success: true, data: session });
+    } catch (error: any) {
+      const status = error.status || 500;
+      res.status(status).json({ success: false, error: { message: error.message, code: error.code } });
+    }
+  }
+
+  static async getMyTransactions(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.user!.id;
+      const transactions = await PaymentsService.getUserTransactions(userId);
+      res.json({ success: true, data: transactions });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: { message: error.message } });
+    }
+  }
+
+  static async getManagerEventRevenue(req: AuthRequest, res: Response) {
+    try {
+      const tenantId = req.tenantId!;
+      const eventId = req.params.eventId;
+      const revenue = await PaymentsService.getManagerEventRevenue(tenantId, eventId);
+      res.json({ success: true, data: revenue });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: { message: error.message } });
+    }
+  }
+
+  static async getManagerTransactions(req: AuthRequest, res: Response) {
+    try {
+      const tenantId = req.tenantId!;
+      const eventId = req.query.eventId as string;
+      const transactions = await PaymentsService.getManagerTransactions(tenantId, eventId);
+      res.json({ success: true, data: transactions });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: { message: error.message } });
+    }
+  }
+
+  static async refundEventPayment(req: AuthRequest, res: Response) {
+    try {
+      const tenantId = req.tenantId!;
+      const paymentId = req.params.id;
+      const { amount, reason } = req.body;
+
+      const result = await PaymentsService.refundEventPayment(tenantId, paymentId, amount, reason);
+
+      await AuditService.logAction({
+        actorId: req.user!.id,
+        organizationId: tenantId,
+        action: "EVENT_PAYMENT_REFUNDED",
+        metadata: { details: `Initiated refund for event payment ${paymentId}` },
+      });
+
+      res.json({ success: true, data: result });
+    } catch (error: any) {
+      const status = error.status || 500;
+      res.status(status).json({ success: false, error: { message: error.message, code: error.code } });
     }
   }
 }

@@ -96,7 +96,9 @@ const managerSections = [
     label: "Managed Operations",
     items: [
       { title: "Events", url: "/manager/events", icon: CalendarDays },
+      { title: "Event Revenue", url: "/manager/revenue", icon: Wallet },
       { title: "Registrations", url: "/manager/registrations", icon: ClipboardCheck },
+      { title: "Transactions", url: "/manager/transactions", icon: Wallet },
       { title: "Teams", url: "/manager/teams", icon: UsersRound },
       { title: "Submissions", url: "/manager/submissions", icon: Sparkles },
       { title: "Evaluations", url: "/manager/evaluations", icon: FileCheck2 },
@@ -124,6 +126,7 @@ const participantSections = [
       { title: "My Registrations", url: "/participant/registrations", icon: ClipboardCheck },
       { title: "My Teams", url: "/participant/teams", icon: UsersRound },
       { title: "My Submissions", url: "/participant/submissions", icon: Sparkles },
+      { title: "My Transactions", url: "/participant/transactions", icon: Wallet },
     ],
   },
   {

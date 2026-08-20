@@ -9,6 +9,9 @@ export type ApiEvent = {
   startTime: string;
   endTime: string;
   organizationId: string;
+  price: number;
+  currency: string;
+  revenue?: number;
   createdAt: string;
   updatedAt: string;
 };

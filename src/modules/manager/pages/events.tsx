@@ -6,8 +6,9 @@ import { useManagerEvents, useDeleteManagerEvent } from "../hooks/manager.api";
 import { ApiEvent } from "@/modules/events/services/events.api";
 import { ManagerEventDialog } from "../components/manager-event-dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit2, Plus } from "lucide-react";
+import { Trash2, Edit2, Plus, DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 
 const statusLabel: Record<string, string> = {
   DRAFT: "draft",
@@ -64,6 +65,11 @@ export function ManagerEventsPage() {
       header: "",
       render: (row) => (
         <div className="flex justify-end space-x-2">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to={`/manager/events/${row.id}/revenue` as any}>
+              <DollarSign className="h-4 w-4" />
+            </Link>
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => { setEditingEvent(row); setDialogOpen(true); }}>
             <Edit2 className="h-4 w-4" />
           </Button>

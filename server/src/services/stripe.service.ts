@@ -1,7 +1,10 @@
 import Stripe from "stripe";
 import { Request } from "express";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "sk_test_mock";
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  throw new Error("STRIPE_SECRET_KEY environment variable is missing.");
+}
 export const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-12-18.acacia" as any, // Using latest or fallback
 });
@@ -51,6 +54,46 @@ export class StripeService {
     }
 
     return stripe.checkout.sessions.create(sessionParams);
+  }
+
+  /**
+   * Create a Stripe Checkout Session for Event Registration (One-time payment)
+   */
+  static async createEventRegistrationCheckout(
+    eventName: string,
+    amount: number,
+    currency: string,
+    organizationId: string,
+    eventId: string,
+    registrationId: string,
+    userId: string,
+    successUrl: string,
+    cancelUrl: string
+  ) {
+    return stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: currency.toLowerCase(),
+            product_data: {
+              name: eventName,
+            },
+            unit_amount: Math.round(amount * 100), // Stripe uses cents
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        type: "event_registration",
+        organizationId,
+        eventId,
+        registrationId,
+        userId,
+      },
+    });
   }
 
   /**

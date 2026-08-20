@@ -48,6 +48,7 @@ model User {
   winningEntries        Winner[]
   workflowsCreated      Workflow[]           @relation("WorkflowCreator")
   workshopsInstructed   Workshop[]           @relation("WorkshopInstructor")
+  payments              Payment[]            @relation("UserPayments")
 }
 
 model Organization {
@@ -161,6 +162,9 @@ model Event {
   sponsorships       Sponsorship[]
   surveys            Survey[]
   volunteerEvents    VolunteerEvent[]
+  price              Float               @default(0)
+  currency           String              @default("USD")
+  payments           Payment[]           @relation("EventPayments")
 }
 
 model Competition {
@@ -188,6 +192,7 @@ model Registration {
   updatedAt DateTime           @updatedAt
   event     Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment   Payment?           @relation("RegistrationPayment")
 
   @@unique([eventId, userId])
 }
@@ -909,6 +914,14 @@ model Payment {
   invoice           Invoice?
   organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   refunds           Refund[]
+  type              PaymentType     @default(SUBSCRIPTION)
+  userId            String?
+  eventId           String?
+  registrationId    String?         @unique
+
+  user              User?           @relation("UserPayments", fields: [userId], references: [id], onDelete: SetNull)
+  event             Event?          @relation("EventPayments", fields: [eventId], references: [id], onDelete: SetNull)
+  registration      Registration?   @relation("RegistrationPayment", fields: [registrationId], references: [id], onDelete: SetNull)
 }
 
 model Invoice {
@@ -1080,6 +1093,7 @@ enum RegistrationStatus {
   APPROVED
   REJECTED
   CANCELLED
+  PAID
 }
 
 enum SubmissionStatus {
@@ -1186,4 +1200,9 @@ enum InvoiceStatus {
   PAID
   VOID
   REFUNDED
+}
+
+enum PaymentType {
+  SUBSCRIPTION
+  EVENT_REGISTRATION
 }

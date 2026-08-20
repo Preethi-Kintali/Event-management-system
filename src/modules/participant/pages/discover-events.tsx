@@ -2,9 +2,11 @@ import { ListPageTemplate } from "@/components/templates/list-page";
 import { StatusChip } from "@/components/ds/status-chip";
 import type { Column } from "@/components/ds/data-table";
 import { useDiscoverEvents, useRegisterForEvent, useMyRegistrations } from "../hooks/participant.api";
+import { useEventRegistrationCheckout } from "@/modules/payments/hooks/payments.hooks";
 import { ApiEvent } from "@/modules/events/services/events.api";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const statusLabel: Record<string, string> = {
   DRAFT: "draft",
@@ -18,18 +20,40 @@ export function ParticipantDiscoverEventsPage() {
   const { data: events = [], isLoading } = useDiscoverEvents();
   const { data: registrations = [] } = useMyRegistrations();
   const registerMutation = useRegisterForEvent();
+  const checkoutMutation = useEventRegistrationCheckout();
 
-  const handleRegister = async (eventId: string) => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success")) {
+      toast.success("Payment successful! You are registered for the event.");
+      // Optional: clear the URL params
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get("canceled")) {
+      toast.error("Payment was canceled.");
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  const handleRegister = async (event: ApiEvent) => {
     try {
-      await registerMutation.mutateAsync({ eventId });
-      toast.success("Successfully registered for event");
+      if (event.price > 0) {
+        await checkoutMutation.mutateAsync({
+          eventId: event.id,
+          successUrl: `${window.location.origin}/participant/discover-events?success=true`,
+          cancelUrl: `${window.location.origin}/participant/discover-events?canceled=true`,
+        });
+        // The mutation will redirect to Stripe Checkout
+      } else {
+        await registerMutation.mutateAsync({ eventId: event.id });
+        toast.success("Successfully registered for event");
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to register");
     }
   };
 
-  const isRegistered = (eventId: string) => {
-    return registrations.some((reg: any) => reg.eventId === eventId);
+  const getRegistration = (eventId: string) => {
+    return registrations.find((reg: any) => reg.eventId === eventId);
   };
 
   const columns: Column<ApiEvent>[] = [
@@ -58,19 +82,43 @@ export function ParticipantDiscoverEventsPage() {
       render: (row) => <span>{new Date(row.endTime).toLocaleDateString()}</span>,
     },
     {
+      key: "price",
+      header: "Price",
+      sortable: true,
+      render: (row) => <span>{row.price > 0 ? `$${row.price.toFixed(2)}` : "Free"}</span>,
+    },
+    {
       key: "actions",
       header: "",
       render: (row) => {
-        const registered = isRegistered(row.id);
+        const reg = getRegistration(row.id);
+        const isPaidEvent = row.price > 0;
+        
+        let buttonLabel = "Register";
+        let disabled = false;
+        
+        if (reg) {
+          if (reg.status === "CANCELLED" || reg.status === "REJECTED") {
+            buttonLabel = isPaidEvent ? "Register & Pay" : "Register";
+          } else if (reg.status === "PENDING" && isPaidEvent) {
+            buttonLabel = "Complete Payment";
+          } else {
+            buttonLabel = "Registered";
+            disabled = true;
+          }
+        } else {
+          buttonLabel = isPaidEvent ? "Register & Pay" : "Register";
+        }
+
         return (
           <div className="flex justify-end">
             <Button 
               size="sm" 
-              onClick={() => handleRegister(row.id)}
-              disabled={registered || registerMutation.isPending}
-              variant={registered ? "secondary" : "default"}
+              onClick={() => handleRegister(row)}
+              disabled={disabled || registerMutation.isPending || checkoutMutation.isPending}
+              variant={disabled ? "secondary" : "default"}
             >
-              {registered ? "Registered" : "Register"}
+              {buttonLabel}
             </Button>
           </div>
         );

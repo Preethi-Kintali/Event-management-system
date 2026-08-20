@@ -17,7 +17,7 @@ async function run() {
   });
 
   const adminRoles = await prisma.role.findMany({
-    where: { name: "Admin" },
+    where: { name: { contains: "Admin" } },
   });
 
   for (const role of adminRoles) {
