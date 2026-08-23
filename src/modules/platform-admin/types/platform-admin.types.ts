@@ -10,6 +10,7 @@ export interface Organization {
   status: Status;
   region: string;
   created: string;
+  slug: string;
 }
 
 export interface License {
@@ -51,4 +52,27 @@ export interface SubscriptionPlan {
   features: string[];
   activeSubscribers: number;
   status: Status;
+}
+
+export interface PlatformSummary {
+  totalOrganizations: number;
+  activeOrganizations: number;
+  totalUsers: number;
+  activeUsers: number;
+  activeEvents: number;
+  revenue: number;
+  platformRevenue: number;
+  subscriptionRevenue: number;
+  storageUsage: number;
+  apiUsage: number;
+}
+
+export interface TimelineEvent {
+  id: string;
+  type: string;
+  title: string;
+  detail: string;
+  date: string;
+  time: string;
+  state: "current" | "done" | "upcoming";
 }

@@ -13,7 +13,7 @@ export class EvaluationRepository {
           select: {
             title: true,
             status: true,
-            competition: { select: { name: true, event: { select: { name: true } } } },
+            competition: { select: { name: true, rubric: true, event: { select: { name: true } } } },
             team: { select: { name: true } },
           },
         },
@@ -35,7 +35,7 @@ export class EvaluationRepository {
           select: {
             title: true,
             status: true,
-            competition: { select: { name: true, event: { select: { name: true } } } },
+            competition: { select: { name: true, rubric: true, event: { select: { name: true } } } },
             team: { select: { name: true } },
           },
         },
@@ -57,7 +57,7 @@ export class EvaluationRepository {
             title: true,
             status: true,
             payload: true,
-            competition: { select: { name: true, event: { select: { name: true } } } },
+            competition: { select: { name: true, rubric: true, event: { select: { name: true } } } },
             team: { select: { name: true } },
           },
         },

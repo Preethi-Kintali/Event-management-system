@@ -12,20 +12,55 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Copy, Mail, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import { fetchApi } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export function EmailGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<{ subject: string; body: string } | null>(null);
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      setResult({
-        subject: "Action Required: Submit Your Final Project for the Global AI Summit",
-        body: "Hi {Participant_Name},\n\nWe hope you're enjoying the Global AI Summit 2026!\n\nThis is a quick reminder that the final submission deadline is approaching. Please ensure your project repository and presentation deck are uploaded to the platform by 11:59 PM tonight.\n\nOur judges are excited to see what you've built.\n\nBest regards,\nThe Organizing Team",
+  const [purpose, setPurpose] = useState("reminder");
+  const [audience, setAudience] = useState("participants");
+  const [tone, setTone] = useState("friendly");
+  const [info, setInfo] = useState("");
+  const navigate = useNavigate();
+
+  const handleGenerate = async () => {
+    try {
+      setIsGenerating(true);
+      const res = await fetchApi("/ai-copilot/generate/email-template", {
+        method: "POST",
+        body: JSON.stringify({ purpose, audience, tone, info })
       });
+      if (res.data) {
+        setResult(res.data);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate email");
+    } finally {
       setIsGenerating(false);
-    }, 1200);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!result) return;
+    try {
+      await fetchApi("/communications", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "ANNOUNCEMENT",
+          subject: result.subject,
+          body: result.body,
+          targetAudience: [audience],
+          status: "DRAFT"
+        })
+      });
+      toast.success("Publish succeeded");
+      navigate({ to: "/communication/logs" });
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save email draft");
+    }
   };
 
   return (
@@ -46,7 +81,7 @@ export function EmailGeneratorPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="purpose">Purpose</Label>
-                  <Select defaultValue="reminder">
+                  <Select value={purpose} onValueChange={setPurpose}>
                     <SelectTrigger id="purpose">
                       <SelectValue />
                     </SelectTrigger>
@@ -60,7 +95,7 @@ export function EmailGeneratorPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="audience">Audience</Label>
-                  <Select defaultValue="participants">
+                  <Select value={audience} onValueChange={setAudience}>
                     <SelectTrigger id="audience">
                       <SelectValue />
                     </SelectTrigger>
@@ -75,7 +110,7 @@ export function EmailGeneratorPage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="tone">Tone</Label>
-                <Select defaultValue="friendly">
+                <Select value={tone} onValueChange={setTone}>
                   <SelectTrigger id="tone">
                     <SelectValue />
                   </SelectTrigger>
@@ -92,6 +127,8 @@ export function EmailGeneratorPage() {
                   id="info"
                   placeholder="- Submission deadline is 11:59 PM tonight&#10;- Must include repo link and slides"
                   rows={3}
+                  value={info}
+                  onChange={(e) => setInfo(e.target.value)}
                 />
               </div>
             </div>
@@ -155,10 +192,10 @@ export function EmailGeneratorPage() {
           )}
           {result && (
             <>
-              <Button variant="outline">Regenerate</Button>
-              <Button>
+              <Button variant="outline" onClick={handleGenerate} disabled={isGenerating}>Regenerate</Button>
+              <Button onClick={handleSave}>
                 <Mail className="w-4 h-4 mr-2" />
-                Save as Template
+                Save as Draft
               </Button>
             </>
           )}

@@ -12,6 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { fetchApi } from "@/lib/api-client";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function CreateEventPage() {
   const [tags, setTags] = useState<string[]>(["AI", "Accessibility"]);
@@ -19,10 +24,106 @@ export function CreateEventPage() {
   const [start, setStart] = useState<Date | undefined>(undefined);
   const [end, setEnd] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("09:00");
+  
+  const [eventName, setEventName] = useState("");
+  const [category, setCategory] = useState("hackathon");
+  const [description, setDescription] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  
+  const [rules, setRules] = useState("");
+  const [isGeneratingRules, setIsGeneratingRules] = useState(false);
+  
+  const [isPublishing, setIsPublishing] = useState(false);
+  const navigate = useNavigate();
+
+  const handleGenerateAI = async () => {
+    try {
+      setIsGenerating(true);
+      const res = await fetchApi("/api/v1/ai-copilot/generate/event-description", {
+        method: "POST",
+        body: JSON.stringify({
+          eventName,
+          category,
+          audience: "General",
+          theme: tags.join(", "),
+          duration: start && end ? `${Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))} days` : "Unknown",
+        })
+      });
+      if (res.data?.text) {
+        setDescription(res.data.text);
+      }
+    } catch (e) {
+      console.error("Failed to generate description", e);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateRulesAI = async () => {
+    try {
+      setIsGeneratingRules(true);
+      const res = await fetchApi("/api/v1/ai-copilot/generate/event-rules", {
+        method: "POST",
+        body: JSON.stringify({
+          eventName,
+          category,
+          audience: "General",
+          theme: tags.join(", "),
+          duration: start && end ? `${Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))} days` : "Unknown",
+        })
+      });
+      if (res.data?.text) {
+        setRules(res.data.text);
+      }
+    } catch (e) {
+      console.error("Failed to generate rules", e);
+    } finally {
+      setIsGeneratingRules(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!eventName) {
+      toast.error("Event name is required");
+      return;
+    }
+    
+    // Calculate final dates correctly or fallback to current
+    const startTime = start || new Date();
+    // Default end time to 7 days from start if missing
+    const endTime = end || new Date(startTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+    try {
+      setIsPublishing(true);
+      const res = await fetchApi("/api/v1/events", {
+        method: "POST",
+        body: JSON.stringify({
+          name: eventName,
+          description: description,
+          rules: rules,
+          status: "PUBLISHED",
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          // Event model has price, currency, etc. we will send defaults
+          price: 0,
+          currency: "USD",
+        })
+      });
+      
+      toast.success("Event successfully published!");
+      navigate({ to: "/events" });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Failed to publish event");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   return (
     <FormPageTemplate
       title="Create event"
+      onPublish={handlePublish}
       description="Set up an event, its schedule, competitions and publishing rules."
       crumbs={[
         { label: "Programs" },
@@ -37,14 +138,14 @@ export function CreateEventPage() {
             <div className="grid gap-5 lg:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="event-name">Event name</Label>
-                <Input id="event-name" placeholder="Global AI Innovation Summit 2026" />
+                <Input id="event-name" placeholder="Global AI Innovation Summit 2026" value={eventName} onChange={(e) => setEventName(e.target.value)} />
                 <p className="text-xs text-muted-foreground">
                   Displayed publicly on the listing page.
                 </p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="event-category">Category</Label>
-                <Select defaultValue="hackathon">
+                <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger id="event-category">
                     <SelectValue />
                   </SelectTrigger>
@@ -64,8 +165,41 @@ export function CreateEventPage() {
               />
               <TagInput label="Tags" tags={tags} onChange={setTags} />
               <div className="lg:col-span-2">
-                <RichTextEditor />
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="text-xs text-muted-foreground invisible">Description</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 hover:from-violet-500/20 hover:to-fuchsia-500/20 border-violet-200 dark:border-violet-900 text-violet-700 dark:text-violet-300"
+                    onClick={handleGenerateAI}
+                    disabled={isGenerating || !eventName}
+                  >
+                    {isGenerating ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Sparkles className="mr-1.5 h-3.5 w-3.5" />}
+                    Generate with AI
+                  </Button>
+                </div>
+                <RichTextEditor value={description} onChange={setDescription} />
               </div>
+
+              <div className="lg:col-span-2">
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="text-xs text-muted-foreground invisible">Rules</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 hover:from-violet-500/20 hover:to-fuchsia-500/20 border-violet-200 dark:border-violet-900 text-violet-700 dark:text-violet-300"
+                    onClick={handleGenerateRulesAI}
+                    disabled={isGeneratingRules || !eventName}
+                  >
+                    {isGeneratingRules ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Sparkles className="mr-1.5 h-3.5 w-3.5" />}
+                    Generate Rules with AI
+                  </Button>
+                </div>
+                <RichTextEditor label="Rules & Guidelines" placeholder="Describe eligibility, IP rules, code of conduct..." value={rules} onChange={setRules} />
+              </div>
+              
               <div className="flex items-center justify-between rounded-lg border border-border bg-surface/60 p-4 lg:col-span-2">
                 <div>
                   <p className="text-sm font-medium">Public listing</p>

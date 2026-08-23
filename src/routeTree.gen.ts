@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EvaluationsRouteImport } from './routes/evaluations'
 import { Route as JudgesRouteImport } from './routes/judges'
-import { Route as LiveEventsRouteImport } from './routes/live-events'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as MentorsRouteImport } from './routes/mentors'
@@ -166,11 +165,6 @@ const EvaluationsRoute = EvaluationsRouteImport.update({
 const JudgesRoute = JudgesRouteImport.update({
   id: '/judges',
   path: '/judges',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LiveEventsRoute = LiveEventsRouteImport.update({
-  id: '/live-events',
-  path: '/live-events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -882,7 +876,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/evaluations': typeof EvaluationsRoute
   '/judges': typeof JudgesRoute
-  '/live-events': typeof LiveEventsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
   '/mentors': typeof MentorsRoute
@@ -1027,7 +1020,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/evaluations': typeof EvaluationsRoute
   '/judges': typeof JudgesRoute
-  '/live-events': typeof LiveEventsRoute
   '/login': typeof LoginRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
@@ -1171,7 +1163,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/evaluations': typeof EvaluationsRoute
   '/judges': typeof JudgesRoute
-  '/live-events': typeof LiveEventsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
   '/mentors': typeof MentorsRoute
@@ -1318,7 +1309,6 @@ export interface FileRouteTypes {
     | '/'
     | '/evaluations'
     | '/judges'
-    | '/live-events'
     | '/login'
     | '/manager'
     | '/mentors'
@@ -1463,7 +1453,6 @@ export interface FileRouteTypes {
     | '/'
     | '/evaluations'
     | '/judges'
-    | '/live-events'
     | '/login'
     | '/mentors'
     | '/notifications'
@@ -1606,7 +1595,6 @@ export interface FileRouteTypes {
     | '/'
     | '/evaluations'
     | '/judges'
-    | '/live-events'
     | '/login'
     | '/manager'
     | '/mentors'
@@ -1752,7 +1740,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EvaluationsRoute: typeof EvaluationsRoute
   JudgesRoute: typeof JudgesRoute
-  LiveEventsRoute: typeof LiveEventsRoute
   LoginRoute: typeof LoginRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   MentorsRoute: typeof MentorsRoute
@@ -1891,13 +1878,6 @@ declare module '@tanstack/react-router' {
       path: '/judges'
       fullPath: '/judges'
       preLoaderRoute: typeof JudgesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/live-events': {
-      id: '/live-events'
-      path: '/live-events'
-      fullPath: '/live-events'
-      preLoaderRoute: typeof LiveEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -2957,7 +2937,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EvaluationsRoute: EvaluationsRoute,
   JudgesRoute: JudgesRoute,
-  LiveEventsRoute: LiveEventsRoute,
   LoginRoute: LoginRoute,
   ManagerRoute: ManagerRouteWithChildren,
   MentorsRoute: MentorsRoute,

@@ -11,19 +11,50 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Sparkles, Download, FileBarChart2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GroupedBarChart } from "@/components/ds/charts";
+import { fetchApi } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export function ReportGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [result, setResult] = useState<boolean>(false);
+  const [result, setResult] = useState<any>(null);
+  const [reportType, setReportType] = useState("post-event");
+  const [eventId, setEventId] = useState("all");
+  const [includeCharts, setIncludeCharts] = useState(true);
+  const [includeRecs, setIncludeRecs] = useState(true);
+  const navigate = useNavigate();
+  
+  const [events, setEvents] = useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      setResult(true);
+  useEffect(() => {
+    fetchApi("/events").then(res => setEvents(res.data || []));
+    fetchApi("/ai-copilot/reports").then(res => setHistory(res.data || []));
+  }, []);
+
+  const handleGenerate = async () => {
+    try {
+      setIsGenerating(true);
+      const res = await fetchApi("/ai-copilot/generate/insights-report", {
+        method: "POST",
+        body: JSON.stringify({ reportType, eventId, includeCharts, includeRecs })
+      });
+      if (res.data?.report) {
+        setResult(res.data.report);
+        fetchApi("/ai-copilot/reports").then(r => setHistory(r.data || []));
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate report");
+    } finally {
       setIsGenerating(false);
-    }, 2500);
+    }
+  };
+
+  const handleSave = () => {
+    toast.success("Publish succeeded");
+    navigate({ to: "/reports" });
   };
 
   return (
@@ -43,7 +74,7 @@ export function ReportGeneratorPage() {
             <div className="grid gap-5">
               <div className="space-y-1.5">
                 <Label>Report Type</Label>
-                <Select defaultValue="post-event">
+                <Select value={reportType} onValueChange={setReportType}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -56,14 +87,15 @@ export function ReportGeneratorPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Target Event</Label>
-                <Select defaultValue="ai-summit">
+                <Select value={eventId} onValueChange={setEventId}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ai-summit">Global AI Summit</SelectItem>
-                    <SelectItem value="hack-campus">Hack the Campus</SelectItem>
                     <SelectItem value="all">All Events (YTD)</SelectItem>
+                    {events.map((evt) => (
+                      <SelectItem key={evt.id} value={evt.id}>{evt.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -74,7 +106,7 @@ export function ReportGeneratorPage() {
                     AI will select and insert relevant charts.
                   </p>
                 </div>
-                <Switch id="charts" defaultChecked />
+                <Switch id="charts" checked={includeCharts} onCheckedChange={setIncludeCharts} />
               </div>
               <div className="flex justify-between items-center border border-border p-4 rounded-lg bg-surface">
                 <div className="space-y-0.5">
@@ -83,7 +115,7 @@ export function ReportGeneratorPage() {
                     AI will append actionable next steps.
                   </p>
                 </div>
-                <Switch id="recs" defaultChecked />
+                <Switch id="recs" checked={includeRecs} onCheckedChange={setIncludeRecs} />
               </div>
             </div>
           ),
@@ -105,47 +137,79 @@ export function ReportGeneratorPage() {
               ) : (
                 <div className="border border-border rounded-lg p-6 bg-surface space-y-6">
                   <div className="border-b border-border pb-4">
-                    <h3 className="text-2xl font-bold mb-2">Executive Summary: Global AI Summit</h3>
-                    <p className="text-muted-foreground text-sm">Generated on August 10, 2026</p>
+                    <h3 className="text-2xl font-bold mb-2">Insights Report</h3>
+                    <p className="text-muted-foreground text-sm">Generated on {new Date().toLocaleDateString()}</p>
                   </div>
 
-                  <div className="space-y-2 text-sm leading-relaxed">
-                    <p>
-                      The Global AI Summit successfully concluded with{" "}
-                      <strong>1,240 active participants</strong> and an overall satisfaction rating
-                      of <strong>4.8/5.0</strong>.
-                    </p>
-                    <p>
-                      Key highlights include a 35% increase in cross-organization networking
-                      compared to previous iterations, driven largely by the new matching algorithm.
-                    </p>
+                  <div className="space-y-2 text-sm leading-relaxed whitespace-pre-wrap">
+                    <p>{result.summary}</p>
                   </div>
+                  
+                  {result.highlights && result.highlights.length > 0 && (
+                    <div className="pt-4">
+                      <h4 className="font-semibold text-sm mb-2">Key Highlights</h4>
+                      <ul className="list-disc pl-5 space-y-1 text-sm">
+                        {result.highlights.map((h: string, i: number) => <li key={i}>{h}</li>)}
+                      </ul>
+                    </div>
+                  )}
 
-                  <div className="pt-4">
-                    <h4 className="font-semibold text-sm mb-4">Participant Demographics</h4>
-                    <GroupedBarChart
-                      data={[
-                        { label: "Students", val: 65 },
-                        { label: "Professionals", val: 25 },
-                        { label: "Founders", val: 10 },
-                      ]}
-                      xKey="label"
-                      series={[{ key: "val", label: "% of Attendees" }]}
-                      height={200}
-                    />
-                  </div>
+                  {includeCharts && result.demographicsData && (
+                    <div className="pt-4">
+                      <h4 className="font-semibold text-sm mb-4">Data Visualization</h4>
+                      <GroupedBarChart
+                        data={result.demographicsData}
+                        xKey="label"
+                        series={[{ key: "val", label: "Metric" }]}
+                        height={200}
+                      />
+                    </div>
+                  )}
 
-                  <div className="pt-4 border-t border-border">
-                    <h4 className="font-semibold text-sm mb-2 text-emerald-600 dark:text-emerald-400">
-                      AI Recommendations for Next Event
-                    </h4>
-                    <ul className="list-disc pl-5 space-y-1 text-sm">
-                      <li>Increase workshop duration; 40% of feedback cited time constraints.</li>
-                      <li>
-                        Expand backend/infrastructure challenges to balance the heavy ML focus.
-                      </li>
-                    </ul>
-                  </div>
+                  {includeRecs && result.recommendations && (
+                    <div className="pt-4 border-t border-border">
+                      <h4 className="font-semibold text-sm mb-2 text-emerald-600 dark:text-emerald-400">
+                        AI Recommendations
+                      </h4>
+                      <ul className="list-disc pl-5 space-y-1 text-sm">
+                        {result.recommendations.map((r: string, i: number) => <li key={i}>{r}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ),
+        },
+        {
+          title: "History",
+          description: "Previously generated reports",
+          content: (
+            <div className="space-y-4">
+              {history.length === 0 ? (
+                <div className="text-center p-8 border border-dashed border-border rounded-lg text-muted-foreground">
+                  No historical reports found.
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {history.map((item) => (
+                    <div key={item.id} className="border border-border p-4 rounded-lg bg-surface">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-semibold">{item.title}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(item.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => setResult(item.report)}>
+                          View
+                        </Button>
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        Model: {item.model}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -162,10 +226,10 @@ export function ReportGeneratorPage() {
           )}
           {result && (
             <>
-              <Button variant="outline">Regenerate</Button>
-              <Button>
+              <Button variant="outline" onClick={handleGenerate} disabled={isGenerating}>Regenerate</Button>
+              <Button onClick={handleSave}>
                 <Download className="w-4 h-4 mr-2" />
-                Export PDF
+                Publish Report
               </Button>
             </>
           )}

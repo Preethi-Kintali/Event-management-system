@@ -127,7 +127,7 @@ export function DetailsPageTemplate({
                         <AvatarFallback className="bg-primary-muted text-[11px] font-semibold text-accent-foreground">
                           {comment.author
                             .split(" ")
-                            .map((p) => p[0])
+                            .map((p: string) => p[0])
                             .slice(0, 2)
                             .join("")}
                         </AvatarFallback>

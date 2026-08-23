@@ -40,7 +40,6 @@ const orgAdminSections = [
       { title: "Mentors", url: "/mentors", icon: GraduationCap },
       { title: "Volunteers", url: "/volunteers", icon: HeartHandshake },
       { title: "Attendance", url: "/attendance", icon: ClipboardList },
-      { title: "Live Events", url: "/live-events", icon: MonitorPlay },
     ],
   },
   {

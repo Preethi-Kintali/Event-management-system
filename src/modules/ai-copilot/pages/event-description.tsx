@@ -12,19 +12,71 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sparkles, Copy, Download, RefreshCw } from "lucide-react";
 import { useState } from "react";
+import { fetchApi } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export function EventDescriptionGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
-  const handleGenerate = () => {
+  const [eventName, setEventName] = useState("");
+  const [eventType, setEventType] = useState("hackathon");
+  const [audience, setAudience] = useState("");
+  const [themes, setThemes] = useState("");
+  const [tone, setTone] = useState("professional");
+  const [extra, setExtra] = useState("");
+  const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleGenerate = async () => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setResult(
-        `**Global AI Summit 2026**\n\nJoin us for the premier artificial intelligence gathering of the year, where innovators, researchers, and developers converge to shape the future of technology.\n\n### Highlights\n- Keynote by industry leaders in generative AI.\n- Hands-on workshops covering neural networks and agentic workflows.\n- Networking opportunities with top-tier tech talent.\n\n### Eligibility\nOpen to university students, professionals, and startup founders with a passion for AI.\n\n### Tags\n#ArtificialIntelligence #MachineLearning #Innovation`,
-      );
+    try {
+      const res = await fetchApi("/ai-copilot/generate/event-description", {
+        method: "POST",
+        body: JSON.stringify({
+          eventName,
+          category: eventType,
+          audience,
+          theme: themes,
+          duration: "Unknown",
+          tone,
+          extra
+        })
+      });
+      if (res.data?.text) {
+        setResult(res.data.text);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate description");
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
+  };
+  const handleSave = async () => {
+    if (!result) return;
+    try {
+      setIsSaving(true);
+      await fetchApi("/events", {
+        method: "POST",
+        body: JSON.stringify({
+          name: eventName || "Generated Event",
+          description: result,
+          rules: "",
+          status: "PUBLISHED",
+          startTime: new Date().toISOString(),
+          endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          price: 0,
+          currency: "USD",
+        })
+      });
+      toast.success("Publish succeeded");
+      navigate({ to: "/events" });
+    } catch (e: any) {
+      toast.error(e.message || "Failed to publish event");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -44,12 +96,12 @@ export function EventDescriptionGenerator() {
             <div className="grid gap-5">
               <div className="space-y-1.5">
                 <Label htmlFor="name">Event Name</Label>
-                <Input id="name" placeholder="e.g. Global AI Summit 2026" />
+                <Input id="name" placeholder="e.g. Global AI Summit 2026" value={eventName} onChange={(e) => setEventName(e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="type">Event Type</Label>
-                  <Select defaultValue="hackathon">
+                  <Select value={eventType} onValueChange={setEventType}>
                     <SelectTrigger id="type">
                       <SelectValue />
                     </SelectTrigger>
@@ -62,24 +114,24 @@ export function EventDescriptionGenerator() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="audience">Target Audience</Label>
-                  <Input id="audience" placeholder="e.g. Students, Developers" />
+                  <Input id="audience" placeholder="e.g. Students, Developers" value={audience} onChange={(e) => setAudience(e.target.value)} />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="skills">Key Themes / Skills</Label>
-                <Input id="skills" placeholder="e.g. AI, React, Startups" />
+                <Input id="skills" placeholder="e.g. AI, React, Startups" value={themes} onChange={(e) => setThemes(e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="style">Tone & Style</Label>
-                <Select defaultValue="professional">
-                  <SelectTrigger id="style">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="professional">Professional & Formal</SelectItem>
-                    <SelectItem value="exciting">Exciting & Energetic</SelectItem>
-                    <SelectItem value="academic">Academic & Technical</SelectItem>
-                  </SelectContent>
+                <Select value={tone} onValueChange={setTone}>
+                    <SelectTrigger id="style">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional & Formal</SelectItem>
+                      <SelectItem value="exciting">Exciting & Energetic</SelectItem>
+                      <SelectItem value="academic">Academic & Technical</SelectItem>
+                    </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
@@ -88,6 +140,8 @@ export function EventDescriptionGenerator() {
                   id="extra"
                   placeholder="e.g. Mention that food is provided and there is a $10k prize pool."
                   rows={3}
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
                 />
               </div>
             </div>
@@ -151,7 +205,7 @@ export function EventDescriptionGenerator() {
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button>Save to Drafts</Button>
+              <Button onClick={handleSave} disabled={isSaving}>Publish Event</Button>
             </>
           )}
         </div>

@@ -9,49 +9,73 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Trash2, Edit3, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, Trash2, CheckCircle2, Download } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
+import { fetchApi } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export function RubricGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any[] | null>(null);
+  
+  const [goal, setGoal] = useState("");
+  const [criteriaCount, setCriteriaCount] = useState("4");
+  const [difficulty, setDifficulty] = useState("standard");
+  const [technicalWeight, setTechnicalWeight] = useState([50]);
+  
+  const [competitions, setCompetitions] = useState<any[]>([]);
+  const [selectedCompId, setSelectedCompId] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      setResult([
-        {
-          id: 1,
-          crit: "Technical Complexity",
-          desc: "The difficulty of the technical implementation and the technologies used.",
-          weight: 30,
-          range: "1-10",
-        },
-        {
-          id: 2,
-          crit: "Business Impact",
-          desc: "The potential real-world value and scalability of the solution.",
-          weight: 30,
-          range: "1-10",
-        },
-        {
-          id: 3,
-          crit: "User Experience",
-          desc: "The usability, accessibility, and visual appeal of the final product.",
-          weight: 20,
-          range: "1-10",
-        },
-        {
-          id: 4,
-          crit: "Presentation",
-          desc: "Clarity of the pitch and ability to answer Q&A effectively.",
-          weight: 20,
-          range: "1-10",
-        },
-      ]);
+  useEffect(() => {
+    fetchApi("/competitions").then(res => setCompetitions(res.data || []));
+  }, []);
+
+  const handleGenerate = async () => {
+    try {
+      setIsGenerating(true);
+      const res = await fetchApi("/ai-copilot/generate/evaluation-rubric", {
+        method: "POST",
+        body: JSON.stringify({
+          goal,
+          criteriaCount: parseInt(criteriaCount),
+          difficulty,
+          technicalWeight: technicalWeight[0] || 50,
+          businessWeight: 100 - (technicalWeight[0] || 50)
+        })
+      });
+      if (res.data?.criteria) {
+        setResult(res.data.criteria.map((c: any, idx: number) => ({ id: idx + 1, ...c })));
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate rubric");
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
+  };
+
+  const handleSaveToLibrary = async () => {
+    if (!selectedCompId) {
+      toast.error("Please select a competition to save this rubric to.");
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      await fetchApi(`/competitions/${selectedCompId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ rubric: { criteria: result } })
+      });
+      toast.success("Publish succeeded");
+      navigate({ to: "/competitions" });
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save rubric");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const totalWeight = result ? result.reduce((acc, curr) => acc + curr.weight, 0) : 0;
@@ -73,12 +97,12 @@ export function RubricGeneratorPage() {
             <div className="grid gap-5">
               <div className="space-y-1.5">
                 <Label htmlFor="goal">Evaluation Goal / Topic</Label>
-                <Input id="goal" placeholder="e.g. B2B SaaS Hackathon Final Pitch" />
+                <Input id="goal" placeholder="e.g. B2B SaaS Hackathon Final Pitch" value={goal} onChange={(e) => setGoal(e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Number of Criteria</Label>
-                  <Select defaultValue="4">
+                  <Select value={criteriaCount} onValueChange={setCriteriaCount}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -92,7 +116,7 @@ export function RubricGeneratorPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Difficulty / Strictness</Label>
-                  <Select defaultValue="standard">
+                  <Select value={difficulty} onValueChange={setDifficulty}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -108,7 +132,7 @@ export function RubricGeneratorPage() {
                 <Label>Emphasis Preference</Label>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>Technical</span>
-                  <Slider defaultValue={[50]} max={100} step={10} className="flex-1" />
+                  <Slider value={technicalWeight} onValueChange={setTechnicalWeight} max={100} step={10} className="flex-1" />
                   <span>Business</span>
                 </div>
               </div>
@@ -142,12 +166,21 @@ export function RubricGeneratorPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
-                        {result.map((row) => (
+                        {result.map((row, idx) => (
                           <tr key={row.id}>
                             <td className="px-4 py-3 font-medium">{row.crit}</td>
                             <td className="px-4 py-3 text-muted-foreground text-xs">{row.desc}</td>
                             <td className="px-4 py-3">
-                              <Input type="number" defaultValue={row.weight} className="h-8" />
+                              <Input 
+                                type="number" 
+                                value={row.weight} 
+                                onChange={(e) => {
+                                  const newRes = [...result];
+                                  newRes[idx].weight = parseInt(e.target.value) || 0;
+                                  setResult(newRes);
+                                }}
+                                className="h-8" 
+                              />
                             </td>
                             <td className="px-4 py-3 text-right">
                               <Button
@@ -195,10 +228,21 @@ export function RubricGeneratorPage() {
             </Button>
           )}
           {result && (
-            <>
-              <Button variant="outline">Regenerate</Button>
-              <Button disabled={totalWeight !== 100}>Save to Library</Button>
-            </>
+            <div className="flex items-center gap-3 w-full justify-end">
+              <Select value={selectedCompId} onValueChange={setSelectedCompId}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select Competition" />
+                </SelectTrigger>
+                <SelectContent>
+                  {competitions.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Button variant="outline" onClick={handleGenerate} disabled={isGenerating}>Regenerate</Button>
+              <Button onClick={handleSaveToLibrary} disabled={totalWeight !== 100 || isSaving}>Save to Competition</Button>
+            </div>
           )}
         </div>
       }

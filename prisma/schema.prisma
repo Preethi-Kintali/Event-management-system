@@ -49,6 +49,7 @@ model User {
   workflowsCreated      Workflow[]           @relation("WorkflowCreator")
   workshopsInstructed   Workshop[]           @relation("WorkshopInstructor")
   payments              Payment[]            @relation("UserPayments")
+  AIInsightsReport      AIInsightsReport[]
 }
 
 model Organization {
@@ -96,6 +97,7 @@ model Organization {
   winners             Winner[]
   workflows           Workflow[]
   workshops           Workshop[]
+  AIInsightsReport    AIInsightsReport[]
 }
 
 model OrganizationMember {
@@ -149,6 +151,7 @@ model Event {
   organizationId     String
   name               String
   description        String?
+  rules              String?
   status             EventStatus         @default(DRAFT)
   startTime          DateTime
   endTime            DateTime
@@ -165,6 +168,7 @@ model Event {
   price              Float               @default(0)
   currency           String              @default("USD")
   payments           Payment[]           @relation("EventPayments")
+  AIInsightsReport   AIInsightsReport[]
 }
 
 model Competition {
@@ -172,6 +176,7 @@ model Competition {
   eventId          String
   name             String
   description      String?
+  rubric           Json?
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   Certificate      Certificate[]
@@ -919,9 +924,9 @@ model Payment {
   eventId           String?
   registrationId    String?         @unique
 
-  user              User?           @relation("UserPayments", fields: [userId], references: [id], onDelete: SetNull)
-  event             Event?          @relation("EventPayments", fields: [eventId], references: [id], onDelete: SetNull)
-  registration      Registration?   @relation("RegistrationPayment", fields: [registrationId], references: [id], onDelete: SetNull)
+  user         User?         @relation("UserPayments", fields: [userId], references: [id], onDelete: SetNull)
+  event        Event?        @relation("EventPayments", fields: [eventId], references: [id], onDelete: SetNull)
+  registration Registration? @relation("RegistrationPayment", fields: [registrationId], references: [id], onDelete: SetNull)
 }
 
 model Invoice {
@@ -1205,4 +1210,20 @@ enum InvoiceStatus {
 enum PaymentType {
   SUBSCRIPTION
   EVENT_REGISTRATION
+}
+
+model AIInsightsReport {
+  id              String       @id @default(uuid())
+  organizationId  String
+  eventId         String?
+  generatedById   String
+  title           String
+  metricsSnapshot Json
+  report          Json
+  model           String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  event           Event?       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  generatedBy     User         @relation(fields: [generatedById], references: [id], onDelete: Cascade)
 }

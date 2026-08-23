@@ -18,6 +18,7 @@ export function FormPageTemplate({
   crumbs,
   steps,
   publishLabel = "Publish",
+  onPublish,
   actions,
 }: {
   title: string;
@@ -25,6 +26,7 @@ export function FormPageTemplate({
   crumbs: Crumb[];
   steps: WizardStep[];
   publishLabel?: string;
+  onPublish?: () => void;
   actions?: ReactNode;
 }) {
   const [current, setCurrent] = useState(0);
@@ -38,16 +40,21 @@ export function FormPageTemplate({
         description={description}
         crumbs={crumbs}
         actions={
-          <>
-            <Button variant="outline" onClick={() => toast.success("Draft saved")}>
-              <Save className="h-4 w-4" />
-              Save draft
-            </Button>
-            <Button onClick={() => toast.success(`${publishLabel} succeeded`)}>
-              <Send className="h-4 w-4" />
-              {publishLabel}
-            </Button>
-          </>
+          actions || (
+            <>
+              <Button variant="outline" onClick={() => toast.success("Draft saved")}>
+                <Save className="h-4 w-4" />
+                Save draft
+              </Button>
+              <Button onClick={() => {
+                if (onPublish) onPublish();
+                else toast.success(`${publishLabel} succeeded`);
+              }}>
+                <Send className="h-4 w-4" />
+                {publishLabel}
+              </Button>
+            </>
+          )
         }
       />
 
@@ -83,11 +90,14 @@ export function FormPageTemplate({
             Back
           </Button>
           <Button
-            onClick={() =>
-              last
-                ? toast.success(`${publishLabel} succeeded`)
-                : setCurrent((c) => Math.min(steps.length - 1, c + 1))
-            }
+            onClick={() => {
+              if (last) {
+                if (onPublish) onPublish();
+                else toast.success(`${publishLabel} succeeded`);
+              } else {
+                setCurrent((c) => Math.min(steps.length - 1, c + 1));
+              }
+            }}
           >
             {last ? publishLabel : "Continue"}
           </Button>

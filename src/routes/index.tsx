@@ -231,7 +231,7 @@ function DashboardPage() {
                   <AvatarFallback className="bg-primary-muted text-[11px] font-semibold text-accent-foreground">
                     {activity.actor
                       .split(" ")
-                      .map((part) => part[0])
+                      .map((part: string) => part[0])
                       .slice(0, 2)
                       .join("")}
                   </AvatarFallback>

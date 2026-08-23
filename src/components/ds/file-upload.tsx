@@ -105,10 +105,14 @@ export function RichTextEditor({
   label = "Description",
   placeholder = "Describe the event, eligibility, rules and rewards…",
   defaultValue = "",
+  value,
+  onChange,
 }: {
   label?: string | undefined;
   placeholder?: string | undefined;
   defaultValue?: string | undefined;
+  value?: string | undefined;
+  onChange?: (val: string) => void;
 }) {
   return (
     <div className="space-y-1.5">
@@ -132,7 +136,9 @@ export function RichTextEditor({
           </span>
         </div>
         <textarea
-          defaultValue={defaultValue}
+          value={value}
+          defaultValue={value === undefined ? defaultValue : undefined}
+          onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           rows={7}
           className="w-full resize-y bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground"

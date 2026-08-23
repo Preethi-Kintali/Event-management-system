@@ -61,6 +61,15 @@ export function EventDetailsPage() {
               height={260}
             />
           </SectionCard>
+          
+          {event.rules && (
+            <SectionCard title="Rules & Guidelines" description="Event instructions and eligibility">
+              <div className="text-sm whitespace-pre-wrap text-muted-foreground bg-surface p-4 rounded-lg border border-border">
+                {event.rules}
+              </div>
+            </SectionCard>
+          )}
+
           <SectionCard title="Event summary" description="Key configuration">
             <dl className="grid gap-4 sm:grid-cols-2">
               {[

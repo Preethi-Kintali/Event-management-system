@@ -31,7 +31,7 @@ export class EvaluationService {
     id: string,
     actorUserId: string,
     isAdmin: boolean,
-    data: { score?: number; feedback?: string; status?: string }
+    data: { score?: number; scores?: Record<string, number>; feedback?: string; status?: string }
   ) {
     const ev = await EvaluationRepository.findById(tenantId, id);
     if (!ev) throw { status: 404, code: "NOT_FOUND", message: "Evaluation not found." };
@@ -45,7 +45,40 @@ export class EvaluationService {
       };
     }
 
-    const updated = await EvaluationRepository.update(tenantId, id, data as any);
+    let finalScore = data.score;
+    let finalFeedback = data.feedback;
+
+    if (data.scores && ev.submission.competition?.rubric) {
+      const rubric = ev.submission.competition.rubric as any;
+      if (rubric.criteria && Array.isArray(rubric.criteria)) {
+        let calculatedScore = 0;
+        let isValid = true;
+        
+        for (const crit of rubric.criteria) {
+          const scoreForCrit = data.scores[crit.crit];
+          if (scoreForCrit !== undefined) {
+             // Assuming score out of weight directly, or score out of max
+             // If weight is 25, scoreForCrit should be <= 25 if it's out of weight
+             calculatedScore += scoreForCrit;
+          } else {
+             isValid = false; // Missing criteria
+          }
+        }
+        
+        if (isValid) {
+          finalScore = calculatedScore;
+          // Prepend structured scores to feedback
+          const scoresSummary = Object.entries(data.scores).map(([k, v]) => `${k}: ${v}`).join('\\n');
+          finalFeedback = `[Rubric Scores]\\n${scoresSummary}\\n\\n${data.feedback || ''}`;
+        }
+      }
+    }
+
+    const updatePayload: any = { status: data.status };
+    if (finalScore !== undefined) updatePayload.score = finalScore;
+    if (finalFeedback !== undefined) updatePayload.feedback = finalFeedback;
+
+    const updated = await EvaluationRepository.update(tenantId, id, updatePayload);
     if (!updated) throw { status: 404, code: "NOT_FOUND", message: "Evaluation not found." };
     return updated;
   }

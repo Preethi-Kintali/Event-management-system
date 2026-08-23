@@ -33,10 +33,35 @@ export function AIAssistantPage() {
     });
   }, []);
 
-  const activeConv = conversations.find((c) => c.id === activeId);
+  const activeConv = conversations.find((c) => c.id === activeId) || conversations[0];
+
+  const handleNewChat = () => {
+    const newChat: AIConversation = {
+      id: Date.now().toString(),
+      title: "New Conversation",
+      lastUpdated: new Date().toLocaleString(),
+      messages: [],
+    };
+    setConversations((prev) => [newChat, ...prev]);
+    setActiveId(newChat.id);
+  };
 
   const handleSend = () => {
-    if (!input.trim() || !activeConv) return;
+    if (!input.trim() || isTyping) return;
+
+    let targetConvId = activeId;
+    let targetConv = activeConv;
+
+    if (!targetConv) {
+      targetConvId = Date.now().toString();
+      targetConv = {
+        id: targetConvId,
+        title: "New Conversation",
+        lastUpdated: new Date().toLocaleString(),
+        messages: [],
+      };
+      setActiveId(targetConvId);
+    }
 
     const userMsg = {
       id: Date.now().toString(),
@@ -44,9 +69,19 @@ export function AIAssistantPage() {
       content: input,
       timestamp: new Date().toISOString(),
     };
-    const updatedConv = { ...activeConv, messages: [...activeConv.messages, userMsg] };
+    
+    setConversations((prev) => {
+      const exists = prev.some((c) => c.id === targetConvId);
+      const cToUpdate = exists ? prev.find((c) => c.id === targetConvId)! : targetConv!;
+      const updatedConv = { ...cToUpdate, messages: [...cToUpdate.messages, userMsg] };
+      
+      if (exists) {
+        return prev.map((c) => (c.id === targetConvId ? updatedConv : c));
+      } else {
+        return [updatedConv, ...prev];
+      }
+    });
 
-    setConversations((prev) => prev.map((c) => (c.id === activeId ? updatedConv : c)));
     setInput("");
     setIsTyping(true);
 
@@ -54,24 +89,41 @@ export function AIAssistantPage() {
       if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }, 100);
 
-    AICopilotService.generateMockResponse(userMsg.content).then((res) => {
-      const aiMsg = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant" as const,
-        content: res,
-        timestamp: new Date().toISOString(),
-      };
-      setConversations((prev) =>
-        prev.map((c) => {
-          if (c.id === activeId) return { ...c, messages: [...c.messages, aiMsg] };
-          return c;
-        }),
-      );
-      setIsTyping(false);
-      setTimeout(() => {
-        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }, 100);
-    });
+    AICopilotService.chat(userMsg.content)
+      .then((res) => {
+        const aiMsg = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant" as const,
+          content: res,
+          timestamp: new Date().toISOString(),
+        };
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === targetConvId) return { ...c, messages: [...c.messages, aiMsg] };
+            return c;
+          }),
+        );
+      })
+      .catch((err) => {
+        const aiMsg = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant" as const,
+          content: "Sorry, I encountered an error. Please try again.",
+          timestamp: new Date().toISOString(),
+        };
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === targetConvId) return { ...c, messages: [...c.messages, aiMsg] };
+            return c;
+          }),
+        );
+      })
+      .finally(() => {
+        setIsTyping(false);
+        setTimeout(() => {
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }, 100);
+      });
   };
 
   return (
@@ -88,11 +140,11 @@ export function AIAssistantPage() {
         />
       </div>
 
-      <div className="flex-1 grid grid-cols-[280px_1fr] rounded-lg border border-border bg-surface overflow-hidden">
+      <div className="flex-1 min-h-0 grid grid-cols-[280px_1fr] rounded-lg border border-border bg-surface overflow-hidden">
         {/* Sidebar */}
         <div className="border-r border-border flex flex-col bg-muted/10">
           <div className="p-4 border-b border-border space-y-4">
-            <Button className="w-full justify-start">
+            <Button className="w-full justify-start" onClick={handleNewChat}>
               <Plus className="w-4 h-4 mr-2" />
               New Chat
             </Button>
@@ -121,7 +173,7 @@ export function AIAssistantPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex flex-col bg-background">
+        <div className="flex flex-col bg-background min-h-0 h-full">
           <ScrollArea className="flex-1 p-6" ref={scrollRef}>
             {activeConv ? (
               <div className="space-y-6 max-w-3xl mx-auto">

@@ -17,7 +17,7 @@ export interface ApiEvaluation {
   submission?: {
     title: string;
     status: string;
-    competition?: { name: string; event?: { name: string } };
+    competition?: { name: string; event?: { name: string }; rubric?: any };
     team?: { name: string };
   };
   judge?: {
@@ -35,6 +35,7 @@ export interface CreateEvaluationInput {
 
 export interface UpdateEvaluationInput {
   score?: number;
+  scores?: Record<string, number>;
   feedback?: string;
   status?: EvaluationStatus;
 }

@@ -25,13 +25,11 @@ export const AICopilotService = {
     return [];
   },
 
-  async generateMockResponse(prompt: string): Promise<string> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(
-          `[STUB RESPONSE] This is a mock AI response generated for the prompt: "${prompt}". In a real environment, this would call an actual LLM API.`,
-        );
-      }, 1500);
+  async chat(message: string, context?: any): Promise<string> {
+    const res = await fetchApi<{ data: { response: string } }>("/ai-copilot/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, context }),
     });
+    return res.data.response;
   },
 };

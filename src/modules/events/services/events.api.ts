@@ -5,6 +5,7 @@ export type ApiEvent = {
   id: string;
   name: string;
   description: string | null;
+  rules?: string | null;
   status: "DRAFT" | "PUBLISHED" | "LIVE" | "COMPLETED" | "CANCELLED";
   startTime: string;
   endTime: string;
@@ -19,6 +20,7 @@ export type ApiEvent = {
 export type CreateEventInput = {
   name: string;
   description?: string;
+  rules?: string;
   startTime: string;
   endTime: string;
   status?: string;

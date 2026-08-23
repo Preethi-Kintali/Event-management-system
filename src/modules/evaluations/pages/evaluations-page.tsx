@@ -28,6 +28,7 @@ export function EvaluationsPage() {
   const [selected, setSelected] = useState<ApiEvaluation | null>(null);
   const [scoreValue, setScoreValue] = useState<number>(0);
   const [feedbackText, setFeedbackText] = useState<string>("");
+  const [criteriaScores, setCriteriaScores] = useState<Record<string, number>>({});
 
   // Stats from real data
   const completed = myEvals.filter((e) => e.status === "COMPLETED").length;
@@ -67,18 +68,51 @@ export function EvaluationsPage() {
   function handleSelectSubmission(ev: ApiEvaluation) {
     setSelected(ev);
     setScoreValue(ev.score !== null && ev.score !== undefined ? ev.score : 0);
-    setFeedbackText(ev.feedback ?? "");
+    
+    // Parse rubric scores from feedback if they exist (simple hack for display)
+    let parsedFeedback = ev.feedback ?? "";
+    let initialScores: Record<string, number> = {};
+    if (parsedFeedback.includes("[Rubric Scores]")) {
+      const parts = parsedFeedback.split("\n\n");
+      const scoresPart = parts[0]?.replace("[Rubric Scores]\n", "") ?? "";
+      scoresPart.split("\n").forEach(line => {
+        const [k, v] = line.split(": ");
+        if (k && v) initialScores[k] = Number(v);
+      });
+      parsedFeedback = parts.slice(1).join("\n\n");
+    }
+    
+    setFeedbackText(parsedFeedback);
+    setCriteriaScores(initialScores);
   }
 
   async function handleSaveDraft() {
     if (!selected) return;
-    await updateEval.mutateAsync({ id: selected.id, score: scoreValue, feedback: feedbackText, status: "IN_PROGRESS" });
+    const hasRubric = !!selected.submission?.competition?.rubric?.criteria;
+    const payload: any = {
+      id: selected.id,
+      feedback: feedbackText,
+      status: "IN_PROGRESS"
+    };
+    if (hasRubric) payload.scores = criteriaScores;
+    else payload.score = scoreValue;
+
+    await updateEval.mutateAsync(payload);
     toast.success("Draft scorecard saved");
   }
 
   async function handleSubmitScorecard() {
     if (!selected) return;
-    await updateEval.mutateAsync({ id: selected.id, score: scoreValue, feedback: feedbackText, status: "COMPLETED" });
+    const hasRubric = !!selected.submission?.competition?.rubric?.criteria;
+    const payload: any = {
+      id: selected.id,
+      feedback: feedbackText,
+      status: "COMPLETED"
+    };
+    if (hasRubric) payload.scores = criteriaScores;
+    else payload.score = scoreValue;
+
+    await updateEval.mutateAsync(payload);
     toast.success("Scorecard submitted");
     setSelected(null);
   }
@@ -173,17 +207,42 @@ export function EvaluationsPage() {
                       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                         <p className="truncate text-sm font-medium">Overall Score</p>
                         <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
-                          {scoreValue} / 100
+                          {selected.submission?.competition?.rubric?.criteria ? 
+                            Object.values(criteriaScores).reduce((a, b) => a + b, 0) : scoreValue} / 100
                         </span>
                       </div>
-                      <Slider
-                        value={[scoreValue]}
-                        onValueChange={([v]) => { if (v !== undefined) setScoreValue(v); }}
-                        max={100}
-                        step={1}
-                        className="mt-3"
-                        aria-label="Score"
-                      />
+                      
+                      {selected.submission?.competition?.rubric?.criteria ? (
+                        <div className="mt-4 space-y-4">
+                          {selected.submission.competition.rubric.criteria.map((crit: any) => (
+                            <div key={crit.crit} className="space-y-1.5 p-3 border border-border rounded bg-surface/50">
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="font-medium">{crit.crit}</span>
+                                <span className="text-muted-foreground">{criteriaScores[crit.crit] || 0} / {crit.weight}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground">{crit.desc}</p>
+                              <Slider
+                                value={[criteriaScores[crit.crit] || 0]}
+                                onValueChange={([v]) => { 
+                                  if (v !== undefined) setCriteriaScores(prev => ({...prev, [crit.crit]: v})); 
+                                }}
+                                max={crit.weight}
+                                step={1}
+                                className="pt-2"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <Slider
+                          value={[scoreValue]}
+                          onValueChange={([v]) => { if (v !== undefined) setScoreValue(v); }}
+                          max={100}
+                          step={1}
+                          className="mt-3"
+                          aria-label="Score"
+                        />
+                      )}
                     </div>
                     <Textarea
                       rows={4}
