@@ -1,6 +1,8 @@
 import { UserRepository } from "../repositories/users.repository";
 import { AuditService } from "./audit.service";
 import { UserStatus } from "@prisma/client";
+import { prisma } from "../utils/prisma";
+import bcrypt from "bcrypt";
 
 export class UserService {
   static async getMe(id: string) {
@@ -36,5 +38,57 @@ export class UserService {
     const updated = await UserRepository.update(id, { status });
     await AuditService.logAction({ organizationId: "PLATFORM", actorId, action: "user.status_updated", target: id, metadata: { status } });
     return updated;
+  }
+
+  static async createPrivilegedUser(tenantId: string, data: any, actorId: string) {
+    const { firstName, lastName, email, password, role } = data;
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      throw { status: 400, code: "USER_EXISTS", message: "Email is already registered" };
+    }
+
+    const dbRole = await prisma.role.findFirst({
+      where: { name: role, OR: [{ organizationId: tenantId }, { organizationId: null }] }
+    });
+    if (!dbRole) {
+      throw { status: 400, code: "INVALID_ROLE", message: "Requested role not found" };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          passwordHash,
+          firstName,
+          lastName,
+          status: UserStatus.ACTIVE,
+        }
+      });
+
+      await tx.organizationMember.create({
+        data: {
+          userId: user.id,
+          organizationId: tenantId,
+          roleId: dbRole.id,
+          status: "ACTIVE"
+        }
+      });
+
+      return user;
+    });
+
+    await AuditService.logAction({
+      organizationId: tenantId,
+      actorId,
+      action: "user.privileged_created",
+      target: result.id,
+      metadata: { role, email }
+    });
+
+    const { passwordHash: _, ...safeUser } = result;
+    return safeUser;
   }
 }

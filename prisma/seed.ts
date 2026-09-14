@@ -72,7 +72,7 @@ async function main() {
     'platform.read', 'platform.manage',
     'organization.read', 'organization.manage',
     'users.read', 'users.manage',
-    'events.read', 'events.create', 'events.update', 'events.delete',
+    'events.read', 'events.create', 'events.update', 'events.delete', 'events.complete',
     'competitions.read', 'competitions.manage',
     'registrations.read', 'registrations.manage',
     'teams.read', 'teams.manage',
@@ -92,8 +92,11 @@ async function main() {
     
     // Payments
     'payments.read', 'payments.manage', 'payments.refund', 'payments.export',
-    'reports.read', 'reports.export',
     'security.read', 'security.manage',
+    'hackathon_proposals.create', 'hackathon_proposals.read', 'hackathon_proposals.update',
+    'hackathon_proposals.read_own', 'hackathon_proposals.update_own',
+    'hackathon_proposals.submit', 'hackathon_proposals.review', 'hackathon_proposals.principal_review',
+    'hackathon_proposals.create_event', 'events.read_assigned',
   ];
 
   const permissions: Record<string, { id: string; action: string }> = {};
@@ -146,6 +149,10 @@ async function main() {
     data: { email: 'participant2@gmail.com', firstName: 'Carol', lastName: 'Dev', passwordHash, status: UserStatus.ACTIVE },
   });
 
+  const studentCoordinatorUser = await prisma.user.create({
+    data: { email: 'coordinator@contoso.com', firstName: 'Sam', lastName: 'Coordinator', passwordHash, status: UserStatus.ACTIVE },
+  });
+
   // 4. Organizations
   const org1 = await prisma.organization.create({
     data: { name: 'Contoso Innovation Labs', slug: 'contoso-labs', status: OrganizationStatus.ACTIVE },
@@ -180,13 +187,36 @@ async function main() {
     data: { name: 'Volunteer', organizationId: org1.id, description: 'Event volunteer' },
   });
 
+  const principalRole = await prisma.role.create({
+    data: { name: 'Principal', organizationId: org1.id, description: 'College Principal' },
+  });
+
+  const managerRole = await prisma.role.create({
+    data: { name: 'Manager', organizationId: org1.id, description: 'Hackathon Manager' },
+  });
+
+  const facultyCoordinatorRole = await prisma.role.create({
+    data: { name: 'Faculty Coordinator', organizationId: org1.id, description: 'Faculty Coordinator' },
+  });
+
+  const studentCoordinatorRole = await prisma.role.create({
+    data: { name: 'Student Coordinator', organizationId: org1.id, description: 'Student Coordinator' },
+  });
+
+  const facultyOrganizerRole = await prisma.role.create({
+    data: { name: 'Faculty Organizer', organizationId: org1.id, description: 'Faculty Organizer' },
+  });
+
+  const studentOrganizerRole = await prisma.role.create({
+    data: { name: 'Student Organizer', organizationId: org1.id, description: 'Student Organizer' },
+  });
+
   // Assign permissions
   for (const p of permissionsData) {
     await prisma.rolePermission.create({ data: { roleId: globalAdminRole.id, permissionId: permissions[p].id } });
   }
-
   const orgAdminPerms = [
-    'events.read', 'events.create', 'events.update', 'events.delete',
+    'events.read', 'events.create', 'events.update', 'events.delete', 'events.complete',
     'competitions.read', 'competitions.manage',
     'registrations.read', 'registrations.manage',
     'teams.read', 'teams.manage',
@@ -197,7 +227,8 @@ async function main() {
     'notifications.read', 'notifications.manage',
     'winners.read', 'winners.manage', 'winners.finalize',
     'badges.read', 'badges.manage', 'badges.award',
-    'reports.read', 'reports.export',
+    'hackathon_proposals.create', 'hackathon_proposals.read', 'hackathon_proposals.update',
+    'hackathon_proposals.submit', 'hackathon_proposals.review', 'hackathon_proposals.principal_review', 'hackathon_proposals.create_event',
   ];
   for (const p of orgAdminPerms) {
     await prisma.rolePermission.create({ data: { roleId: orgAdminRole.id, permissionId: permissions[p].id } });
@@ -215,6 +246,21 @@ async function main() {
   await prisma.rolePermission.create({ data: { roleId: volunteerRole.id, permissionId: permissions['events.read'].id } });
   await prisma.rolePermission.create({ data: { roleId: volunteerRole.id, permissionId: permissions['notifications.read'].id } });
 
+  const studentCoordinatorPerms = ['hackathon_proposals.create', 'hackathon_proposals.read_own', 'hackathon_proposals.update_own', 'hackathon_proposals.submit', 'events.read_assigned', 'notifications.read'];
+  for (const p of studentCoordinatorPerms) {
+    await prisma.rolePermission.create({ data: { roleId: studentCoordinatorRole.id, permissionId: permissions[p].id } });
+  }
+
+  const managerPerms = ['hackathon_proposals.read', 'hackathon_proposals.review', 'hackathon_proposals.create_event', 'events.read', 'events.complete', 'notifications.read'];
+  for (const p of managerPerms) {
+    await prisma.rolePermission.create({ data: { roleId: managerRole.id, permissionId: permissions[p].id } });
+  }
+
+  const principalPerms = ['hackathon_proposals.read', 'hackathon_proposals.principal_review', 'events.read', 'notifications.read'];
+  for (const p of principalPerms) {
+    await prisma.rolePermission.create({ data: { roleId: principalRole.id, permissionId: permissions[p].id } });
+  }
+
   // 6. Organization Memberships
   const allUsersForOrg = [
     { userId: platformAdmin.id, roleId: globalAdminRole.id },
@@ -227,6 +273,7 @@ async function main() {
     { userId: volunteerUser1.id, roleId: volunteerRole.id },
     { userId: volunteerUser2.id, roleId: volunteerRole.id },
     { userId: participant2.id, roleId: participantRole.id },
+    { userId: studentCoordinatorUser.id, roleId: studentCoordinatorRole.id },
   ];
 
   for (const m of allUsersForOrg) {

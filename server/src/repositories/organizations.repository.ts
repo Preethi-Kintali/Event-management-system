@@ -28,7 +28,7 @@ export class OrganizationRepository {
   static async findMembers(orgId: string) {
     return prisma.organizationMember.findMany({
       where: { organizationId: orgId },
-      include: { user: { select: { id: true, email: true, firstName: true, lastName: true } }, role: true }
+      include: { user: { select: { id: true, email: true, firstName: true, lastName: true, status: true, createdAt: true } }, role: true }
     });
   }
 

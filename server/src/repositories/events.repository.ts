@@ -2,10 +2,19 @@ import { prisma } from "../utils/prisma";
 import { Prisma } from "@prisma/client";
 
 export class EventRepository {
-  static async findAll(tenantId: string) {
+  static async findAll(tenantId: string, onlyAssignedUserId?: string) {
+    const whereClause: any = { organizationId: tenantId };
+    
+    if (onlyAssignedUserId) {
+      whereClause.OR = [
+        { teamMembers: { some: { userId: onlyAssignedUserId } } }
+      ];
+    }
+
     const events = await prisma.event.findMany({
-      where: { organizationId: tenantId },
+      where: whereClause,
       include: {
+        teamMembers: true,
         payments: {
           where: {
             status: 'SUCCEEDED',
@@ -33,9 +42,18 @@ export class EventRepository {
     });
   }
 
-  static async findById(tenantId: string, id: string) {
+  static async findById(tenantId: string, id: string, onlyAssignedUserId?: string) {
+    const whereClause: any = { id, organizationId: tenantId };
+    
+    if (onlyAssignedUserId) {
+      whereClause.OR = [
+        { teamMembers: { some: { userId: onlyAssignedUserId } } }
+      ];
+    }
+
     return prisma.event.findFirst({
-      where: { id, organizationId: tenantId }
+      where: whereClause,
+      include: { teamMembers: true }
     });
   }
 

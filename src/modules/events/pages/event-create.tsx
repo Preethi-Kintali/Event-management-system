@@ -11,14 +11,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchApi } from "@/lib/api-client";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export function CreateEventPage() {
+  const { proposalId } = useSearch({ from: '/events/new' });
+  const queryClient = useQueryClient();
+  
+  const { data: proposalRes, isLoading: isLoadingProposal } = useQuery({
+    queryKey: ['hackathon-proposal', proposalId],
+    queryFn: () => fetchApi(`/hackathon-proposals/${proposalId}`),
+    enabled: !!proposalId,
+  });
+
+  const proposal = proposalRes?.data;
   const [tags, setTags] = useState<string[]>(["AI", "Accessibility"]);
   const [tracks, setTracks] = useState<string[]>(["Hackathon"]);
   const [start, setStart] = useState<Date | undefined>(undefined);
@@ -36,10 +47,20 @@ export function CreateEventPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (proposal) {
+      if (proposal.title) setEventName(proposal.title);
+      if (proposal.description) setDescription(proposal.description);
+      if (proposal.requirements) setRules(proposal.requirements);
+      if (proposal.startDate) setStart(new Date(proposal.startDate));
+      if (proposal.endDate) setEnd(new Date(proposal.endDate));
+    }
+  }, [proposal]);
+
   const handleGenerateAI = async () => {
     try {
       setIsGenerating(true);
-      const res = await fetchApi("/api/v1/ai-copilot/generate/event-description", {
+      const res = await fetchApi("/ai-copilot/generate/event-description", {
         method: "POST",
         body: JSON.stringify({
           eventName,
@@ -62,7 +83,7 @@ export function CreateEventPage() {
   const handleGenerateRulesAI = async () => {
     try {
       setIsGeneratingRules(true);
-      const res = await fetchApi("/api/v1/ai-copilot/generate/event-rules", {
+      const res = await fetchApi("/ai-copilot/generate/event-rules", {
         method: "POST",
         body: JSON.stringify({
           eventName,
@@ -95,23 +116,44 @@ export function CreateEventPage() {
     
     try {
       setIsPublishing(true);
-      const res = await fetchApi("/api/v1/events", {
-        method: "POST",
-        body: JSON.stringify({
-          name: eventName,
-          description: description,
-          rules: rules,
-          status: "PUBLISHED",
-          startTime: startTime.toISOString(),
-          endTime: endTime.toISOString(),
-          // Event model has price, currency, etc. we will send defaults
-          price: 0,
-          currency: "USD",
-        })
-      });
       
-      toast.success("Event successfully published!");
-      navigate({ to: "/events" });
+      const payload = {
+        name: eventName,
+        description: description,
+        rules: rules,
+        status: "PUBLISHED",
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        price: 0,
+        currency: "USD",
+      };
+
+      if (proposalId) {
+        const response = await fetchApi(`/hackathon-proposals/${proposalId}/create-event`, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        toast.success("Event successfully created from proposal!");
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        queryClient.invalidateQueries({ queryKey: ['hackathon-proposals'] });
+        queryClient.invalidateQueries({ queryKey: ['hackathon-proposal', proposalId] });
+        
+        // Navigate to the newly created event details page
+        const newEventId = response.data?.event?.id;
+        if (newEventId) {
+          navigate({ to: `/events/${newEventId}` });
+        } else {
+          navigate({ to: `/events` });
+        }
+      } else {
+        await fetchApi("/events", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        toast.success("Event successfully published!");
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        navigate({ to: "/events" });
+      }
     } catch (e: any) {
       console.error(e);
       toast.error(e.message || "Failed to publish event");
@@ -120,9 +162,17 @@ export function CreateEventPage() {
     }
   };
 
+  if (isLoadingProposal) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <FormPageTemplate
-      title="Create event"
+      title={proposalId ? "Create event from proposal" : "Create event"}
       onPublish={handlePublish}
       description="Set up an event, its schedule, competitions and publishing rules."
       crumbs={[

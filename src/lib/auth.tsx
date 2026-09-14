@@ -41,6 +41,7 @@ interface AuthState {
   logout: () => void;
   activeOrganization: string | null;
   setActiveOrganization: (id: string | null) => void;
+  hasPermission: (action: string) => boolean;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -125,8 +126,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Attempt backend logout (fire and forget)
     fetchApi("/auth/logout", { method: "POST" }).catch(() => {});
-    
-    router.navigate({ to: "/login" });
+    router.navigate({ to: "/" });
+  };
+
+  const hasPermission = (action: string) => {
+    if (!user) return false;
+    const permissions = user.memberships?.[0]?.role?.permissions?.map(p => p.permission.action) || [];
+    return permissions.includes(action);
   };
 
   const isLoading = !!token && isUserLoading;
@@ -141,7 +147,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login, 
       logout,
       activeOrganization,
-      setActiveOrganization
+      setActiveOrganization,
+      hasPermission
     }}>
       {children}
     </AuthContext.Provider>

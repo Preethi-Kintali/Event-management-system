@@ -38,7 +38,7 @@ export function useGroupMembers(groupId: string) {
 export function useJoinGroup() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (groupId: string) => fetchApi(`/api/v1/community/groups/${groupId}/join`, { method: "POST" }),
+    mutationFn: (groupId: string) => fetchApi(`/community/groups/${groupId}/join`, { method: "POST" }),
     onSuccess: (_, groupId) => {
       queryClient.invalidateQueries({ queryKey: ["community", "groups"] });
       queryClient.invalidateQueries({ queryKey: ["community", "groups", groupId] });
@@ -67,7 +67,7 @@ export function useReplyDiscussion() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ discussionId, content }: { discussionId: string; content: string }) => 
-      fetchApi(`/api/v1/community/discussions/${discussionId}/replies`, { 
+      fetchApi(`/community/discussions/${discussionId}/replies`, { 
         method: "POST", 
         body: JSON.stringify({ content }) 
       }),

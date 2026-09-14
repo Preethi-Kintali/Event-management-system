@@ -8,6 +8,7 @@ export interface AuthRequest extends Request {
     email: string;
   };
   tenantId?: string;
+  permissions?: string[];
 }
 
 export const requireAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {

@@ -13,14 +13,56 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(data.password, 10);
-    const user = await prisma.user.create({
-      data: {
-        email: data.email,
-        passwordHash,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        status: UserStatus.ACTIVE, // Auto-activate for dev
+    
+    // Find default organization and Participant role
+    const defaultOrg = await prisma.organization.findFirst({
+      where: { status: "ACTIVE" },
+      orderBy: { createdAt: 'asc' }
+    });
+    
+    if (!defaultOrg) {
+      throw { status: 500, code: "INTERNAL_ERROR", message: "No active organization found to attach the user to" };
+    }
+
+    const requestedRoleName = data.role || "Participant";
+    if (!["Participant", "Student Coordinator", "Faculty Coordinator"].includes(requestedRoleName)) {
+      throw { status: 400, code: "INVALID_ROLE", message: "Invalid role requested" };
+    }
+
+    const role = await prisma.role.findFirst({
+      where: { 
+        name: requestedRoleName, 
+        OR: [{ organizationId: defaultOrg.id }, { organizationId: null }] 
       }
+    });
+
+    if (!role) {
+      throw { status: 500, code: "INTERNAL_ERROR", message: `${requestedRoleName} role not found` };
+    }
+
+    const isFacultyCoordinator = requestedRoleName === "Faculty Coordinator";
+
+    const user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email: data.email,
+          passwordHash,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          status: UserStatus.ACTIVE, // Auto-activate the user account itself
+        }
+      });
+
+      await tx.organizationMember.create({
+        data: {
+          userId: newUser.id,
+          organizationId: defaultOrg.id,
+          roleId: role.id,
+          status: isFacultyCoordinator ? "PENDING" : "ACTIVE"
+        }
+      });
+
+      return newUser;
     });
 
     const { passwordHash: _, ...safeUser } = user;

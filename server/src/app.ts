@@ -81,6 +81,7 @@ import securityRoutes from "./routes/security.routes";
 
 import managerRoutes from "./routes/manager.routes";
 import participantRoutes from "./routes/participant.routes";
+import { hackathonProposalRoutes } from "./routes/hackathon-proposals.routes";
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/events", eventRoutes);
@@ -123,6 +124,7 @@ app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/security", securityRoutes);
 app.use("/api/v1/manager", managerRoutes);
 app.use("/api/v1/participant", participantRoutes);
+app.use("/api/v1/hackathon-proposals", hackathonProposalRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", (req: Request, res: Response) => {

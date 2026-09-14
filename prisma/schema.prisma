@@ -50,6 +50,11 @@ model User {
   workshopsInstructed   Workshop[]           @relation("WorkshopInstructor")
   payments              Payment[]            @relation("UserPayments")
   AIInsightsReport      AIInsightsReport[]
+  eventTeamAssignments  EventTeamMember[]
+  submittedProposals    HackathonProposal[]  @relation("ProposalSubmitter")
+  managedProposals      HackathonProposal[]  @relation("ProposalManager")
+  principalProposals    HackathonProposal[]  @relation("ProposalPrincipal")
+  EventFinalReport      EventFinalReport[]
 }
 
 model Organization {
@@ -98,6 +103,8 @@ model Organization {
   workflows           Workflow[]
   workshops           Workshop[]
   AIInsightsReport    AIInsightsReport[]
+  hackathonProposals  HackathonProposal[]
+  EventFinalReport    EventFinalReport[]
 }
 
 model OrganizationMember {
@@ -169,6 +176,10 @@ model Event {
   currency           String              @default("USD")
   payments           Payment[]           @relation("EventPayments")
   AIInsightsReport   AIInsightsReport[]
+  proposalId         String?             @unique
+  proposal           HackathonProposal?  @relation(fields: [proposalId], references: [id])
+  teamMembers        EventTeamMember[]
+  EventFinalReport   EventFinalReport?
 }
 
 model Competition {
@@ -1082,6 +1093,8 @@ enum OrganizationStatus {
 enum MemberStatus {
   ACTIVE
   INVITED
+  PENDING
+  REJECTED
   SUSPENDED
 }
 
@@ -1226,4 +1239,104 @@ model AIInsightsReport {
   event           Event?       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   generatedBy     User         @relation(fields: [generatedById], references: [id], onDelete: Cascade)
+}
+
+enum ProposalStatus {
+  DRAFT
+  SUBMITTED_TO_MANAGER
+  MANAGER_APPROVED
+  MANAGER_REJECTED
+  CHANGES_REQUESTED
+  SUBMITTED_TO_PRINCIPAL
+  PRINCIPAL_APPROVED
+  PRINCIPAL_REJECTED
+  EVENT_CREATED
+}
+
+model HackathonProposal {
+  id                    String         @id @default(uuid())
+  organizationId        String
+  title                 String
+  description           String?
+  expectedParticipants  Int?
+  estimatedBudget       Float?
+  requiredManpower      Int?
+  estimatedWorkingHours Float?
+  startDate             DateTime?
+  endDate               DateTime?
+  requirements          String?
+  status                ProposalStatus @default(DRAFT)
+  submittedById         String
+  managerId             String?
+  managerComment        String?
+  managerReviewedAt     DateTime?
+  principalId           String?
+  principalComment      String?
+  principalReviewedAt   DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  submittedBy  User         @relation("ProposalSubmitter", fields: [submittedById], references: [id])
+  manager      User?        @relation("ProposalManager", fields: [managerId], references: [id])
+  principal    User?        @relation("ProposalPrincipal", fields: [principalId], references: [id])
+  event        Event?
+
+  @@index([organizationId])
+  @@index([submittedById])
+  @@index([managerId])
+  @@index([principalId])
+  @@index([status])
+}
+
+model EventTeamMember {
+  id             String   @id @default(uuid())
+  eventId        String
+  userId         String
+  responsibility String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+enum ReportStatus {
+  DRAFT
+  AI_GENERATED
+  FINALIZED
+}
+
+model EventFinalReport {
+  id             String @id @default(uuid())
+  eventId        String @unique
+  organizationId String
+  coordinatorId  String
+
+  executiveSummary  String?
+  eventOutcome      String?
+  keyHighlights     String?
+  challenges        String?
+  recommendations   String?
+  additionalRemarks String?
+
+  supportingDocuments Json?
+
+  aiGeneratedContent String?
+  finalizedContent   String?
+
+  status ReportStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  coordinator  User         @relation(fields: [coordinatorId], references: [id])
+
+  @@index([organizationId])
+  @@index([eventId])
+  @@index([coordinatorId])
 }

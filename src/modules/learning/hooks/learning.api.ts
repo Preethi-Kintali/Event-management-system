@@ -38,7 +38,7 @@ export function useCourseEnrollments(id: string) {
 export function useEnrollCourse() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (courseId: string) => fetchApi(`/api/v1/learning/courses/${courseId}/enroll`, { method: "POST" }),
+    mutationFn: (courseId: string) => fetchApi(`/learning/courses/${courseId}/enroll`, { method: "POST" }),
     onSuccess: (_, courseId) => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
       queryClient.invalidateQueries({ queryKey: ["courses", courseId] });

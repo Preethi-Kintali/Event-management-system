@@ -54,7 +54,7 @@ export function useSubmitSurveyResponse() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ surveyId, answers }: { surveyId: string; answers: any }) => 
-      fetchApi(`/api/v1/feedback/surveys/${surveyId}/responses`, { 
+      fetchApi(`/feedback/surveys/${surveyId}/responses`, { 
         method: "POST", 
         body: JSON.stringify({ answers }) 
       }),

@@ -28,6 +28,8 @@ export function DetailsPageTemplate({
   timeline = [],
   attachments = [],
   comments = [],
+  customTabs = [],
+  customTabContents = [],
 }: {
   title: string;
   description: string;
@@ -41,6 +43,8 @@ export function DetailsPageTemplate({
   timeline?: any[];
   attachments?: any[];
   comments?: any[];
+  customTabs?: { value: string; label: string }[];
+  customTabContents?: { value: string; content: ReactNode }[];
 }) {
   return (
     <>
@@ -57,6 +61,9 @@ export function DetailsPageTemplate({
           <Tabs defaultValue="overview">
             <TabsList className="w-full justify-start overflow-x-auto scrollbar-thin">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              {customTabs?.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
+              ))}
               <TabsTrigger value="activity">Activity</TabsTrigger>
               <TabsTrigger value="attachments">Attachments</TabsTrigger>
               <TabsTrigger value="comments">Comments</TabsTrigger>
@@ -160,6 +167,12 @@ export function DetailsPageTemplate({
                 </div>
               </SectionCard>
             </TabsContent>
+            
+            {customTabContents?.map((tabContent) => (
+              <TabsContent key={tabContent.value} value={tabContent.value} className="mt-4 space-y-6">
+                {tabContent.content}
+              </TabsContent>
+            ))}
           </Tabs>
         </div>
 

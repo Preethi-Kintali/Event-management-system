@@ -126,12 +126,13 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const hydrated = useHydrated();
-  const isLogin = router.state.location.pathname === "/login";
+  const pathname = router.state.location.pathname;
+  const isPublic = pathname === "/" || pathname === "/login" || pathname === "/signup";
 
-  if (!hydrated || (isLoading && !isLogin)) {
+  if (!hydrated || (isLoading && !isPublic)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
@@ -139,12 +140,16 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!isAuthenticated && !isLogin) {
+  if (!isAuthenticated && !isPublic) {
     return <Navigate to="/login" />;
   }
 
-  if (isLogin) {
+  if (isPublic) {
     return <>{children}</>;
+  }
+
+  if (user?.memberships?.[0]?.status === "PENDING" && pathname !== "/pending-approval") {
+    return <Navigate to="/pending-approval" />;
   }
 
   return <AppShell>{children}</AppShell>;

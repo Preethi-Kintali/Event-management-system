@@ -12,6 +12,9 @@ import {
 import { useCreateManagerEvent, useUpdateManagerEvent } from "../hooks/manager.api";
 import { ApiEvent } from "@/modules/events/services/events.api";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { fetchApi } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth";
 
 interface EventDialogProps {
   open: boolean;
@@ -25,10 +28,25 @@ export function ManagerEventDialog({ open, onOpenChange, event }: EventDialogPro
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [status, setStatus] = useState("DRAFT");
+  const [facultyCoordinatorId, setFacultyCoordinatorId] = useState<string>("none");
+  const { user } = useAuth();
 
   const createMutation = useCreateManagerEvent();
   const updateMutation = useUpdateManagerEvent();
   const isEditing = !!event;
+
+  const { data: members = [] } = useQuery({
+    queryKey: ['coordinators', user?.memberships?.[0]?.organization?.id],
+    queryFn: async () => {
+      const orgId = user?.memberships?.[0]?.organization?.id;
+      if (!orgId) return [];
+      const res = await fetchApi(`/organizations/${orgId}/members`);
+      return res.data;
+    },
+    enabled: !!user?.memberships?.[0]?.organization?.id,
+  });
+
+  const facultyCoordinators = members.filter((m: any) => m.role?.name === "Faculty Coordinator" && m.status === "ACTIVE");
 
   useEffect(() => {
     if (event) {
@@ -37,8 +55,10 @@ export function ManagerEventDialog({ open, onOpenChange, event }: EventDialogPro
       setStartTime(event.startTime.slice(0, 16));
       setEndTime(event.endTime.slice(0, 16));
       setStatus(event.status);
+      const fc = event.teamMembers?.find((tm: any) => tm.responsibility === "Faculty Coordinator");
+      setFacultyCoordinatorId(fc ? fc.userId : "none");
     } else {
-      setName(""); setDescription(""); setStartTime(""); setEndTime(""); setStatus("DRAFT");
+      setName(""); setDescription(""); setStartTime(""); setEndTime(""); setStatus("DRAFT"); setFacultyCoordinatorId("none");
     }
   }, [event, open]);
 
@@ -51,6 +71,7 @@ export function ManagerEventDialog({ open, onOpenChange, event }: EventDialogPro
         startTime: new Date(startTime).toISOString(),
         endTime: new Date(endTime).toISOString(),
         status,
+        ...(facultyCoordinatorId !== "none" ? { facultyCoordinatorId } : {}),
       };
       if (isEditing) {
         await updateMutation.mutateAsync({ id: event.id, data: payload });
@@ -97,18 +118,34 @@ export function ManagerEventDialog({ open, onOpenChange, event }: EventDialogPro
                 <Input id="ev-end" type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ev-status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger id="ev-status"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="PUBLISHED">Published</SelectItem>
-                  <SelectItem value="LIVE">Live</SelectItem>
-                  <SelectItem value="COMPLETED">Completed</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="ev-status">Status</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger id="ev-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="PUBLISHED">Published</SelectItem>
+                    <SelectItem value="LIVE">Live</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="ev-fc">Faculty Coordinator</Label>
+                <Select value={facultyCoordinatorId} onValueChange={setFacultyCoordinatorId}>
+                  <SelectTrigger id="ev-fc"><SelectValue placeholder="Assign coordinator..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {facultyCoordinators.map((fc: any) => (
+                      <SelectItem key={fc.userId} value={fc.userId}>
+                        {fc.user?.firstName} {fc.user?.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <DialogFooter>

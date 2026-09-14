@@ -9,4 +9,13 @@ export const createEventSchema = z.object({
   status: z.nativeEnum(EventStatus).optional(),
 });
 
-export const updateEventSchema = createEventSchema.partial();
+export const updateEventSchema = createEventSchema.omit({ status: true }).partial();
+
+export const addEventTeamMemberSchema = z.object({
+  userId: z.string().uuid(),
+  responsibility: z.string().min(1).max(100),
+});
+
+export const updateEventTeamMemberSchema = z.object({
+  responsibility: z.string().min(1).max(100),
+});

@@ -1,0 +1,86 @@
+import { Request, Response, NextFunction } from "express";
+import { FinalReportService } from "../services/final-report.service";
+import { FinalReportPDFService } from "../services/final-report-pdf.service";
+import { prisma } from "../utils/prisma";
+
+export class FinalReportController {
+  static async getFinalReport(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const permissions = req.permissions || [];
+      const hasGlobalRead = permissions.includes("events.read");
+      const onlyAssignedUserId = hasGlobalRead ? undefined : req.user!.id;
+
+      const report = await FinalReportService.getFinalReport(tenantId, id, onlyAssignedUserId);
+
+      res.status(200).json({ success: true, data: { report } });
+    } catch (error) { next(error); }
+  }
+
+  static async saveDraft(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const userId = req.user!.id;
+
+      const report = await FinalReportService.saveDraft(tenantId, id, userId, req.body);
+      res.status(200).json({ success: true, data: { report } });
+    } catch (error) { next(error); }
+  }
+
+  static async generateAIDraft(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const userId = req.user!.id;
+
+      const report = await FinalReportService.generateAIDraft(tenantId, id, userId);
+      res.status(200).json({ success: true, data: { report } });
+    } catch (error) { next(error); }
+  }
+
+  static async finalizeReport(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const userId = req.user!.id;
+      const { finalizedContent } = req.body;
+
+      const report = await FinalReportService.finalizeReport(tenantId, id, userId, finalizedContent);
+      res.status(200).json({ success: true, data: { report } });
+    } catch (error) { next(error); }
+  }
+
+  static async downloadPDF(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const permissions = req.permissions || [];
+      const hasGlobalRead = permissions.includes("events.read");
+      const onlyAssignedUserId = hasGlobalRead ? undefined : req.user!.id;
+
+      // Ensure access
+      await FinalReportService.getFinalReport(tenantId, id, onlyAssignedUserId);
+
+      const report = await prisma.eventFinalReport.findUnique({
+        where: { eventId: id },
+        include: {
+          event: true,
+          coordinator: true,
+          organization: true
+        }
+      });
+
+      if (!report) {
+        return res.status(404).json({ success: false, message: "Report not found" });
+      }
+
+      const pdfBuffer = await FinalReportPDFService.generatePDF(report, null);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="Final_Report_${report.event.name.replace(/[^a-z0-9]/gi, '_')}.pdf"`);
+      res.send(pdfBuffer);
+    } catch (error) { next(error); }
+  }
+}

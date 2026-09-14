@@ -46,7 +46,7 @@ export function useAddRecruitmentCandidate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => 
-      fetchApi("/api/v1/recruitment/candidates", { 
+      fetchApi("/recruitment/candidates", { 
         method: "POST", 
         body: JSON.stringify(data) 
       }),

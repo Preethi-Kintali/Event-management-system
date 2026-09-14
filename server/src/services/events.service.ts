@@ -3,27 +3,62 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
 export class EventService {
-  static async getEvents(tenantId: string) {
-    return EventRepository.findAll(tenantId);
+  static async getEvents(tenantId: string, onlyAssignedUserId?: string) {
+    return EventRepository.findAll(tenantId, onlyAssignedUserId);
   }
 
-  static async getEvent(tenantId: string, id: string) {
-    const event = await EventRepository.findById(tenantId, id);
+  static async getEvent(tenantId: string, id: string, onlyAssignedUserId?: string) {
+    const event = await EventRepository.findById(tenantId, id, onlyAssignedUserId);
     if (!event) {
-      throw { status: 404, code: "NOT_FOUND", message: "Event not found." };
+      throw { status: 404, code: "NOT_FOUND", message: "Event not found or access denied." };
     }
     return event;
   }
 
   static async createEvent(tenantId: string, data: any) {
-    return EventRepository.create(tenantId, data);
+    const { facultyCoordinatorId, ...eventData } = data;
+    const event = await EventRepository.create(tenantId, eventData);
+    if (facultyCoordinatorId) {
+      await prisma.eventTeamMember.create({
+        data: {
+          eventId: event.id,
+          userId: facultyCoordinatorId,
+          responsibility: "Faculty Coordinator"
+        }
+      });
+    }
+    return event;
   }
 
   static async updateEvent(tenantId: string, id: string, data: any) {
-    const event = await EventRepository.update(tenantId, id, data);
+    const { facultyCoordinatorId, ...eventData } = data;
+    const event = await EventRepository.update(tenantId, id, eventData);
     if (!event) {
       throw { status: 404, code: "NOT_FOUND", message: "Event not found." };
     }
+
+    if (facultyCoordinatorId) {
+      const existingFc = await prisma.eventTeamMember.findFirst({
+        where: { eventId: id, responsibility: "Faculty Coordinator" }
+      });
+      if (existingFc) {
+        if (existingFc.userId !== facultyCoordinatorId) {
+          await prisma.eventTeamMember.update({
+            where: { id: existingFc.id },
+            data: { userId: facultyCoordinatorId }
+          });
+        }
+      } else {
+        await prisma.eventTeamMember.create({
+          data: {
+            eventId: id,
+            userId: facultyCoordinatorId,
+            responsibility: "Faculty Coordinator"
+          }
+        });
+      }
+    }
+    
     return event;
   }
 
@@ -35,9 +70,16 @@ export class EventService {
     return true;
   }
 
-  static async getEventDashboard(tenantId: string, id: string) {
+  static async getEventDashboard(tenantId: string, id: string, onlyAssignedUserId?: string) {
+    const whereClause: any = { id, organizationId: tenantId };
+    if (onlyAssignedUserId) {
+      whereClause.OR = [
+        { teamMembers: { some: { userId: onlyAssignedUserId } } }
+      ];
+    }
+
     const event = await prisma.event.findFirst({
-      where: { id, organizationId: tenantId },
+      where: whereClause,
       include: {
         registrations: true,
         competitions: {
@@ -90,12 +132,19 @@ export class EventService {
     };
   }
 
-  static async getEventSessions(tenantId: string, id: string) {
+  static async getEventSessions(tenantId: string, id: string, onlyAssignedUserId?: string) {
+    const whereClause: any = { id, organizationId: tenantId };
+    if (onlyAssignedUserId) {
+      whereClause.OR = [
+        { teamMembers: { some: { userId: onlyAssignedUserId } } }
+      ];
+    }
+
     const event = await prisma.event.findFirst({
-      where: { id, organizationId: tenantId }
+      where: whereClause
     });
     if (!event) {
-      throw { status: 404, code: "NOT_FOUND", message: "Event not found." };
+      throw { status: 404, code: "NOT_FOUND", message: "Event not found or access denied." };
     }
     const sessions = await prisma.attendanceSession.findMany({
       where: { eventId: id },

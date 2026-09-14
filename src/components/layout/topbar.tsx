@@ -10,8 +10,11 @@ import {
   Search,
   Settings,
   UserRound,
+  BugPlay,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { fetchApi } from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -48,23 +51,36 @@ import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsR
 import { CheckCheck, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-const quickLinks = [
-  { label: "Dashboard", to: "/" },
-  { label: "Events", to: "/events" },
-  { label: "Create event", to: "/events/new" },
-  { label: "Competitions", to: "/competitions" },
-  { label: "Registrations", to: "/registrations" },
-  { label: "Submissions", to: "/submissions" },
-  { label: "Evaluations", to: "/evaluations" },
-  { label: "Certificates", to: "/certificates" },
-  { label: "Revenue analytics", to: "/analytics/revenue" },
-  { label: "Settings", to: "/settings" },
-];
+
 
 export function Topbar() {
-  const { user, logout, activeOrganization, setActiveOrganization } = useAuth();
+  const { user, login, logout, activeOrganization, setActiveOrganization } = useAuth();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
+  const getDashboardUrl = (user: any) => {
+    if (!user || !user.memberships || user.memberships.length === 0) return "/events";
+    const roleName = user.memberships[0]?.role?.name;
+    if (roleName === "Platform Admin") return "/platform-admin";
+    if (roleName === "Organization Admin" || roleName === "Manager") return "/manager";
+    if (roleName === "Student Coordinator") return "/coordinator";
+    if (roleName === "Participant") return "/participant";
+    if (roleName === "Judge") return "/evaluations";
+    if (roleName === "Mentor") return "/teams";
+    if (roleName === "Volunteer") return "/volunteers";
+    return "/events";
+  };
+
+  const quickLinks = [
+    { label: "Dashboard", to: getDashboardUrl(user) },
+    { label: "Events", to: "/events" },
+    { label: "Create event", to: "/events/new" },
+    { label: "Competitions", to: "/competitions" },
+    { label: "Registrations", to: "/registrations" },
+    { label: "Submissions", to: "/submissions" },
+    { label: "Evaluations", to: "/evaluations" },
+    { label: "Certificates", to: "/certificates" },
+  ];
   
   const { data: notificationsData } = useNotifications(1, 10);
   const markAsRead = useMarkNotificationAsRead();
@@ -77,6 +93,45 @@ export function Topbar() {
     (m) => m.organization.id === activeOrganization
   );
   const orgName = currentMembership?.organization.name || "Ascent Platform";
+
+  const switchDevUser = async (email: string) => {
+    try {
+      const res = await fetchApi("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password: "password123" }),
+      });
+      if (res.success && res.data?.token) {
+        login(res.data.token);
+        toast.success(`Switched to ${email}`);
+        
+        const usr = res.data.user;
+        let target = "/events";
+        if (usr && usr.memberships && usr.memberships.length > 0) {
+          const roleName = usr.memberships[0]?.role?.name;
+          if (roleName === "Platform Admin") {
+            target = "/platform-admin";
+          } else if (roleName === "Organization Admin" || roleName === "Manager") {
+            target = "/manager";
+          } else if (roleName === "Student Coordinator") {
+            target = "/coordinator";
+          } else if (roleName === "Faculty Coordinator") {
+            target = "/faculty-coordinator";
+          } else if (roleName === "Participant") {
+            target = "/participant";
+          }
+        }
+        
+        setTimeout(() => {
+          window.location.href = target;
+        }, 300);
+      } else {
+        toast.error("Failed to switch user.");
+      }
+    } catch (e: any) {
+      console.error("SWITCH DEV USER ERROR:", e);
+      toast.error(e?.message || "Error switching user.");
+    }
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -94,36 +149,12 @@ export function Topbar() {
       <SidebarTrigger className="min-h-9 min-w-9" />
       <Separator orientation="vertical" className="mx-1 hidden h-6 sm:block" />
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="hidden max-w-56 gap-2 px-2 md:inline-flex">
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded bg-primary-muted text-[11px] font-semibold text-accent-foreground">
-              {orgName.slice(0, 2).toUpperCase()}
-            </span>
-            <span className="min-w-0 truncate text-sm">{orgName}</span>
-            <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-72">
-          <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
-            Switch organization
-          </DropdownMenuLabel>
-          {user?.memberships?.map((m) => (
-            <DropdownMenuItem 
-              key={m.organization.id} 
-              onSelect={() => setActiveOrganization(m.organization.id)} 
-              className="gap-2"
-            >
-              <span className="min-w-0 flex-1 truncate">{m.organization.name}</span>
-              {m.organization.id === activeOrganization ? <Check className="h-4 w-4 text-primary" /> : null}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link to="/organizations">Manage organizations</Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="hidden max-w-56 gap-2 px-2 md:inline-flex items-center h-9">
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded bg-primary-muted text-[11px] font-semibold text-accent-foreground">
+          CO
+        </span>
+        <span className="min-w-0 truncate text-sm font-medium">{orgName}</span>
+      </div>
 
       <button
         type="button"
@@ -149,6 +180,40 @@ export function Topbar() {
         >
           <CircleHelp className="h-[1.1rem] w-[1.1rem]" />
         </Button>
+        
+        {/* Dev Role Switcher */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden h-9 border-dashed text-muted-foreground sm:inline-flex"
+            >
+              <BugPlay className="mr-2 h-4 w-4" />
+              Dev Role
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Switch Test User</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => switchDevUser("admin@ascent.dev")}>
+              Platform Admin
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => switchDevUser("manager@contoso.com")}>
+              Org Admin / Manager
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => switchDevUser("participant1@contoso.com")}>
+              Participant
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => switchDevUser("faculty1@contoso.com")}>
+              Faculty Coordinator
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => switchDevUser("student1@contoso.com")}>
+              Student Coordinator (Sub-manager)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <ThemeToggle />
 
         <Sheet>
@@ -235,12 +300,6 @@ export function Topbar() {
             <DropdownMenuItem>
               <UserRound className="h-4 w-4" />
               Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/settings">
-                <Settings className="h-4 w-4" />
-                Workspace settings
-              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={() => logout()}>

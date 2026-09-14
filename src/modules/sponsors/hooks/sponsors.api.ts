@@ -37,7 +37,7 @@ export function useAddSponsor() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<SponsorData>) => 
-      fetchApi("/api/v1/sponsors", { 
+      fetchApi("/sponsors", { 
         method: "POST", 
         body: JSON.stringify(data) 
       }),

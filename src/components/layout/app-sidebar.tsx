@@ -1,12 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Award, BarChart3, Bell, Building2, CalendarDays, ClipboardCheck,
-  FileBarChart, FileCheck2, Gavel, GraduationCap, Handshake,
-  HeartHandshake, LayoutDashboard, Settings, ShieldCheck,
-  Sparkles, Trophy, UserRoundSearch, Users, UsersRound,
-  Wallet, Bot, MessageSquare, BadgeAlert, Medal, Users2,
-  BookOpen, MessageCircle, Cpu, Workflow, Network,
-  TerminalSquare, MonitorPlay, ClipboardList, Compass
+  Bell, CalendarDays, ClipboardCheck,
+  FileBarChart, FileCheck2, Gavel, GraduationCap,
+  HeartHandshake, LayoutDashboard,
+  Sparkles, Trophy, Users, UsersRound,
+  ClipboardList, Compass, Wallet, Award, Medal,
+  FilePlus2
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
@@ -20,84 +19,30 @@ const orgAdminSections = [
   {
     label: "Platform",
     items: [
-      { title: "Dashboard", url: "/", icon: LayoutDashboard },
-      { title: "Platform Administration", url: "/platform-admin", icon: Settings },
-      { title: "Organizations", url: "/organizations", icon: Building2 },
-      { title: "Users", url: "/users", icon: Users },
-      { title: "Roles & Permissions", url: "/roles", icon: ShieldCheck },
-    ],
-  },
-  {
-    label: "Event Operations",
-    items: [
+      { title: "Dashboard", url: "/platform-admin", icon: LayoutDashboard },
+      { title: "All Proposals", url: "/platform-admin/all-proposals", icon: Sparkles },
+      { title: "Proposal Approvals", url: "/principal/proposals", icon: Sparkles },
+      { title: "Approved Proposals", url: "/platform-admin/approved-proposals", icon: Sparkles },
       { title: "Events", url: "/events", icon: CalendarDays },
-      { title: "Competitions", url: "/competitions", icon: Trophy },
-      { title: "Registrations", url: "/registrations", icon: ClipboardCheck, badge: "24" },
-      { title: "Teams", url: "/teams", icon: UsersRound },
-      { title: "Submissions", url: "/submissions", icon: Sparkles },
-      { title: "Evaluation", url: "/evaluations", icon: FileCheck2, badge: "88" },
-      { title: "Judges", url: "/judges", icon: Gavel },
-      { title: "Mentors", url: "/mentors", icon: GraduationCap },
-      { title: "Volunteers", url: "/volunteers", icon: HeartHandshake },
-      { title: "Attendance", url: "/attendance", icon: ClipboardList },
-    ],
-  },
-  {
-    label: "Engagement",
-    items: [
-      { title: "Communication", url: "/communication", icon: MessageSquare },
-      { title: "Certificates", url: "/certificates", icon: Award },
-      { title: "Badges", url: "/badges", icon: BadgeAlert },
-      { title: "Winners", url: "/winners", icon: Medal },
-      { title: "Sponsors", url: "/sponsors", icon: Handshake },
-      { title: "Community", url: "/community", icon: Users2 },
-      { title: "Learning", url: "/learning", icon: BookOpen },
-      { title: "Feedback", url: "/feedback", icon: MessageCircle },
-    ],
-  },
-  {
-    label: "Business",
-    items: [
-      { title: "Payments", url: "/subscriptions", icon: Wallet },
-      { title: "Recruitment", url: "/recruitment", icon: UserRoundSearch },
-      { title: "Analytics", url: "/analytics/revenue", icon: BarChart3 },
+      { title: "Users", url: "/users", icon: Users },
       { title: "Reports", url: "/reports", icon: FileBarChart },
-    ],
-  },
-  {
-    label: "AI & Automation",
-    items: [
-      { title: "AI Validation", url: "/ai-validation", icon: Cpu },
-      { title: "AI Copilot", url: "/ai-copilot", icon: Bot },
-      { title: "Workflows", url: "/workflows", icon: Workflow },
       { title: "Notifications", url: "/notifications", icon: Bell },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { title: "Integrations", url: "/integrations", icon: Network },
-      { title: "Security", url: "/security", icon: ShieldCheck },
-      { title: "Developer Admin", url: "/developer", icon: TerminalSquare },
-      { title: "Settings", url: "/settings", icon: Settings },
     ],
   },
 ];
 
 const managerSections = [
   {
-    label: "Overview",
+    label: "Management",
     items: [
-      { title: "Manager Dashboard", url: "/manager", icon: LayoutDashboard },
-    ],
-  },
-  {
-    label: "Managed Operations",
-    items: [
+      { title: "Dashboard", url: "/manager", icon: LayoutDashboard },
+      { title: "All Proposals", url: "/manager/all-proposals", icon: Sparkles },
+      { title: "Proposal Reviews", url: "/manager/proposals", icon: Sparkles },
+      { title: "Approved Proposals", url: "/manager/approved-proposals", icon: Sparkles },
       { title: "Events", url: "/manager/events", icon: CalendarDays },
-      { title: "Event Revenue", url: "/manager/revenue", icon: Wallet },
+      { title: "Faculty Coordinators", url: "/manager/coordinators", icon: UsersRound },
+      { title: "FC Requests", url: "/manager/requests", icon: ClipboardCheck },
       { title: "Registrations", url: "/manager/registrations", icon: ClipboardCheck },
-      { title: "Transactions", url: "/manager/transactions", icon: Wallet },
       { title: "Teams", url: "/manager/teams", icon: UsersRound },
       { title: "Submissions", url: "/manager/submissions", icon: Sparkles },
       { title: "Evaluations", url: "/manager/evaluations", icon: FileCheck2 },
@@ -105,8 +50,8 @@ const managerSections = [
       { title: "Mentors", url: "/manager/mentors", icon: GraduationCap },
       { title: "Volunteers", url: "/manager/volunteers", icon: HeartHandshake },
       { title: "Attendance", url: "/manager/attendance", icon: ClipboardList },
-      { title: "Certificates", url: "/manager/certificates", icon: Award },
       { title: "Reports", url: "/manager/reports", icon: FileBarChart },
+      { title: "Notifications", url: "/participant/notifications", icon: Bell },
     ],
   },
 ];
@@ -145,25 +90,74 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const isActive = (url: string) => {
-    if (url === "/" || url === "/manager" || url === "/participant") {
+    if (url === "/" || url === "/manager" || url === "/participant" || url === "/coordinator") {
       return pathname === url;
     }
     return pathname.startsWith(url);
   };
 
   const roleName = user?.memberships?.[0]?.role?.name;
+  const permissions = user?.memberships?.[0]?.role?.permissions?.map(p => p.permission.action) || [];
   
   let sections = orgAdminSections;
-  let basePath = "/";
+  let basePath = "/events";
   if (roleName === "Organization Admin" || roleName === "Manager") {
     sections = managerSections;
     basePath = "/manager";
   } else if (roleName === "Participant") {
     sections = participantSections;
     basePath = "/participant";
+  } else if (roleName === "Faculty Coordinator") {
+    sections = [
+      {
+        label: "Faculty Space",
+        items: [
+          { title: "Dashboard", url: "/faculty-coordinator", icon: LayoutDashboard },
+          { title: "Assigned Events", url: "/faculty-coordinator/assigned-events", icon: CalendarDays },
+          { title: "Student Coordinators", url: "/faculty-coordinator/student-coordinators", icon: UsersRound },
+          { title: "Notifications", url: "/participant/notifications", icon: Bell },
+        ]
+      }
+    ];
+    basePath = "/faculty-coordinator";
+  } else if (roleName === "Student Coordinator" || (!permissions.includes("events.read") && permissions.includes("events.read_assigned"))) {
+    // Hide administrative navigation, only show what they have access to
+    sections = [
+      {
+        label: "My Coordinator Space",
+        items: [
+          { title: "Dashboard", url: "/coordinator", icon: LayoutDashboard },
+          { title: "My Proposals", url: "/coordinator/proposals", icon: FilePlus2 },
+          { title: "Assigned Events", url: "/events/assigned", icon: CalendarDays },
+          { title: "Participants", url: "/coordinator/participants", icon: UsersRound },
+          { title: "Notifications", url: "/notifications", icon: Bell },
+        ]
+      }
+    ];
+    basePath = "/coordinator";
   } else if (roleName === "Platform Admin") {
     sections = orgAdminSections;
-    basePath = "/";
+    basePath = "/platform-admin";
+  }
+
+  // Clone sections to avoid mutating static arrays across renders
+  sections = sections.map(section => ({
+    ...section,
+    items: [...section.items]
+  }));
+
+  if (permissions.includes("users.create_manager") || permissions.includes("users.create_faculty_coordinator")) {
+    if (roleName === "Organization Admin" || roleName === "Platform Admin") {
+      const platformSection = sections.find(s => s.label === "Platform");
+      if (platformSection && !platformSection.items.some(i => i.title === "Privileged Accounts")) {
+        platformSection.items.push({ title: "Privileged Accounts", url: "/platform-admin/privileged-accounts", icon: Users });
+      }
+    } else if (roleName === "Manager") {
+      const managementSection = sections.find(s => s.label === "Management");
+      if (managementSection && !managementSection.items.some(i => i.title === "Faculty Coordinators")) {
+        managementSection.items.push({ title: "Faculty Coordinators", url: "/manager/coordinators", icon: Users });
+      }
+    }
   }
 
   return (
@@ -202,17 +196,7 @@ export function AppSidebar() {
                       <Link to={item.url as any} className="flex items-center gap-2.5">
                         <item.icon className="h-4 w-4 shrink-0" />
                         {!collapsed ? (
-                          <>
-                            <span className="min-w-0 flex-1 truncate">{item.title}</span>
-                            {"badge" in item && item.badge ? (
-                              <Badge
-                                variant="secondary"
-                                className="h-5 shrink-0 px-1.5 text-[10px] tabular-nums"
-                              >
-                                {item.badge}
-                              </Badge>
-                            ) : null}
-                          </>
+                          <span className="min-w-0 flex-1 truncate">{item.title}</span>
                         ) : null}
                       </Link>
                     </SidebarMenuButton>

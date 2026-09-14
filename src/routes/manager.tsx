@@ -1,5 +1,11 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
+import { Calendar, Users } from "lucide-react";
+
+const navigation = [
+  { name: 'Events', href: '/manager/events', icon: Calendar },
+  { name: 'Coordinators', href: '/manager/coordinators', icon: Users },
+];
 
 export const Route = createFileRoute("/manager")({
   beforeLoad: ({ context }) => {

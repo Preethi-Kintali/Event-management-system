@@ -57,14 +57,23 @@ function LoginPage() {
 
   const handleRedirect = (user: any) => {
     if (!user || !user.memberships || user.memberships.length === 0) {
-      router.navigate({ to: "/" });
+      router.navigate({ to: "/events" });
       return;
     }
     const roleName = user.memberships[0]?.role?.name;
+    const memberStatus = user.memberships[0]?.status;
+
+    if (memberStatus === "PENDING") {
+      router.navigate({ to: "/pending-approval" });
+      return;
+    }
+
     if (roleName === "Platform Admin") {
-      router.navigate({ to: "/" });
+      router.navigate({ to: "/platform-admin" });
     } else if (roleName === "Organization Admin" || roleName === "Manager") {
       router.navigate({ to: "/manager" });
+    } else if (roleName === "Student Coordinator") {
+      router.navigate({ to: "/coordinator" });
     } else if (roleName === "Participant") {
       router.navigate({ to: "/participant" });
     } else if (roleName === "Judge") {

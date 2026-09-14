@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ManagerController } from "../controllers/manager.controller";
+import { ManagerRequestsController } from "../controllers/manager-requests.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 import { requireTenant } from "../middleware/tenant.middleware";
 import { requirePermission } from "../middleware/rbac.middleware";
@@ -10,6 +11,11 @@ router.use(requireAuth);
 router.use(requireTenant);
 
 router.get("/dashboard/stats", ManagerController.getDashboardStats); // implicit permission by role
+
+// Requests
+router.get("/requests/faculty-coordinator", requirePermission("users.create_faculty_coordinator"), ManagerRequestsController.getRequests);
+router.patch("/requests/faculty-coordinator/:memberId/status", requirePermission("users.create_faculty_coordinator"), ManagerRequestsController.updateRequestStatus);
+
 router.get("/events", requirePermission("events.read"), ManagerController.getEvents);
 router.get("/registrations", requirePermission("registrations.read"), ManagerController.getRegistrations);
 router.get("/teams", requirePermission("teams.read"), ManagerController.getTeams);
