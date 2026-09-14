@@ -115,7 +115,7 @@ export function AppSidebar() {
           { title: "Dashboard", url: "/faculty-coordinator", icon: LayoutDashboard },
           { title: "Assigned Events", url: "/faculty-coordinator/assigned-events", icon: CalendarDays },
           { title: "Student Coordinators", url: "/faculty-coordinator/student-coordinators", icon: UsersRound },
-          { title: "Notifications", url: "/participant/notifications", icon: Bell },
+          { title: "Notifications", url: "/notifications", icon: Bell },
         ]
       }
     ];
@@ -127,8 +127,8 @@ export function AppSidebar() {
         label: "My Coordinator Space",
         items: [
           { title: "Dashboard", url: "/coordinator", icon: LayoutDashboard },
-          { title: "My Proposals", url: "/coordinator/proposals", icon: FilePlus2 },
-          { title: "Assigned Events", url: "/events/assigned", icon: CalendarDays },
+          { title: "My Proposals", url: "/hackathon-proposals", icon: FilePlus2 },
+          { title: "Assigned Events", url: "/coordinator/assigned-events", icon: CalendarDays },
           { title: "Participants", url: "/coordinator/participants", icon: UsersRound },
           { title: "Notifications", url: "/notifications", icon: Bell },
         ]
