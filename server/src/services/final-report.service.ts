@@ -13,6 +13,11 @@ export class FinalReportService {
     if (!member) {
       throw { status: 403, code: "FORBIDDEN", message: "Only the assigned Primary Student Coordinator can manage the final report." };
     }
+    
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event || event.status !== 'COMPLETED') {
+      throw { status: 403, code: "FORBIDDEN", message: "Final report is only available after the event is marked as COMPLETED." };
+    }
   }
 
   static async getFinalReport(tenantId: string, eventId: string, onlyAssignedUserId?: string) {
@@ -26,6 +31,11 @@ export class FinalReportService {
       if (!isAssigned) {
         throw { status: 403, code: "FORBIDDEN", message: "Unauthorized to view this report." };
       }
+    }
+
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event || event.status !== 'COMPLETED') {
+      throw { status: 403, code: "FORBIDDEN", message: "Final report is only available after the event is marked as COMPLETED." };
     }
 
     const report = await prisma.eventFinalReport.findUnique({
@@ -102,24 +112,42 @@ Generate a professional final event report in markdown format.
 CRITICAL INSTRUCTIONS - NO HALLUCINATION:
 - Use ONLY the exact event data, metrics, and coordinator inputs provided below.
 - DO NOT invent, guess, or extrapolate ANY metrics, participant counts, winners, sponsors, dates, financial amounts, achievements, or activities.
-- DO NOT include placeholder text. If a specific piece of information (e.g. winners, sponsors) is not present in the data below, you MUST state "Information not provided" or omit the section entirely.
+- DO NOT include placeholder text. If a specific piece of information (e.g. winners, sponsors, achievements) is not present in the data below, you MUST state "Not provided" or "Information was not provided."
 - STICK STRICTLY to the facts provided.
+
+REQUIRED REPORT STRUCTURE:
+# FINAL EVENT REPORT
+1. Executive Summary
+2. Event Overview
+3. Objectives
+4. Event Execution
+5. Participation & Statistics
+6. Key Highlights
+7. Outcomes
+8. Challenges & Resolutions
+9. Recommendations
+10. Supporting Documents
+11. Conclusion
 
 Context Data:
 - Event Name: ${event.name}
 - Event Dates: ${event.startTime} to ${event.endTime}
+- Venue: Not provided
+- Event Type: Not provided
+- Department/Organizer: Not provided
 
 Coordinator Inputs:
 - Executive Summary: ${report.executiveSummary || 'Not provided'}
+- Objectives: Not explicitly provided.
 - Outcomes: ${report.eventOutcome || 'Not provided'}
 - Key Highlights: ${report.keyHighlights || 'Not provided'}
-- Challenges: ${report.challenges || 'Not provided'}
+- Challenges & Resolutions: ${report.challenges || 'Not provided'}
 - Recommendations: ${report.recommendations || 'Not provided'}
 
 Execution Summary (DB Metrics):
 ${JSON.stringify(executionSummary, null, 2)}
 
-Please write a comprehensive final report blending the coordinator's inputs with the hard data. Include sections for Executive Summary, Event Outcomes, Metrics & Participation, Highlights, Challenges, and Recommendations.
+Please write the comprehensive final report using the exact requested structure, blending the coordinator's inputs with the hard data.
       `;
 
       const aiResponse = await LLMService.generateResponse(prompt);

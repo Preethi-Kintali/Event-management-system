@@ -6,12 +6,13 @@ import { TrendAreaChart } from "@/components/ds/charts";
 import { useParams } from "@tanstack/react-router";
 import { useEvent, useEventDashboard, useExecutionSummary, useCompleteEvent } from "../services/events.api";
 import { toast } from "sonner";
-import { ShieldCheck, Users, Trophy, HeartHandshake } from "lucide-react";
+import { ShieldCheck, Users, Trophy, HeartHandshake, CheckCircle } from "lucide-react";
 import { EventTeamList } from "../components/event-team-list";
 import { AdminExecutionDataTool } from "../components/admin-execution-data-tool";
 import { useFinalReport } from "../services/final-report.api";
 import { useUpdateEvent } from "../services/events.api";
 import { useNavigate } from "@tanstack/react-router";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/auth";
 import { EventAssignment } from "../components/event-assignment";
 import { EventRegistrationsList } from "../components/event-registrations-list";
@@ -29,16 +30,14 @@ export function EventDetailsPage() {
   // Final Report Hooks
   const { data: finalReport, isLoading: isReportLoading } = useFinalReport(id);
   const updateEvent = useUpdateEvent();
-  const { hasPermission } = useAuth();
+  const { hasPermission, user } = useAuth();
 
   const handleCompleteEvent = async () => {
-    if (confirm("Are you sure you want to mark this event as completed?\nAfter completion, the event will move to the final reporting stage.")) {
-      try {
-        await completeEvent.mutateAsync(id);
-        toast.success("Event successfully completed and data locked for reporting.");
-      } catch (err: any) {
-        toast.error(err.message || "Failed to complete event");
-      }
+    try {
+      await completeEvent.mutateAsync(id);
+      toast.success("Event successfully completed and data locked for reporting.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to complete event");
     }
   };
 
@@ -59,6 +58,10 @@ export function EventDetailsPage() {
   if (!event) {
     return <div className="p-8">Event not found</div>;
   }
+
+  const isPrimarySC = event.teamMembers?.some(
+    (m: any) => m.userId === user?.id && m.responsibility === "Primary Student Coordinator"
+  );
 
   return (
     <DetailsPageTemplate
@@ -84,15 +87,48 @@ export function EventDetailsPage() {
               {updateEvent.isPending ? "Publishing..." : "Publish to LIVE"}
             </Button>
           )}
-          {event.status === "LIVE" && hasPermission("events.complete") && (
-            <Button variant="default" onClick={handleCompleteEvent} disabled={completeEvent.isPending}>
-              {completeEvent.isPending ? "Completing..." : "Mark Event as Completed"}
-            </Button>
+          {event.status === "LIVE" && (hasPermission("events.complete") || isPrimarySC) && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="default">Mark Event as Completed</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Complete Event</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="mb-4">Are you sure this event has been completed?</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+                    <li>Participant/registration data is updated</li>
+                    <li>Attendance data is recorded</li>
+                    <li>Teams/submissions are updated where applicable</li>
+                    <li>Event activities are complete</li>
+                    <li>Required execution information has been recorded</li>
+                  </ul>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button variant="default" onClick={handleCompleteEvent} disabled={completeEvent.isPending}>
+                      {completeEvent.isPending ? "Completing..." : "Mark as Completed"}
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
           {event.status === "COMPLETED" && (hasPermission("events.read") || hasPermission("reports.create_assigned")) && (
-            <Button variant="default" onClick={() => navigate({ to: `/events/${id}/final-report` })}>
-              {finalReport ? "View Final Report" : "Create Final Report"}
-            </Button>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-md flex items-center gap-1.5">
+                <CheckCircle className="w-4 h-4" />
+                Event Completed
+              </span>
+              <Button variant="default" onClick={() => navigate({ to: "/events/$id/final-report", params: { id } })}>
+                {finalReport ? "View Final Report" : "Create Final Report"}
+              </Button>
+            </div>
           )}
           {hasPermission("events.update") && <Button variant="outline">Edit</Button>}
         </>
@@ -158,7 +194,7 @@ export function EventDetailsPage() {
             </SectionCard>
           )}
 
-          {hasPermission("events.assign_coordinator") || hasPermission("reports.create_assigned") ? (
+          {hasPermission("events.assign_faculty_coordinator") || hasPermission("events.assign_student_coordinator") || hasPermission("reports.create_assigned") ? (
             <EventAssignment eventId={id} />
           ) : null}
 

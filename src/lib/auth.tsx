@@ -13,6 +13,7 @@ export interface AuthUser {
   createdAt: string;
   memberships: {
     id: string;
+    status: string;
     organization: {
       id: string;
       name: string;

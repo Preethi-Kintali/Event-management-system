@@ -4,6 +4,7 @@ import { EventService } from "../services/events.service";
 import { EventExecutionService } from "../services/event-execution.service";
 import { EventTeamService } from "../services/event-team.service";
 import { RegistrationService } from "../services/registrations.service";
+import { prisma } from "../utils/prisma";
 
 export class EventController {
   static async findAll(req: AuthRequest, res: Response, next: NextFunction) {
@@ -109,7 +110,34 @@ export class EventController {
   static async complete(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const tenantId = req.tenantId as string;
-      const event = await EventExecutionService.completeEvent(tenantId, req.params.id);
+      const eventId = req.params.id;
+      const userId = req.user!.id;
+      const permissions = req.permissions || [];
+      
+      const hasGlobalComplete = permissions.includes("events.complete");
+
+      if (!hasGlobalComplete) {
+        const teamMember = await prisma.eventTeamMember.findFirst({
+          where: {
+            eventId,
+            userId,
+            responsibility: 'Primary Student Coordinator'
+          }
+        });
+        
+        if (!teamMember) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You must be the Primary Student Coordinator to complete this event',
+              details: []
+            }
+          });
+        }
+      }
+
+      const event = await EventExecutionService.completeEvent(tenantId, eventId);
       res.json({ success: true, data: event });
     } catch (error) {
       next(error);

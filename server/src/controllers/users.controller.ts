@@ -63,6 +63,20 @@ export class UserController {
     } catch (error) { next(error); }
   }
 
+  static async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const user = await UserService.delete(req.params.id, req.user!.id);
+      res.json({ success: true, data: user });
+    } catch (error) { next(error); }
+  }
+
+  static async create(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const user = await UserService.create(req.body, req.user!.id);
+      res.status(201).json({ success: true, data: user });
+    } catch (error) { next(error); }
+  }
+
   static async createPrivilegedUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       if (!req.user) throw { status: 401, code: "UNAUTHORIZED", message: "Missing user context" };

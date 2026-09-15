@@ -70,7 +70,7 @@ export function AssignedEventsPage() {
       }}
       rowActions={[
         { label: "View Details", onSelect: (row) => navigate({ to: `/events/${row.id}` }) },
-        { label: "Final Report", onSelect: (row) => navigate({ to: `/events/${row.id}/final-report` }) },
+        { label: "Final Report", onSelect: (row) => navigate({ to: `/events/${row.id}/final-report` }), isVisible: (row) => row.status === 'COMPLETED' },
       ]}
     />
   );

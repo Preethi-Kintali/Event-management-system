@@ -24,7 +24,7 @@ router.post("/", requirePermission("events.create"), validateRequest(createEvent
 
 router.patch("/:id", requirePermission("events.update"), validateRequest(updateEventSchema), EventController.update);
 
-router.post("/:id/complete", requirePermission("events.complete"), EventController.complete);
+router.post("/:id/complete", requireAnyPermission(["events.complete", "reports.create_assigned"]), EventController.complete);
 
 router.delete("/:id", requirePermission("events.delete"), EventController.delete);
 

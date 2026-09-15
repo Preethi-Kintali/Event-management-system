@@ -32,6 +32,7 @@ export interface Column<T> {
 export interface RowAction<T> {
   label: string;
   onSelect: (row: T) => void;
+  isVisible?: (row: T) => boolean;
 }
 
 interface DataTableProps<T extends { id: string }> {
@@ -210,14 +211,18 @@ export function DataTable<T extends { id: string }>({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {rowActions.map((action) => (
-                          <DropdownMenuItem
-                            key={action.label}
-                            onSelect={() => action.onSelect(row)}
-                          >
-                            {action.label}
-                          </DropdownMenuItem>
-                        ))}
+                        {rowActions.map((action) => {
+                          const visible = action.isVisible ? action.isVisible(row) : true;
+                          if (!visible) return null;
+                          return (
+                            <DropdownMenuItem
+                              key={action.label}
+                              onSelect={() => action.onSelect(row)}
+                            >
+                              {action.label}
+                            </DropdownMenuItem>
+                          );
+                        })}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

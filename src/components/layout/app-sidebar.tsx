@@ -48,8 +48,6 @@ const managerSections = [
       { title: "Evaluations", url: "/manager/evaluations", icon: FileCheck2 },
       { title: "Judges", url: "/manager/judges", icon: Gavel },
       { title: "Mentors", url: "/manager/mentors", icon: GraduationCap },
-      { title: "Volunteers", url: "/manager/volunteers", icon: HeartHandshake },
-      { title: "Attendance", url: "/manager/attendance", icon: ClipboardList },
       { title: "Reports", url: "/manager/reports", icon: FileBarChart },
       { title: "Notifications", url: "/participant/notifications", icon: Bell },
     ],

@@ -4,14 +4,46 @@ import { Prisma } from "@prisma/client";
 export class UserRepository {
   static async findAll() {
     return prisma.user.findMany({
-      select: { id: true, email: true, firstName: true, lastName: true, status: true, createdAt: true }
+      select: { 
+        id: true, 
+        email: true, 
+        firstName: true, 
+        lastName: true, 
+        status: true, 
+        createdAt: true,
+        memberships: {
+          select: {
+            role: {
+              select: {
+                name: true
+              }
+            }
+          }
+        }
+      }
     });
   }
 
   static async findById(id: string) {
     return prisma.user.findUnique({
       where: { id },
-      select: { id: true, email: true, firstName: true, lastName: true, status: true, createdAt: true }
+      select: { 
+        id: true, 
+        email: true, 
+        firstName: true, 
+        lastName: true, 
+        status: true, 
+        createdAt: true,
+        memberships: {
+          select: {
+            role: {
+              select: {
+                name: true
+              }
+            }
+          }
+        }
+      }
     });
   }
 
@@ -20,6 +52,12 @@ export class UserRepository {
       where: { id },
       data,
       select: { id: true, email: true, firstName: true, lastName: true, status: true, createdAt: true }
+    });
+  }
+
+  static async delete(id: string) {
+    return prisma.user.delete({
+      where: { id }
     });
   }
 }

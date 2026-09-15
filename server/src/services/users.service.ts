@@ -40,6 +40,45 @@ export class UserService {
     return updated;
   }
 
+  static async delete(id: string, actorId: string) {
+    await this.getById(id);
+    const deleted = await UserRepository.delete(id);
+    await AuditService.logAction({ organizationId: "PLATFORM", actorId, action: "user.deleted", target: id, metadata: {} });
+    return deleted;
+  }
+
+  static async create(data: any, actorId: string) {
+    const { firstName, lastName, email, password } = data;
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      throw { status: 400, code: "USER_EXISTS", message: "Email is already registered" };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+        status: UserStatus.ACTIVE,
+      }
+    });
+
+    await AuditService.logAction({
+      organizationId: "PLATFORM",
+      actorId,
+      action: "user.created",
+      target: user.id,
+      metadata: { email }
+    });
+
+    const { passwordHash: _, ...safeUser } = user;
+    return safeUser;
+  }
+
   static async createPrivilegedUser(tenantId: string, data: any, actorId: string) {
     const { firstName, lastName, email, password, role } = data;
 

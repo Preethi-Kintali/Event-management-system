@@ -222,9 +222,88 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
             <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900 rounded-lg p-4">
               <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">Draft Mode</h3>
               <p className="text-sm text-blue-600 dark:text-blue-400">
-                Please enter the required information below. Once completed, you can generate an AI draft that will combine your inputs with the event's execution metrics.
+                Please review the Event Information and Execution Metrics below, then enter the required qualitative information. Once completed, you can generate an AI draft that will combine your inputs with the event's execution metrics.
               </p>
             </div>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-bold tracking-tight border-b pb-2 mb-4">Event Information</h2>
+              <dl className="grid grid-cols-2 md:grid-cols-3 gap-6 bg-surface p-4 rounded-xl border">
+                <div>
+                  <dt className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Event Name</dt>
+                  <dd className="font-medium">{event.name}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Event Date(s)</dt>
+                  <dd className="font-medium">{new Date(event.startTime).toLocaleDateString()} - {new Date(event.endTime).toLocaleDateString()}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Venue</dt>
+                  <dd className="font-medium text-muted-foreground italic">Not provided</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Event Type</dt>
+                  <dd className="font-medium text-muted-foreground italic">Not provided</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Department/Organizer</dt>
+                  <dd className="font-medium text-muted-foreground italic">Not provided</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Status</dt>
+                  <dd className="font-medium">{event.status}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-bold tracking-tight border-b pb-2 mb-4">Execution Metrics (Available to AI)</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-surface border p-5 rounded-xl">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                    <Users className="w-5 h-5 text-blue-500" />
+                    <span className="font-semibold text-sm uppercase tracking-wider">Registrations</span>
+                  </div>
+                  <div className="text-3xl font-black mb-1">{metrics.registrations?.totalRegistered || 0}</div>
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{metrics.registrations?.approvedParticipants || 0}</span> Approved &bull; <span className="font-medium text-foreground">{metrics.registrations?.paidParticipants || 0}</span> Paid
+                  </div>
+                </div>
+
+                <div className="bg-surface border p-5 rounded-xl">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                    <Activity className="w-5 h-5 text-green-500" />
+                    <span className="font-semibold text-sm uppercase tracking-wider">Attendance</span>
+                  </div>
+                  <div className="text-3xl font-black mb-1">{metrics.attendance?.uniqueAttendees || 0}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Unique Attendees ({metrics.attendance?.attendancePercentage || 0}%)
+                  </div>
+                </div>
+
+                <div className="bg-surface border p-5 rounded-xl">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                    <Trophy className="w-5 h-5 text-yellow-500" />
+                    <span className="font-semibold text-sm uppercase tracking-wider">Competitions</span>
+                  </div>
+                  <div className="text-3xl font-black mb-1">{metrics.competition?.totalCompetitions || 0}</div>
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{metrics.competition?.totalTeams || 0}</span> Teams &bull; <span className="font-medium text-foreground">{metrics.competition?.totalSubmissions || 0}</span> Submissions
+                  </div>
+                </div>
+
+                <div className="bg-surface border p-5 rounded-xl">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                    <Award className="w-5 h-5 text-purple-500" />
+                    <span className="font-semibold text-sm uppercase tracking-wider">Volunteers</span>
+                  </div>
+                  <div className="text-3xl font-black mb-1">{metrics.volunteers?.totalVolunteers || 0}</div>
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{metrics.volunteers?.totalVolunteerHours || 0}</span> Total Hours
+                  </div>
+                </div>
+              </div>
+            </section>
 
             <div className="grid gap-6">
               <div className="space-y-2">
