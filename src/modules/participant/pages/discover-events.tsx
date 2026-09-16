@@ -6,7 +6,8 @@ import { useEventRegistrationCheckout } from "@/modules/payments/hooks/payments.
 import { ApiEvent } from "@/modules/events/services/events.api";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { TeamRegistrationWizard } from "../components/TeamRegistrationWizard";
 
 const statusLabel: Record<string, string> = {
   DRAFT: "draft",
@@ -21,6 +22,8 @@ export function ParticipantDiscoverEventsPage() {
   const { data: registrations = [] } = useMyRegistrations();
   const registerMutation = useRegisterForEvent();
   const checkoutMutation = useEventRegistrationCheckout();
+  
+  const [selectedTeamEvent, setSelectedTeamEvent] = useState<ApiEvent | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -36,6 +39,11 @@ export function ParticipantDiscoverEventsPage() {
 
   const handleRegister = async (event: ApiEvent) => {
     try {
+      if (event.registrationType === "TEAM") {
+        setSelectedTeamEvent(event);
+        return;
+      }
+      
       if (event.price > 0) {
         await checkoutMutation.mutateAsync({
           eventId: event.id,
@@ -127,14 +135,25 @@ export function ParticipantDiscoverEventsPage() {
   ];
 
   return (
-    <ListPageTemplate<ApiEvent>
-      title="Discover Events"
-      description="Available events you can register for."
-      crumbs={[{ label: "Participant" }, { label: "Discover Events" }]}
-      columns={columns}
-      rows={events}
-      loading={isLoading}
-      searchKeys={["name"]}
-    />
+    <>
+      <ListPageTemplate<ApiEvent>
+        title="Discover Events"
+        description="Available events you can register for."
+        crumbs={[{ label: "Participant" }, { label: "Discover Events" }]}
+        columns={columns}
+        rows={events}
+        loading={isLoading}
+        searchKeys={["name"]}
+      />
+      
+      {selectedTeamEvent && (
+        <TeamRegistrationWizard 
+          event={selectedTeamEvent} 
+          open={!!selectedTeamEvent} 
+          onOpenChange={(open) => !open && setSelectedTeamEvent(null)}
+          onSuccess={() => setSelectedTeamEvent(null)}
+        />
+      )}
+    </>
   );
 }

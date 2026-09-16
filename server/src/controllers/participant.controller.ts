@@ -39,6 +39,15 @@ export class ParticipantController {
     }
   }
 
+  static async registerTeamForEvent(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await ParticipantService.registerTeamForEvent(req.user!.id, req.body);
+      res.json({ success: true, data });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async withdrawRegistration(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       await ParticipantService.withdrawRegistration(req.user!.id, req.params.id);

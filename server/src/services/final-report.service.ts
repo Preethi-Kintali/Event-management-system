@@ -2,6 +2,7 @@ import { prisma } from "../utils/prisma";
 import { EventStatus, ReportStatus } from "@prisma/client";
 import { EventExecutionService } from "./event-execution.service";
 import { LLMService } from "./ai/llm.service";
+import { NotificationService } from "./notifications.service";
 
 const generationLocks = new Set<string>();
 
@@ -20,19 +21,28 @@ export class FinalReportService {
     }
   }
 
+  private static async verifyFaculty(tenantId: string, eventId: string, userId: string) {
+    const member = await prisma.eventTeamMember.findFirst({
+      where: { eventId, userId, responsibility: 'Faculty Coordinator' }
+    });
+    if (!member) {
+      throw { status: 403, code: "FORBIDDEN", message: "Only the assigned Faculty Coordinator can perform this action." };
+    }
+  }
+
+  private static async verifyManager(tenantId: string, userId: string) {
+    const userRole = await prisma.organizationMember.findFirst({
+      where: { userId, organizationId: tenantId },
+      include: { role: true }
+    });
+    if (!userRole || !['Organization Admin', 'Platform Admin', 'Manager'].includes(userRole.role.name)) {
+      throw { status: 403, code: "FORBIDDEN", message: "Only a Manager can perform this action." };
+    }
+  }
+
   static async getFinalReport(tenantId: string, eventId: string, onlyAssignedUserId?: string) {
     const whereClause: any = { eventId, organizationId: tenantId };
     
-    // Authorization check
-    if (onlyAssignedUserId) {
-      const isAssigned = await prisma.eventTeamMember.findFirst({
-        where: { eventId, userId: onlyAssignedUserId, responsibility: 'Primary Student Coordinator' }
-      });
-      if (!isAssigned) {
-        throw { status: 403, code: "FORBIDDEN", message: "Unauthorized to view this report." };
-      }
-    }
-
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event || event.status !== 'COMPLETED') {
       throw { status: 403, code: "FORBIDDEN", message: "Final report is only available after the event is marked as COMPLETED." };
@@ -41,6 +51,26 @@ export class FinalReportService {
     const report = await prisma.eventFinalReport.findUnique({
       where: { eventId }
     });
+
+    // Authorization check
+    if (onlyAssignedUserId) {
+      const isSC = await prisma.eventTeamMember.findFirst({
+        where: { eventId, userId: onlyAssignedUserId, responsibility: 'Primary Student Coordinator' }
+      });
+      const isFC = await prisma.eventTeamMember.findFirst({
+        where: { eventId, userId: onlyAssignedUserId, responsibility: 'Faculty Coordinator' }
+      });
+
+      if (!isSC && !isFC) {
+        throw { status: 403, code: "FORBIDDEN", message: "Unauthorized to view this report." };
+      }
+
+      if (isFC && !isSC) {
+        if (!report || report.status === 'DRAFT' || report.status === 'AI_GENERATED') {
+          throw { status: 403, code: "FORBIDDEN", message: "Final report is not yet submitted for Faculty review." };
+        }
+      }
+    }
 
     return report;
   }
@@ -165,20 +195,144 @@ Please write the comprehensive final report using the exact requested structure,
     }
   }
 
-  static async finalizeReport(tenantId: string, eventId: string, userId: string, finalizedContent: string) {
+  static async submitToFaculty(tenantId: string, eventId: string, userId: string, finalizedContent: string) {
     await this.verifyCoordinator(tenantId, eventId, userId);
 
     const report = await prisma.eventFinalReport.findUnique({ where: { eventId } });
     if (!report || report.status === ReportStatus.DRAFT) {
-      throw { status: 400, message: "Report must be AI generated before finalizing." };
+      throw { status: 400, message: "Report must be AI generated before submitting." };
     }
 
-    return prisma.eventFinalReport.update({
+    const updated = await prisma.eventFinalReport.update({
       where: { eventId },
       data: {
         finalizedContent,
-        status: ReportStatus.FINALIZED
-      }
+        status: ReportStatus.SUBMITTED_TO_FACULTY
+      },
+      include: { event: true }
     });
+
+    const fc = await prisma.eventTeamMember.findFirst({
+      where: { eventId, responsibility: 'Faculty Coordinator' }
+    });
+
+    if (fc) {
+      await NotificationService.create({
+        organizationId: tenantId,
+        recipientUserId: fc.userId,
+        title: "Final Report Submitted",
+        message: `The final report for ${updated.event.name} has been submitted for your review.`,
+        type: "SYSTEM",
+        link: `/events/${eventId}/final-report`
+      });
+    }
+
+    return updated;
+  }
+
+  static async facultyReview(tenantId: string, eventId: string, userId: string, action: 'APPROVE' | 'REQUEST_CHANGES', comment: string) {
+    await this.verifyFaculty(tenantId, eventId, userId);
+    
+    const report = await prisma.eventFinalReport.findUnique({ where: { eventId } });
+    if (!report || report.status !== ReportStatus.SUBMITTED_TO_FACULTY) {
+      throw { status: 400, message: "Report is not pending faculty review." };
+    }
+
+    const updated = await prisma.eventFinalReport.update({
+      where: { eventId },
+      data: {
+        facultyId: userId,
+        facultyComment: comment,
+        facultyReviewedAt: new Date(),
+        status: action === 'APPROVE' ? ReportStatus.SUBMITTED_TO_MANAGER : ReportStatus.CHANGES_REQUESTED_BY_FACULTY
+      },
+      include: { event: true }
+    });
+
+    if (action === 'APPROVE') {
+      const managers = await prisma.organizationMember.findMany({
+        where: { 
+          organizationId: tenantId, 
+          role: { name: { in: ['Organization Admin', 'Platform Admin', 'Manager'] } } 
+        }
+      });
+      const managerIds = managers.map(m => m.userId);
+      if (managerIds.length > 0) {
+        await NotificationService.createBulk(tenantId, managerIds, {
+          title: "Final Report Needs Approval",
+          message: `The final report for ${updated.event.name} has been approved by the Faculty Coordinator and is ready for your review.`,
+          type: "SYSTEM",
+          link: `/events/${eventId}/final-report`
+        });
+      }
+
+      if (report.coordinatorId) {
+        await NotificationService.create({
+          organizationId: tenantId,
+          recipientUserId: report.coordinatorId,
+          title: "Final Report Forwarded",
+          message: `Your final report for ${updated.event.name} was approved by the Faculty Coordinator and sent to the manager.`,
+          type: "SYSTEM",
+          link: `/events/${eventId}/final-report`
+        });
+      }
+    } else {
+      if (report.coordinatorId) {
+        await NotificationService.create({
+          organizationId: tenantId,
+          recipientUserId: report.coordinatorId,
+          title: "Final Report Changes Requested",
+          message: `The Faculty Coordinator has requested changes to the final report for ${updated.event.name}.`,
+          type: "SYSTEM",
+          link: `/events/${eventId}/final-report`
+        });
+      }
+    }
+
+    return updated;
+  }
+
+  static async managerReview(tenantId: string, eventId: string, userId: string, action: 'APPROVE' | 'REQUEST_CHANGES', comment: string) {
+    await this.verifyManager(tenantId, userId);
+    
+    const report = await prisma.eventFinalReport.findUnique({ where: { eventId } });
+    if (!report || report.status !== ReportStatus.SUBMITTED_TO_MANAGER) {
+      throw { status: 400, message: "Report is not pending manager review." };
+    }
+
+    const updated = await prisma.eventFinalReport.update({
+      where: { eventId },
+      data: {
+        managerId: userId,
+        managerComment: comment,
+        managerReviewedAt: new Date(),
+        status: action === 'APPROVE' ? ReportStatus.APPROVED : ReportStatus.CHANGES_REQUESTED_BY_MANAGER
+      },
+      include: { event: true }
+    });
+
+    const recipients = [];
+    if (report.coordinatorId) recipients.push(report.coordinatorId);
+    if (report.facultyId) recipients.push(report.facultyId);
+
+    if (recipients.length > 0) {
+      if (action === 'APPROVE') {
+        await NotificationService.createBulk(tenantId, recipients, {
+          title: "Final Report Approved!",
+          message: `The final report for ${updated.event.name} has been fully approved by the manager.`,
+          type: "SYSTEM",
+          link: `/events/${eventId}/final-report`
+        });
+      } else {
+        await NotificationService.createBulk(tenantId, recipients, {
+          title: "Final Report Changes Requested",
+          message: `The manager has requested changes to the final report for ${updated.event.name}.`,
+          type: "SYSTEM",
+          link: `/events/${eventId}/final-report`
+        });
+      }
+    }
+
+    return updated;
   }
 }

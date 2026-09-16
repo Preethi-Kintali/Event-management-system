@@ -15,7 +15,13 @@ export interface EventFinalReport {
   supportingDocuments: any | null;
   aiGeneratedContent: string | null;
   finalizedContent: string | null;
-  status: "DRAFT" | "AI_GENERATED" | "FINALIZED";
+  facultyId: string | null;
+  facultyComment: string | null;
+  facultyReviewedAt: string | null;
+  managerId: string | null;
+  managerComment: string | null;
+  managerReviewedAt: string | null;
+  status: "DRAFT" | "AI_GENERATED" | "SUBMITTED_TO_FACULTY" | "CHANGES_REQUESTED_BY_FACULTY" | "SUBMITTED_TO_MANAGER" | "CHANGES_REQUESTED_BY_MANAGER" | "APPROVED" | "FINALIZED";
   createdAt: string;
   updatedAt: string;
 }
@@ -68,13 +74,45 @@ export function useGenerateAIDraft() {
   });
 }
 
-export function useFinalizeReport() {
+export function useSubmitToFaculty() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ eventId, finalizedContent }: { eventId: string; finalizedContent: string }) => {
-      const res = await fetchApi(`/events/${eventId}/final-report/finalize`, {
+      const res = await fetchApi(`/events/${eventId}/final-report/submit-faculty`, {
         method: "POST",
         body: JSON.stringify({ finalizedContent }),
+      });
+      return res.data.report as EventFinalReport;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["events", variables.eventId, "final-report"] });
+    },
+  });
+}
+
+export function useFacultyReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ eventId, action, comment }: { eventId: string; action: 'APPROVE' | 'REQUEST_CHANGES'; comment: string }) => {
+      const res = await fetchApi(`/events/${eventId}/final-report/faculty-review`, {
+        method: "POST",
+        body: JSON.stringify({ action, comment }),
+      });
+      return res.data.report as EventFinalReport;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["events", variables.eventId, "final-report"] });
+    },
+  });
+}
+
+export function useManagerReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ eventId, action, comment }: { eventId: string; action: 'APPROVE' | 'REQUEST_CHANGES'; comment: string }) => {
+      const res = await fetchApi(`/events/${eventId}/final-report/manager-review`, {
+        method: "POST",
+        body: JSON.stringify({ action, comment }),
       });
       return res.data.report as EventFinalReport;
     },

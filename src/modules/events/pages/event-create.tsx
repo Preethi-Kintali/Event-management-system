@@ -44,6 +44,12 @@ export function CreateEventPage() {
   const [rules, setRules] = useState("");
   const [isGeneratingRules, setIsGeneratingRules] = useState(false);
   
+  const [registrationType, setRegistrationType] = useState<"INDIVIDUAL" | "TEAM">("INDIVIDUAL");
+  const [minTeamSize, setMinTeamSize] = useState<string>("");
+  const [maxTeamSize, setMaxTeamSize] = useState<string>("");
+  const [regStart, setRegStart] = useState<Date | undefined>(undefined);
+  const [regEnd, setRegEnd] = useState<Date | undefined>(undefined);
+
   const [isPublishing, setIsPublishing] = useState(false);
   const navigate = useNavigate();
 
@@ -73,8 +79,9 @@ export function CreateEventPage() {
       if (res.data?.text) {
         setDescription(res.data.text);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to generate description", e);
+      toast.error(e.message || "Failed to generate description");
     } finally {
       setIsGenerating(false);
     }
@@ -96,8 +103,9 @@ export function CreateEventPage() {
       if (res.data?.text) {
         setRules(res.data.text);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to generate rules", e);
+      toast.error(e.message || "Failed to generate rules");
     } finally {
       setIsGeneratingRules(false);
     }
@@ -124,6 +132,11 @@ export function CreateEventPage() {
         status: "PUBLISHED",
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
+        registrationType: registrationType,
+        minTeamSize: registrationType === "TEAM" && minTeamSize ? parseInt(minTeamSize) : null,
+        maxTeamSize: registrationType === "TEAM" && maxTeamSize ? parseInt(maxTeamSize) : null,
+        registrationStart: regStart ? regStart.toISOString() : null,
+        registrationEnd: regEnd ? regEnd.toISOString() : null,
         price: 0,
         currency: "USD",
       };
@@ -270,6 +283,9 @@ export function CreateEventPage() {
               <DatePicker label="Start date" date={start} onSelect={setStart} />
               <DatePicker label="End date" date={end} onSelect={setEnd} />
               <TimePicker label="Daily start time" value={time} onChange={setTime} />
+              <DatePicker label="Registration Start" date={regStart} onSelect={setRegStart} />
+              <DatePicker label="Registration End" date={regEnd} onSelect={setRegEnd} />
+              
               <div className="space-y-1.5">
                 <Label htmlFor="capacity">Capacity</Label>
                 <Input id="capacity" type="number" defaultValue={2000} />
@@ -300,6 +316,51 @@ export function CreateEventPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          ),
+        },
+        {
+          title: "Registration Settings",
+          description: "Configure how participants join the event.",
+          content: (
+            <div className="grid gap-5 lg:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="regType">Registration Type</Label>
+                <Select value={registrationType} onValueChange={(val: any) => setRegistrationType(val)}>
+                  <SelectTrigger id="regType">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INDIVIDUAL">Individual</SelectItem>
+                    <SelectItem value="TEAM">Team</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {registrationType === "TEAM" && (
+                <>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="minTeamSize">Min Team Size</Label>
+                    <Input 
+                      id="minTeamSize" 
+                      type="number" 
+                      value={minTeamSize} 
+                      onChange={(e) => setMinTeamSize(e.target.value)} 
+                      min={1} 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="maxTeamSize">Max Team Size</Label>
+                    <Input 
+                      id="maxTeamSize" 
+                      type="number" 
+                      value={maxTeamSize} 
+                      onChange={(e) => setMaxTeamSize(e.target.value)} 
+                      min={1} 
+                    />
+                  </div>
+                </>
+              )}
             </div>
           ),
         },

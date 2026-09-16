@@ -120,7 +120,7 @@ import { Route as CommunicationCampaignsIndexRouteImport } from './routes/commun
 import { Route as CommunicationCampaignsNewRouteImport } from './routes/communication.campaigns.new'
 import { Route as CommunityDiscussionsIndexRouteImport } from './routes/community.discussions.index'
 import { Route as CommunityDiscussionsIdRouteImport } from './routes/community.discussions.$id'
-import { Route as EventsIdFinalReportRouteImport } from './routes/events.$id.final-report'
+import { Route as EventsIdFinalReportRouteImport } from './routes/events.$id_.final-report'
 import { Route as FeedbackSurveysIndexRouteImport } from './routes/feedback.surveys.index'
 import { Route as FeedbackSurveysNewRouteImport } from './routes/feedback.surveys.new'
 import { Route as HackathonProposalsIdEditRouteImport } from './routes/hackathon-proposals.$id_.edit'
@@ -698,9 +698,9 @@ const CommunityDiscussionsIdRoute = CommunityDiscussionsIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsIdFinalReportRoute = EventsIdFinalReportRouteImport.update({
-  id: '/final-report',
-  path: '/final-report',
-  getParentRoute: () => EventsIdRoute,
+  id: '/events/$id_/final-report',
+  path: '/events/$id/final-report',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const FeedbackSurveysIndexRoute = FeedbackSurveysIndexRouteImport.update({
   id: '/feedback/surveys/',
@@ -772,7 +772,7 @@ export interface FileRoutesByFullPath {
   '/competitions/$id': typeof CompetitionsIdRoute
   '/coordinator/assigned-events': typeof CoordinatorAssignedEventsRoute
   '/coordinator/participants': typeof CoordinatorParticipantsRoute
-  '/events/$id': typeof EventsIdRouteWithChildren
+  '/events/$id': typeof EventsIdRoute
   '/events/new': typeof EventsNewRoute
   '/events/schedule': typeof EventsScheduleRoute
   '/faculty-coordinator/assigned-events': typeof FacultyCoordinatorAssignedEventsRoute
@@ -888,7 +888,7 @@ export interface FileRoutesByTo {
   '/competitions/$id': typeof CompetitionsIdRoute
   '/coordinator/assigned-events': typeof CoordinatorAssignedEventsRoute
   '/coordinator/participants': typeof CoordinatorParticipantsRoute
-  '/events/$id': typeof EventsIdRouteWithChildren
+  '/events/$id': typeof EventsIdRoute
   '/events/new': typeof EventsNewRoute
   '/events/schedule': typeof EventsScheduleRoute
   '/faculty-coordinator/assigned-events': typeof FacultyCoordinatorAssignedEventsRoute
@@ -1009,7 +1009,7 @@ export interface FileRoutesById {
   '/competitions/$id': typeof CompetitionsIdRoute
   '/coordinator/assigned-events': typeof CoordinatorAssignedEventsRoute
   '/coordinator/participants': typeof CoordinatorParticipantsRoute
-  '/events/$id': typeof EventsIdRouteWithChildren
+  '/events/$id': typeof EventsIdRoute
   '/events/new': typeof EventsNewRoute
   '/events/schedule': typeof EventsScheduleRoute
   '/faculty-coordinator/assigned-events': typeof FacultyCoordinatorAssignedEventsRoute
@@ -1081,7 +1081,7 @@ export interface FileRoutesById {
   '/certificates/verify/$code': typeof CertificatesVerifyCodeRoute
   '/communication/campaigns/new': typeof CommunicationCampaignsNewRoute
   '/community/discussions/$id': typeof CommunityDiscussionsIdRoute
-  '/events/$id/final-report': typeof EventsIdFinalReportRoute
+  '/events/$id_/final-report': typeof EventsIdFinalReportRoute
   '/feedback/surveys/new': typeof FeedbackSurveysNewRoute
   '/hackathon-proposals/$id_/edit': typeof HackathonProposalsIdEditRoute
   '/learning/courses/$id': typeof LearningCoursesIdRoute
@@ -1439,7 +1439,7 @@ export interface FileRouteTypes {
     | '/certificates/verify/$code'
     | '/communication/campaigns/new'
     | '/community/discussions/$id'
-    | '/events/$id/final-report'
+    | '/events/$id_/final-report'
     | '/feedback/surveys/new'
     | '/hackathon-proposals/$id_/edit'
     | '/learning/courses/$id'
@@ -1486,7 +1486,7 @@ export interface RootRouteChildren {
   CommunityMessagesRoute: typeof CommunityMessagesRoute
   CommunityNetworkingRoute: typeof CommunityNetworkingRoute
   CompetitionsIdRoute: typeof CompetitionsIdRoute
-  EventsIdRoute: typeof EventsIdRouteWithChildren
+  EventsIdRoute: typeof EventsIdRoute
   EventsNewRoute: typeof EventsNewRoute
   EventsScheduleRoute: typeof EventsScheduleRoute
   FeedbackIdRoute: typeof FeedbackIdRoute
@@ -1526,6 +1526,7 @@ export interface RootRouteChildren {
   CertificatesVerifyCodeRoute: typeof CertificatesVerifyCodeRoute
   CommunicationCampaignsNewRoute: typeof CommunicationCampaignsNewRoute
   CommunityDiscussionsIdRoute: typeof CommunityDiscussionsIdRoute
+  EventsIdFinalReportRoute: typeof EventsIdFinalReportRoute
   FeedbackSurveysNewRoute: typeof FeedbackSurveysNewRoute
   HackathonProposalsIdEditRoute: typeof HackathonProposalsIdEditRoute
   LearningCoursesIdRoute: typeof LearningCoursesIdRoute
@@ -2314,12 +2315,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunityDiscussionsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events/$id/final-report': {
-      id: '/events/$id/final-report'
-      path: '/final-report'
+    '/events/$id_/final-report': {
+      id: '/events/$id_/final-report'
+      path: '/events/$id/final-report'
       fullPath: '/events/$id/final-report'
       preLoaderRoute: typeof EventsIdFinalReportRouteImport
-      parentRoute: typeof EventsIdRoute
+      parentRoute: typeof rootRouteImport
     }
     '/feedback/surveys/': {
       id: '/feedback/surveys/'
@@ -2485,18 +2486,6 @@ const ParticipantRouteWithChildren = ParticipantRoute._addFileChildren(
   ParticipantRouteChildren,
 )
 
-interface EventsIdRouteChildren {
-  EventsIdFinalReportRoute: typeof EventsIdFinalReportRoute
-}
-
-const EventsIdRouteChildren: EventsIdRouteChildren = {
-  EventsIdFinalReportRoute: EventsIdFinalReportRoute,
-}
-
-const EventsIdRouteWithChildren = EventsIdRoute._addFileChildren(
-  EventsIdRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoordinatorRoute: CoordinatorRouteWithChildren,
@@ -2533,7 +2522,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityMessagesRoute: CommunityMessagesRoute,
   CommunityNetworkingRoute: CommunityNetworkingRoute,
   CompetitionsIdRoute: CompetitionsIdRoute,
-  EventsIdRoute: EventsIdRouteWithChildren,
+  EventsIdRoute: EventsIdRoute,
   EventsNewRoute: EventsNewRoute,
   EventsScheduleRoute: EventsScheduleRoute,
   FeedbackIdRoute: FeedbackIdRoute,
@@ -2573,6 +2562,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificatesVerifyCodeRoute: CertificatesVerifyCodeRoute,
   CommunicationCampaignsNewRoute: CommunicationCampaignsNewRoute,
   CommunityDiscussionsIdRoute: CommunityDiscussionsIdRoute,
+  EventsIdFinalReportRoute: EventsIdFinalReportRoute,
   FeedbackSurveysNewRoute: FeedbackSurveysNewRoute,
   HackathonProposalsIdEditRoute: HackathonProposalsIdEditRoute,
   LearningCoursesIdRoute: LearningCoursesIdRoute,

@@ -11,7 +11,7 @@ export class FinalReportPDFService {
   static async generatePDF(report: PopulatedReport, executionSummary: any): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       try {
-        const doc = new PDFDocument({ margin: 50, size: 'A4' });
+        const doc = new PDFDocument({ margin: 50, size: 'A4', bufferPages: true });
         const buffers: Buffer[] = [];
 
         doc.on('data', buffers.push.bind(buffers));

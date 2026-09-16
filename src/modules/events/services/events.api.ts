@@ -12,6 +12,12 @@ export type ApiEvent = {
   organizationId: string;
   price: number;
   currency: string;
+  registrationType?: "INDIVIDUAL" | "TEAM";
+  minTeamSize?: number | null;
+  maxTeamSize?: number | null;
+  registrationStart?: string | null;
+  registrationEnd?: string | null;
+  competitions?: any[];
   revenue?: number;
   teamMembers?: any[];
   createdAt: string;

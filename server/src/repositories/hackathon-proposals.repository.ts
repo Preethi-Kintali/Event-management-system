@@ -98,10 +98,10 @@ export class HackathonProposalRepository {
   static async findApprovedProposals(tenantId: string) {
     return prisma.hackathonProposal.findMany({
       where: { 
-        organizationId: tenantId,
-        status: ProposalStatus.PRINCIPAL_APPROVED
+        organizationId: tenantId, 
+        status: { in: [ProposalStatus.PRINCIPAL_APPROVED, ProposalStatus.EVENT_CREATED] }
       },
-      orderBy: { updatedAt: 'asc' },
+      orderBy: { updatedAt: 'desc' },
       include: {
         submittedBy: { select: { id: true, firstName: true, lastName: true, email: true } },
         manager: { select: { id: true, firstName: true, lastName: true, email: true } },

@@ -40,6 +40,7 @@ export class ParticipantService {
         status: { in: ['PUBLISHED', 'LIVE'] },
         endTime: { gte: new Date() }
       },
+      include: { competitions: true },
       orderBy: { startTime: 'asc' },
       take: 20
     });
@@ -101,6 +102,19 @@ export class ParticipantService {
   }
 
   static async registerForEvent(userId: string, data: { eventId: string }) {
+    const event = await prisma.event.findUnique({ where: { id: data.eventId } });
+    if (!event) throw { status: 404, code: "NOT_FOUND", message: "Event not found." };
+    if (event.registrationType === "TEAM") {
+      throw { status: 400, code: "BAD_REQUEST", message: "This event requires team registration." };
+    }
+    const now = new Date();
+    if (event.registrationStart && now < event.registrationStart) {
+      throw { status: 400, code: "BAD_REQUEST", message: "Registration has not started yet." };
+    }
+    if (event.registrationEnd && now > event.registrationEnd) {
+      throw { status: 400, code: "BAD_REQUEST", message: "Registration is closed." };
+    }
+
     const existing = await prisma.registration.findFirst({
       where: { userId, eventId: data.eventId }
     });
@@ -113,6 +127,81 @@ export class ParticipantService {
         eventId: data.eventId,
         status: "PENDING"
       }
+    });
+  }
+
+  static async registerTeamForEvent(userId: string, data: { eventId: string, teamName: string, competitionId: string, members: string[] }) {
+    const event = await prisma.event.findUnique({ 
+      where: { id: data.eventId },
+      include: { competitions: true }
+    });
+    if (!event) throw { status: 404, code: "NOT_FOUND", message: "Event not found." };
+    if (event.registrationType !== "TEAM") {
+      throw { status: 400, code: "BAD_REQUEST", message: "This event does not support team registration." };
+    }
+
+    const now = new Date();
+    if (event.registrationStart && now < event.registrationStart) {
+      throw { status: 400, code: "BAD_REQUEST", message: "Registration has not started yet." };
+    }
+    if (event.registrationEnd && now > event.registrationEnd) {
+      throw { status: 400, code: "BAD_REQUEST", message: "Registration is closed." };
+    }
+
+    const teamSize = (data.members?.length || 0) + 1; // including the user
+    if (event.minTeamSize && teamSize < event.minTeamSize) {
+      throw { status: 400, code: "BAD_REQUEST", message: `Team size must be at least ${event.minTeamSize}.` };
+    }
+    if (event.maxTeamSize && teamSize > event.maxTeamSize) {
+      throw { status: 400, code: "BAD_REQUEST", message: `Team size must be at most ${event.maxTeamSize}.` };
+    }
+
+    const validCompetition = event.competitions.find(c => c.id === data.competitionId);
+    if (!validCompetition) {
+      throw { status: 400, code: "BAD_REQUEST", message: "Invalid competition for this event." };
+    }
+
+    const existing = await prisma.registration.findFirst({
+      where: { userId, eventId: data.eventId }
+    });
+    if (existing) {
+      throw { status: 400, code: "DUPLICATE", message: "Already registered for this event." };
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const reg = await tx.registration.create({
+        data: {
+          userId,
+          eventId: data.eventId,
+          status: "PENDING"
+        }
+      });
+
+      const team = await tx.team.create({
+        data: {
+          name: data.teamName,
+          competitionId: data.competitionId,
+          members: {
+            create: {
+              userId,
+              isLead: true
+            }
+          }
+        }
+      });
+
+      if (data.members && data.members.length > 0) {
+        for (const email of data.members) {
+          await tx.teamInvitation.create({
+            data: {
+              teamId: team.id,
+              email: email
+            }
+          });
+        }
+      }
+
+      return reg;
     });
   }
 
@@ -136,7 +225,7 @@ export class ParticipantService {
         members: {
           create: {
             userId,
-            role: "CAPTAIN"
+            isLead: true
           }
         }
       }
@@ -146,7 +235,7 @@ export class ParticipantService {
   static async inviteTeamMember(userId: string, teamId: string, data: { email: string }) {
     // Check if user is captain
     const membership = await prisma.teamMember.findFirst({
-      where: { teamId, userId, role: "CAPTAIN" }
+      where: { teamId, userId, isLead: true }
     });
     if (!membership) {
       throw { status: 403, code: "FORBIDDEN", message: "Only captains can invite." };
@@ -158,8 +247,7 @@ export class ParticipantService {
       data: {
         teamId,
         userId: invitedUser.id,
-        role: "MEMBER"
-        // in a real app, this would be an invitation status first
+        isLead: false
       }
     });
   }

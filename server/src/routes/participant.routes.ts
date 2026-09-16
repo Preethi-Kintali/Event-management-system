@@ -16,6 +16,7 @@ router.get("/achievements", ParticipantController.getMyAchievements);
 router.get("/notifications", ParticipantController.getMyNotifications);
 
 router.post("/registrations", ParticipantController.registerForEvent);
+router.post("/registrations/team", ParticipantController.registerTeamForEvent);
 router.delete("/registrations/:id", ParticipantController.withdrawRegistration);
 
 router.post("/teams", ParticipantController.createTeam);

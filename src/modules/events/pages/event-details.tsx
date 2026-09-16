@@ -119,7 +119,7 @@ export function EventDetailsPage() {
               </DialogContent>
             </Dialog>
           )}
-          {event.status === "COMPLETED" && (hasPermission("events.read") || hasPermission("reports.create_assigned")) && (
+          {event.status === "COMPLETED" && (hasPermission("events.read") || hasPermission("events.read_assigned") || hasPermission("reports.create_assigned")) && (
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-md flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4" />
@@ -204,6 +204,13 @@ export function EventDetailsPage() {
                 { k: "Start Date", v: new Date(event.startTime).toLocaleDateString() },
                 { k: "End Date", v: new Date(event.endTime).toLocaleDateString() },
                 { k: "Status", v: event.status },
+                { k: "Registration Type", v: event.registrationType || "INDIVIDUAL" },
+                ...(event.registrationType === "TEAM" ? [
+                  { k: "Min Team Size", v: event.minTeamSize || "No minimum" },
+                  { k: "Max Team Size", v: event.maxTeamSize || "No maximum" },
+                ] : []),
+                { k: "Registration Starts", v: event.registrationStart ? new Date(event.registrationStart).toLocaleDateString() : "Anytime" },
+                { k: "Registration Ends", v: event.registrationEnd ? new Date(event.registrationEnd).toLocaleDateString() : "Anytime" },
               ].map((row) => (
                 <div key={row.k}>
                   <dt className="text-xs uppercase tracking-wide text-muted-foreground">{row.k}</dt>

@@ -111,6 +111,24 @@ export const useRegisterForEvent = () => {
   });
 };
 
+export const useRegisterTeamForEvent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { eventId: string; teamName: string; competitionId: string; members: string[] }) => {
+      const response = await fetchApi('/participant/registrations/team', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: participantKeys.registrations() });
+      queryClient.invalidateQueries({ queryKey: participantKeys.teams() });
+      queryClient.invalidateQueries({ queryKey: participantKeys.dashboard() });
+    },
+  });
+};
+
 export const useWithdrawRegistration = () => {
   const queryClient = useQueryClient();
   return useMutation({

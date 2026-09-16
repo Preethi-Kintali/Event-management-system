@@ -7,6 +7,12 @@ export const createEventSchema = z.object({
   startTime: z.string().datetime(),
   endTime: z.string().datetime(),
   status: z.nativeEnum(EventStatus).optional(),
+  registrationType: z.enum(["INDIVIDUAL", "TEAM"]).optional(),
+  minTeamSize: z.number().int().min(1).optional().nullable(),
+  maxTeamSize: z.number().int().min(1).optional().nullable(),
+  registrationStart: z.string().datetime().optional().nullable(),
+  registrationEnd: z.string().datetime().optional().nullable(),
+  registrationConfig: z.record(z.any()).optional().nullable(),
 });
 
 export const updateEventSchema = createEventSchema.omit({ status: true }).partial();

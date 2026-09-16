@@ -50,12 +50,14 @@ import { SeverityChip } from "@/components/ds/status-chip";
 import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, Notification } from "@/modules/communication/services/notifications.api";
 import { CheckCheck, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { UserProfileDialog } from "./user-profile-dialog";
 
 
 
 export function Topbar() {
   const { user, login, logout, activeOrganization, setActiveOrganization } = useAuth();
   const [open, setOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   const getDashboardUrl = (user: any) => {
@@ -297,18 +299,20 @@ export function Topbar() {
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <UserRound className="h-4 w-4" />
+            <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>
+              <UserRound className="h-4 w-4 mr-2" />
               Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={() => logout()}>
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4 mr-2" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <UserProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} />
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Jump to a module, event or record…" />

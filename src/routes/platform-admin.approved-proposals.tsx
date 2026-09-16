@@ -69,7 +69,7 @@ function ApprovedProposalsComponent() {
                   </Link>
                 </div>
                 <div className="flex gap-2">
-                  {canCreateEvent && (
+                  {canCreateEvent && p.status === 'PRINCIPAL_APPROVED' && (
                     <Link 
                       to="/events/new"
                       search={{ proposalId: p.id }}

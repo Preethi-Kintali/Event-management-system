@@ -131,7 +131,7 @@ function UsersPage() {
           { label: "Edit profile", onSelect: handleEdit },
           { label: "Activate", onSelect: (user) => handleStatusChange(user, "ACTIVE") },
           { label: "Suspend", onSelect: (user) => handleStatusChange(user, "SUSPENDED") },
-          { label: "Delete", onSelect: handleDelete, variant: "destructive" },
+          { label: "Delete", onSelect: handleDelete },
         ]}
       />
       <UserDialog

@@ -5,13 +5,15 @@ import {
   useFinalReport,
   useSaveDraftReport,
   useGenerateAIDraft,
-  useFinalizeReport,
+  useSubmitToFaculty,
+  useFacultyReview,
+  useManagerReview,
 } from "../services/final-report.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Printer, RefreshCcw, ArrowLeft, Trophy, Users, CheckCircle, Activity, Award, Save, Wand2, Download } from "lucide-react";
+import { Printer, RefreshCcw, ArrowLeft, Trophy, Users, CheckCircle, Activity, Award, Save, Wand2, Download, MessageSquareText, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 import { StatusChip } from "@/components/ds/status-chip";
 import { useAuth } from "@/lib/auth";
@@ -21,13 +23,15 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
   const { id: paramId } = useParams({ strict: false }) as { id?: string };
   const id = eventId || paramId || "";
   const { data: event, isLoading: isEventLoading } = useEvent(id);
-  const { data: report, isLoading: isReportLoading } = useFinalReport(id);
+  const { data: report, isLoading: isReportLoading, error: reportError } = useFinalReport(id);
   const { data: executionSummary } = useExecutionSummary(id);
 
   const saveDraft = useSaveDraftReport();
   const generateAIDraft = useGenerateAIDraft();
-  const finalizeReport = useFinalizeReport();
-  const { hasPermission } = useAuth();
+  const submitToFaculty = useSubmitToFaculty();
+  const facultyReview = useFacultyReview();
+  const managerReview = useManagerReview();
+  const { hasPermission, user } = useAuth();
 
   const [formData, setFormData] = useState({
     executiveSummary: "",
@@ -39,6 +43,7 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
   });
 
   const [editorContent, setEditorContent] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
 
   useEffect(() => {
     if (report) {
@@ -50,7 +55,7 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
         recommendations: report.recommendations || "",
         additionalRemarks: report.additionalRemarks || "",
       });
-      if (report.status === "AI_GENERATED") {
+      if (report.status !== "DRAFT") {
         setEditorContent(report.finalizedContent || report.aiGeneratedContent || "");
       }
     }
@@ -58,6 +63,19 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
 
   if (isEventLoading || isReportLoading) {
     return <div className="p-8">Loading report...</div>;
+  }
+
+  if (reportError) {
+    return (
+      <div className="p-8">
+        <div className="mb-4 text-xl font-bold text-red-600">
+          {(reportError as any).response?.data?.message || (reportError as any).message || "Unauthorized to view this report."}
+        </div>
+        <Link to="/events/$id" params={{ id }}>
+          <Button variant="outline">Back to Event</Button>
+        </Link>
+      </div>
+    );
   }
 
   if (!event) {
@@ -72,6 +90,8 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
   }
 
   const isCoordinator = hasPermission("reports.update_assigned");
+  const isFacultyCoordinator = event.teamMembers?.some((tm: any) => tm.userId === user?.id && tm.responsibility === 'Faculty Coordinator');
+  const isManager = hasPermission("events.read") && !isCoordinator && !isFacultyCoordinator;
   const status = report?.status || "DRAFT";
   const metrics = executionSummary || {} as any;
 
@@ -94,14 +114,42 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
     }
   };
 
-  const handleFinalize = async () => {
-    if (confirm("Are you sure you want to finalize this report? It cannot be changed afterwards.")) {
+  const handleSubmitToFaculty = async () => {
+    if (confirm("Submit report to Faculty Coordinator for review?")) {
       try {
-        await finalizeReport.mutateAsync({ eventId: id, finalizedContent: editorContent });
-        toast.success("Report finalized successfully");
+        await submitToFaculty.mutateAsync({ eventId: id, finalizedContent: editorContent });
+        toast.success("Submitted to Faculty successfully");
       } catch (err: any) {
-        toast.error(err.message || "Failed to finalize report");
+        toast.error(err.message || "Failed to submit");
       }
+    }
+  };
+
+  const handleFacultyAction = async (action: 'APPROVE' | 'REQUEST_CHANGES') => {
+    if (action === 'REQUEST_CHANGES' && !reviewComment) {
+      toast.error("Please provide a comment for requested changes.");
+      return;
+    }
+    try {
+      await facultyReview.mutateAsync({ eventId: id, action, comment: reviewComment });
+      toast.success(action === 'APPROVE' ? "Approved by Faculty" : "Changes requested");
+      setReviewComment("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit review");
+    }
+  };
+
+  const handleManagerAction = async (action: 'APPROVE' | 'REQUEST_CHANGES') => {
+    if (action === 'REQUEST_CHANGES' && !reviewComment) {
+      toast.error("Please provide a comment for requested changes.");
+      return;
+    }
+    try {
+      await managerReview.mutateAsync({ eventId: id, action, comment: reviewComment });
+      toast.success(action === 'APPROVE' ? "Report Approved!" : "Changes requested");
+      setReviewComment("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit review");
     }
   };
 
@@ -162,19 +210,19 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
                 </Button>
               </>
             )}
-            {status === "AI_GENERATED" && isCoordinator && (
+            {(status === "AI_GENERATED" || status === "CHANGES_REQUESTED_BY_FACULTY" || status === "CHANGES_REQUESTED_BY_MANAGER") && isCoordinator && (
               <>
                 <Button variant="outline" size="sm" onClick={handleGenerateAI} disabled={generateAIDraft.isPending} className="gap-2">
                   <RefreshCcw className={`w-4 h-4 ${generateAIDraft.isPending ? "animate-spin" : ""}`} />
-                  Regenerate
+                  Regenerate AI
                 </Button>
-                <Button variant="default" size="sm" onClick={handleFinalize} disabled={finalizeReport.isPending} className="gap-2">
+                <Button variant="default" size="sm" onClick={handleSubmitToFaculty} disabled={submitToFaculty.isPending} className="gap-2">
                   <CheckCircle className="w-4 h-4" />
-                  Finalize Report
+                  Submit to Faculty
                 </Button>
               </>
             )}
-            {status === "FINALIZED" && (
+            {status !== "DRAFT" && (
               <>
                 <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
                   <Printer className="w-4 h-4" />
@@ -207,7 +255,7 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
             <div>
               <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Status</div>
-              <div className="font-medium">{status.replace("_", " ")}</div>
+              <div className="font-medium">{status.replace(/_/g, " ")}</div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Event Dates</div>
@@ -215,6 +263,55 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
             </div>
           </div>
         </div>
+
+        {/* Comments Banner */}
+        {(status === "CHANGES_REQUESTED_BY_FACULTY" || status === "CHANGES_REQUESTED_BY_MANAGER") && (
+          <div className="bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-900 rounded-lg p-4 mb-8">
+            <h3 className="font-semibold text-red-800 dark:text-red-300 mb-2 flex items-center gap-2">
+              <MessageSquareText className="w-4 h-4" />
+              Changes Requested
+            </h3>
+            {report?.managerComment && status === "CHANGES_REQUESTED_BY_MANAGER" && (
+              <p className="text-sm text-red-700 dark:text-red-400">
+                <strong>Manager:</strong> {report.managerComment}
+              </p>
+            )}
+            {report?.facultyComment && status === "CHANGES_REQUESTED_BY_FACULTY" && (
+              <p className="text-sm text-red-700 dark:text-red-400">
+                <strong>Faculty:</strong> {report.facultyComment}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Review panels */}
+        {((status === "SUBMITTED_TO_FACULTY" && isFacultyCoordinator) || (status === "SUBMITTED_TO_MANAGER" && isManager)) && (
+          <div className="space-y-6 mb-8 print:hidden">
+            <div className="bg-surface border rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">
+                {status === "SUBMITTED_TO_FACULTY" ? "Faculty Review" : "Manager Review"}
+              </h3>
+              <div className="space-y-4">
+                <Textarea 
+                  placeholder="Enter comments if requesting changes..."
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  rows={3}
+                />
+                <div className="flex items-center gap-3">
+                  <Button variant="outline" className="gap-2 text-red-600 hover:text-red-700" onClick={() => status === "SUBMITTED_TO_FACULTY" ? handleFacultyAction("REQUEST_CHANGES") : handleManagerAction("REQUEST_CHANGES")} disabled={facultyReview.isPending || managerReview.isPending}>
+                    <ThumbsDown className="w-4 h-4" />
+                    Request Changes
+                  </Button>
+                  <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white" onClick={() => status === "SUBMITTED_TO_FACULTY" ? handleFacultyAction("APPROVE") : handleManagerAction("APPROVE")} disabled={facultyReview.isPending || managerReview.isPending}>
+                    <ThumbsUp className="w-4 h-4" />
+                    Approve
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Status: DRAFT */}
         {status === "DRAFT" && (
@@ -373,26 +470,19 @@ export function FinalReportPage({ eventId }: { eventId?: string }) {
           </div>
         )}
 
-        {/* Status: AI GENERATED */}
-        {status === "AI_GENERATED" && (
-          <div className="space-y-8 print:hidden">
-            <div className="bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900 rounded-lg p-4">
-              <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-1">Review AI Draft</h3>
-              <p className="text-sm text-amber-600 dark:text-amber-400">
-                The AI has generated a draft based on your inputs and event metrics. Review and edit the markdown below before finalizing.
-              </p>
-            </div>
-            
+        {/* Content Section (for editing) */}
+        {(status === "AI_GENERATED" || status === "CHANGES_REQUESTED_BY_FACULTY" || status === "CHANGES_REQUESTED_BY_MANAGER") && (
+          <div className="space-y-8 print:hidden mt-8">
             <RichTextEditor 
-              label="Finalized Report Markdown"
+              label="Report Markdown Content"
               value={editorContent}
               onChange={setEditorContent}
             />
           </div>
         )}
 
-        {/* Status: FINALIZED */}
-        {status === "FINALIZED" && (
+        {/* Status: SUBMITTED or APPROVED */}
+        {(status === "SUBMITTED_TO_FACULTY" || status === "SUBMITTED_TO_MANAGER" || status === "FINALIZED" || status === "APPROVED") && (
           <>
             {/* Execution Metrics Snapshot */}
             <section className="mb-12 print:break-inside-avoid">

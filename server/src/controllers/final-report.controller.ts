@@ -40,14 +40,38 @@ export class FinalReportController {
     } catch (error) { next(error); }
   }
 
-  static async finalizeReport(req: Request, res: Response, next: NextFunction) {
+  static async submitToFaculty(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       const tenantId = req.tenantId!;
       const userId = req.user!.id;
       const { finalizedContent } = req.body;
 
-      const report = await FinalReportService.finalizeReport(tenantId, id, userId, finalizedContent);
+      const report = await FinalReportService.submitToFaculty(tenantId, id, userId, finalizedContent);
+      res.status(200).json({ success: true, data: { report } });
+    } catch (error) { next(error); }
+  }
+
+  static async facultyReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const userId = req.user!.id;
+      const { action, comment } = req.body;
+
+      const report = await FinalReportService.facultyReview(tenantId, id, userId, action, comment);
+      res.status(200).json({ success: true, data: { report } });
+    } catch (error) { next(error); }
+  }
+
+  static async managerReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const tenantId = req.tenantId!;
+      const userId = req.user!.id;
+      const { action, comment } = req.body;
+
+      const report = await FinalReportService.managerReview(tenantId, id, userId, action, comment);
       res.status(200).json({ success: true, data: { report } });
     } catch (error) { next(error); }
   }
