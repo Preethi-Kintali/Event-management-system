@@ -22,7 +22,7 @@ const signupSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters long"),
   confirmPassword: z.string().min(8, "Password confirmation is required"),
-  role: z.enum(["Participant", "Student Coordinator", "Faculty Coordinator"]),
+  role: z.enum(["Participant", "Student Coordinator", "Faculty Coordinator", "Judge"]),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -203,6 +203,18 @@ function SignupPage() {
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">Faculty Coordinator</p>
                     <p className="text-sm text-muted-foreground">Manage Student Coordinators and coordinate assigned events. Faculty Coordinator accounts require Manager approval.</p>
+                  </div>
+                </label>
+                <label className="flex items-start space-x-3 space-y-0 rounded-md border p-4 cursor-pointer hover:bg-muted/50 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-colors">
+                  <input 
+                    type="radio" 
+                    value="Judge" 
+                    className="mt-1"
+                    {...register("role")}
+                  />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium leading-none">Judge</p>
+                    <p className="text-sm text-muted-foreground">Temporary option: create a judge account to test the grading portal.</p>
                   </div>
                 </label>
               </div>

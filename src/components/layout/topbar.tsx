@@ -120,6 +120,8 @@ export function Topbar() {
             target = "/faculty-coordinator";
           } else if (roleName === "Participant") {
             target = "/participant";
+          } else if (roleName === "Judge") {
+            target = "/judge";
           }
         }
         
@@ -212,6 +214,9 @@ export function Topbar() {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => switchDevUser("student1@contoso.com")}>
               Student Coordinator (Sub-manager)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => switchDevUser("elena@ascent.dev")}>
+              Judge
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

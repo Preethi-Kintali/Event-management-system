@@ -15,6 +15,7 @@ export class EventRepository {
       where: whereClause,
       include: {
         teamMembers: true,
+        competitions: true,
         payments: {
           where: {
             status: 'SUCCEEDED',

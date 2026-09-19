@@ -47,7 +47,6 @@ const managerSections = [
       { title: "Submissions", url: "/manager/submissions", icon: Sparkles },
       { title: "Evaluations", url: "/manager/evaluations", icon: FileCheck2 },
       { title: "Judges", url: "/manager/judges", icon: Gavel },
-      { title: "Mentors", url: "/manager/mentors", icon: GraduationCap },
       { title: "Reports", url: "/manager/reports", icon: FileBarChart },
       { title: "Notifications", url: "/participant/notifications", icon: Bell },
     ],
@@ -77,6 +76,17 @@ const participantSections = [
       { title: "Certificates", url: "/participant/certificates", icon: Award },
       { title: "Achievements", url: "/participant/achievements", icon: Medal },
       { title: "Notifications", url: "/participant/notifications", icon: Bell },
+    ],
+  },
+];
+
+const judgeSections = [
+  {
+    label: "Evaluation",
+    items: [
+      { title: "Dashboard", url: "/judge", icon: LayoutDashboard },
+      { title: "Events & Competitions", url: "/judge/events", icon: CalendarDays },
+      { title: "Submissions & Grading", url: "/judge/submissions", icon: FileCheck2 },
     ],
   },
 ];
@@ -133,6 +143,9 @@ export function AppSidebar() {
       }
     ];
     basePath = "/coordinator";
+  } else if (roleName === "Judge") {
+    sections = judgeSections;
+    basePath = "/judge";
   } else if (roleName === "Platform Admin") {
     sections = orgAdminSections;
     basePath = "/platform-admin";
@@ -206,7 +219,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      {!collapsed && roleName !== "Participant" && roleName !== "Manager" ? (
+      {!collapsed && roleName !== "Participant" && roleName !== "Manager" && roleName !== "Judge" ? (
         <SidebarFooter className="border-t border-sidebar-border p-3">
           <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/60 p-3">
             <p className="text-xs font-medium">Enterprise trial</p>
