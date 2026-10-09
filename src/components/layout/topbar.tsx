@@ -149,33 +149,47 @@ export function Topbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-surface/85 px-3 backdrop-blur supports-[backdrop-filter]:bg-surface/70 sm:px-4">
-      <SidebarTrigger className="min-h-9 min-w-9" />
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-2.5 border-b border-border/80 bg-background/85 px-3.5 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 sm:px-5">
+      <SidebarTrigger className="min-h-9 min-w-9 rounded-lg hover:bg-accent/80 transition-colors" />
       <Separator orientation="vertical" className="mx-1 hidden h-6 sm:block" />
 
+      {/* Desktop Organization Badge */}
       <div className="hidden max-w-56 gap-2 px-2 md:inline-flex items-center h-9">
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded bg-primary-muted text-[11px] font-semibold text-accent-foreground">
-          CO
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary/10 text-[11px] font-bold text-primary">
+          {(orgName || "EP").slice(0, 2).toUpperCase()}
         </span>
-        <span className="min-w-0 truncate text-sm font-medium">{orgName}</span>
+        <span className="min-w-0 truncate text-sm font-medium text-foreground/90">{orgName}</span>
+      </div>
+
+      {/* Mobile Brand Title */}
+      <div className="flex items-center gap-1.5 md:hidden min-w-0 mr-auto pl-0.5">
+        <Link to={getDashboardUrl(user)} className="flex items-center gap-2 min-w-0">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary/15 text-[11px] font-bold text-primary">
+            {(orgName || "EP").slice(0, 2).toUpperCase()}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-bold leading-tight text-foreground">Eventora</p>
+            <p className="truncate text-[10px] text-muted-foreground/80 leading-none">{orgName}</p>
+          </div>
+        </Link>
       </div>
 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="ml-auto flex h-9 w-9 items-center justify-center rounded-lg border border-input text-muted-foreground transition-colors hover:text-foreground md:ml-2 md:w-full md:max-w-md md:justify-start md:gap-2 md:px-3"
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/80 bg-background/60 text-muted-foreground shadow-xs transition-all hover:border-primary/40 hover:bg-background hover:text-foreground md:w-full md:max-w-md md:justify-start md:gap-2.5 md:px-3.5 cursor-pointer"
         aria-label="Open global search"
       >
-        <Search className="h-4 w-4 shrink-0" />
+        <Search className="h-4 w-4 shrink-0 text-muted-foreground/70" />
         <span className="hidden truncate text-sm md:inline">
           Search events, teams, submissions…
         </span>
-        <kbd className="ml-auto hidden items-center gap-0.5 rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground md:inline-flex">
+        <kbd className="ml-auto hidden items-center gap-0.5 rounded-md border border-border/80 bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground md:inline-flex">
           <CommandIcon className="h-2.5 w-2.5" />K
         </kbd>
       </button>
 
-      <div className="ml-auto flex items-center gap-0.5 md:ml-0">
+      <div className="flex items-center gap-1 md:ml-0">
         <Button
           variant="ghost"
           size="icon"
