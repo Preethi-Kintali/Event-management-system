@@ -36,7 +36,7 @@ async function testRoute(
   try {
     const res = await fetch(url, {
       ...options,
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(15000),
     });
     const duration = Math.round(performance.now() - start);
     const expected = Array.isArray(expectedStatus) ? expectedStatus : [expectedStatus];

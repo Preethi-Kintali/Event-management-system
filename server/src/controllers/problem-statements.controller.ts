@@ -6,10 +6,23 @@ import { prisma } from "../utils/prisma";
 export class ProblemStatementController {
   static async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const isStudent = req.user?.status === "PENDING" || req.query.mode === "student";
+      let isStudent = req.query.mode === "student";
+      if (!isStudent && req.user?.id) {
+        const memberships = await prisma.organizationMember.findMany({
+          where: { userId: req.user.id, status: "ACTIVE" },
+          include: { role: true }
+        });
+        const isStaff = memberships.some(m => {
+          const name = m.role?.name?.toLowerCase() || "";
+          return name.includes("admin") || name.includes("manager") || name.includes("coordinator") || name.includes("sudo");
+        });
+        if (!isStaff) {
+          isStudent = true;
+        }
+      }
       const orgId = (req.headers["x-organization-id"] as string) || undefined;
       const eventId = (req.query.eventId as string) || undefined;
-      const statements = await ProblemStatementService.getAll(orgId, isStudent, eventId);
+      const statements = await ProblemStatementService.getAll(orgId, isStudent, eventId, req.user?.id);
       res.json({ success: true, data: statements });
     } catch (error) {
       next(error);

@@ -544,9 +544,62 @@ export class SubmissionService {
         fileName: fileData.fileName,
         fileSize: Number(fileData.fileSize),
         fileType: fileData.fileType || ext,
-        fileUrl: fileData.fileUrl || `/uploads/${fileData.fileName}`
+        fileUrl: fileData.fileUrl || `/api/v1/submissions/${submissionId}/files/temp/view`
       }
     });
+
+    // Update with permanent authorized endpoint URL
+    const updatedFile = await prisma.submissionFile.update({
+      where: { id: file.id },
+      data: {
+        fileUrl: fileData.fileUrl || `/api/v1/submissions/${submissionId}/files/${file.id}/view`
+      }
+    });
+
+    return updatedFile;
+  }
+
+  static async getFileForView(userId: string, submissionId: string, fileId: string) {
+    const file = await prisma.submissionFile.findFirst({
+      where: {
+        id: fileId,
+        submissionId
+      },
+      include: {
+        submission: {
+          include: {
+            team: { include: { members: true } },
+            judgeAssignments: true,
+            event: { select: { organizationId: true } }
+          }
+        }
+      }
+    });
+
+    if (!file) {
+      throw { status: 404, code: "NOT_FOUND", message: "Submission file not found." };
+    }
+
+    const sub = file.submission;
+    const isTeamMember = sub.team?.members?.some((m: any) => m.userId === userId);
+    const isAssignedJudge = sub.judgeAssignments?.some((j: any) => j.judgeId === userId);
+    
+    let isStaff = false;
+    const orgId = sub.event?.organizationId;
+    if (orgId) {
+      const membership = await prisma.organizationMember.findUnique({
+        where: { userId_organizationId: { userId, organizationId: orgId } },
+        include: { role: true }
+      });
+      if (membership && membership.status === "ACTIVE") {
+        const roleName = (membership.role?.name || "").toLowerCase();
+        isStaff = roleName.includes("admin") || roleName.includes("manager") || roleName.includes("coordinator") || roleName.includes("sudo");
+      }
+    }
+
+    if (!isTeamMember && !isAssignedJudge && !isStaff) {
+      throw { status: 403, code: "FORBIDDEN", message: "You are not authorized to view this submission file." };
+    }
 
     return file;
   }

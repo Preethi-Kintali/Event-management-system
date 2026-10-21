@@ -47,7 +47,8 @@ async function run() {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
+      "x-organization-id": orgId
     },
     body: JSON.stringify({
       eventId: someEvent.id,

@@ -99,6 +99,7 @@ async function main() {
     'hackathon_proposals.read_own', 'hackathon_proposals.update_own',
     'hackathon_proposals.submit', 'hackathon_proposals.review', 'hackathon_proposals.principal_review',
     'hackathon_proposals.create_event', 'events.read_assigned',
+    'reports.read', 'reports.export',
   ];
 
   const permissions: Record<string, { id: string; action: string }> = {};
@@ -239,6 +240,7 @@ async function main() {
     'hackathon_proposals.read_own', 'hackathon_proposals.update_own',
     'hackathon_proposals.submit', 'hackathon_proposals.review', 'hackathon_proposals.principal_review', 'hackathon_proposals.create_event',
     'users.read', 'users.manage',
+    'reports.read', 'reports.export',
   ];
   for (const p of orgAdminPerms) {
     await prisma.rolePermission.create({ data: { roleId: orgAdminRole.id, permissionId: permissions[p].id } });

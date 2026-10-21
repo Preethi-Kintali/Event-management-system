@@ -283,7 +283,7 @@ export class ProblemStatementService {
           where: {
             userId,
             eventId: ps.eventId,
-            status: { in: ['APPROVED', 'PAID'] }
+            status: { in: ['APPROVED', 'PAID', 'CONFIRMED', 'REGISTERED'] }
           }
         });
         if (registration) {

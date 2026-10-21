@@ -12,6 +12,7 @@ router.post("/:id/final-submit", SubmissionController.finalSubmit);
 
 // View submission (allows participant team members, assigned judges, or tenant staff)
 router.get("/:id", SubmissionController.findById);
+router.get("/:id/files/:fileId/view", SubmissionController.viewFile);
 
 // Tenant-scoped management actions (requireTenant)
 router.get("/", requireTenant, SubmissionController.findAll);

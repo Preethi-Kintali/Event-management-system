@@ -4,6 +4,7 @@ import { ListPageTemplate } from "@/components/templates/list-page";
 import { useJudgeProfile } from "@/modules/judges/hooks/use-judge-profile";
 import { useMyEvaluations, useUpdateEvaluation } from "@/modules/judges/services/judges.api";
 import { useEvents, useEventRounds } from "@/modules/events/services/events.api";
+import { getApiBaseUrl } from "@/lib/api-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -604,17 +605,23 @@ function JudgeSubmissionsPage() {
                               )}
                             </div>
                             {/* Strictly VIEW ONLY action */}
-                            {file.fileUrl && (
-                              <a
-                                href={file.fileUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded border text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors shrink-0"
-                              >
-                                <Eye className="w-3 h-3" />
-                                View
-                              </a>
-                            )}
+                            {file.fileUrl && (() => {
+                              const backendBase = getApiBaseUrl().replace(/\/api\/v1\/?$/, "");
+                              const fileHref = file.fileUrl.startsWith("http")
+                                ? file.fileUrl
+                                : `${backendBase}${file.fileUrl.startsWith("/") ? "" : "/"}${file.fileUrl}`;
+                              return (
+                                <a
+                                  href={fileHref}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded border text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors shrink-0"
+                                >
+                                  <Eye className="w-3 h-3" />
+                                  View
+                                </a>
+                              );
+                            })()}
                           </div>
                         ))}
                       </div>

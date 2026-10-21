@@ -9,6 +9,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useUpdateSubmission, ApiSubmission } from "../services/submissions.api";
+import { getApiBaseUrl } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Calendar, Layers, Trophy, Users, FileText, ExternalLink, Paperclip } from "lucide-react";
 
@@ -177,23 +178,29 @@ export function SubmissionDialog({ open, onOpenChange, submission, mode = "view"
                 <div>
                   <Label className="text-xs text-muted-foreground block mb-1">Attached Files</Label>
                   <div className="space-y-1">
-                    {files.map((file: any) => (
-                      <a
-                        key={file.id}
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-between p-2 rounded border text-xs hover:bg-muted/50 transition-colors"
-                      >
-                        <span className="flex items-center gap-1.5 font-medium truncate">
-                          <Paperclip className="w-3.5 h-3.5 text-muted-foreground" />
-                          {file.fileName}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {(file.fileSize / 1024).toFixed(0)} KB
-                        </span>
-                      </a>
-                    ))}
+                    {files.map((file: any) => {
+                      const backendBase = getApiBaseUrl().replace(/\/api\/v1\/?$/, "");
+                      const fileHref = file.fileUrl?.startsWith("http")
+                        ? file.fileUrl
+                        : `${backendBase}${file.fileUrl?.startsWith("/") ? "" : "/"}${file.fileUrl}`;
+                      return (
+                        <a
+                          key={file.id}
+                          href={fileHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-between p-2 rounded border text-xs hover:bg-muted/50 transition-colors"
+                        >
+                          <span className="flex items-center gap-1.5 font-medium truncate">
+                            <Paperclip className="w-3.5 h-3.5 text-muted-foreground" />
+                            {file.fileName}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {(file.fileSize / 1024).toFixed(0)} KB
+                          </span>
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}

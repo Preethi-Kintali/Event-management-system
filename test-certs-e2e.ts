@@ -32,7 +32,7 @@ async function run() {
   const fakeUserId = "00000000-0000-0000-0000-000000000000";
   const issueFailRes = await fetch(`${API_URL}/certificates`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: { ...headers, "Content-Type": "application/json" },
     body: JSON.stringify({ eventId: event.id, userId: fakeUserId, type: "PARTICIPATION", title: "Test" })
   });
   if (issueFailRes.status !== 403) errors.push(`Expected 403 for unregistered user, got ${issueFailRes.status}`);
