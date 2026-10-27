@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AICopilotService } from "../services/ai-copilot.service";
+import { prisma } from "../utils/prisma";
 
 export class AICopilotController {
   static async getSummary(req: Request, res: Response, next: NextFunction) {
@@ -69,9 +70,6 @@ export class AICopilotController {
 
   static async getInsightsReports(req: Request, res: Response, next: NextFunction) {
     try {
-      // Actually we need this method in the service as well, but for now just prisma query
-      const { PrismaClient } = require('@prisma/client');
-      const prisma = new PrismaClient();
       const data = await prisma.aIInsightsReport.findMany({
         where: { organizationId: req.tenantId! },
         orderBy: { createdAt: 'desc' }

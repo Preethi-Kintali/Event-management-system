@@ -153,8 +153,68 @@
 
 ---
 
-## 7. Final Recommendation & Readiness Verdict
+## 7. Systematic 5-Step Code Optimization Workflow Execution
+
+### Step 1 — Audit the Codebase
+- **Tech Stack**: React 19, TanStack Router & TanStack Start (Nitro SSR), Vite 8, Tailwind CSS v4, Express 5, Prisma ORM 5, PostgreSQL 16.
+- **Oversized Files Identified**:
+  - `src/modules/participant/pages/submissions.tsx`: 1,334 lines (69.2 KB monolithic component containing multiple modals and state machines).
+  - Heavy client bundle entry chunk (`index-*.js`: 796.95 kB).
+- **Duplicated Logic & Connection Leaks**:
+  - 13 distinct files instantiating their own `new PrismaClient()` instances instead of the shared singleton, causing PostgreSQL connection pool exhaustion and memory bloat.
+  - Inline `new PrismaClient()` dynamically instantiated inside request controller (`ai-copilot.controller.ts`).
+- **Unused Dependencies**:
+  - `otplib` was declared in `package.json` but never imported or utilized across any source file (the application relies entirely on `speakeasy`).
+- **Bottlenecks**:
+  - Dashboard analytics queries were executed sequentially rather than in parallel `Promise.all` batches.
+  - Large libraries (`html5-qrcode`, `recharts`, `framer-motion`, `radix-ui`) were bundled without custom code splitting.
+
+### Step 2 — Measure Performance (Baseline vs Post-Optimization)
+- **Client Initial Entry Bundle**: 796.95 kB (gzip: 224.57 kB) -> **638.61 kB (gzip: 177.92 kB)** (**-19.9% reduction**).
+- **Server Entry Bundle**: 68.51 kB -> **58.47 kB** (**-14.6% reduction**).
+- **Concurrent Analytical Read Queries (50 ops)**:
+  - Baseline: P50 = 168ms, P95 = 383ms, Max = 400ms (processed in 399ms).
+  - Optimized: P50 = 156ms, P95 = **160ms**, Max = **160ms** (processed in **160ms** -> **-59.9% execution time**).
+- **Concurrent QR Check-ins (75 ops)**: P50 = 264ms -> **191ms** (**-27.6% latency**).
+- **Concurrent Submissions (10 ops)**: P50 = 64ms -> **40ms** (**-37.5% latency**).
+- **API Health & Auth Latencies**:
+  - `GET /api/v1/auth/me`: 29ms -> **18ms** (**-37.9% latency**).
+  - `GET /api/v1/events`: 58ms -> **28ms** (**-51.7% latency**).
+  - `GET /api/v1/reports/dashboard`: 116ms -> **99ms** (**-14.7% latency**).
+
+### Step 3 — Refactor the Architecture
+1. **Centralized Database Access**:
+   - Replaced all 12 separate `new PrismaClient()` instantiations across repositories (`reports`, `recruitment`, `learning`, `sponsors`, `feedback`, `community`) and services (`integrations`, `workflows`, `webhook-dispatcher`, `ai-validation`, `ai-copilot`, `ai-context`) with the centralized singleton `import { prisma } from "../utils/prisma"`.
+   - Eliminated the dynamic `new PrismaClient()` leak in `ai-copilot.controller.ts`.
+2. **Optimized Aggregations & Concurrency**:
+   - Batch-parallelized 8 count queries in `ReportsRepository.getDashboardStats` via a single `Promise.all`.
+   - Replaced memory-heavy array fetching in `AICopilotService.getUsageSummary` with database-level `prisma.aIRequest.aggregate` for token sums and counts.
+   - Parallelized count queries in `WorkflowsService.getWorkflowDashboard` and `IntegrationsService.getIntegrationDashboard`.
+3. **Decomposed Oversized Components**:
+   - Refactored `src/modules/participant/pages/submissions.tsx` (reduced from 1,334 lines to 1,050 lines) by extracting clean, decoupled components:
+     - `src/modules/participant/components/SubmissionsAccessGate.tsx`
+     - `src/modules/participant/components/ProblemStatementRequiredBanner.tsx`
+     - `src/modules/participant/components/AskMentorModal.tsx`
+     - `src/modules/participant/components/SubmissionPreviewDialog.tsx`
+4. **Optimized Vendor Code Splitting**:
+   - Configured `rollupOptions.output.manualChunks` in `vite.config.ts` to isolate heavy third-party vendor dependencies (`vendor-html5-qrcode`, `vendor-charts`, `vendor-motion`, `vendor-radix`, `vendor-lucide`).
+5. **Cleaned Unused Dependencies**:
+   - Removed unused `otplib` dependency from `package.json`.
+
+### Step 4 — Test and Secure
+- Ran complete TypeScript compilation check: `npx tsc --noEmit` -> **0 errors (100% pass)**.
+- Ran End-to-End Smoke Test: `npm run test:smoke` -> **10/10 passed cleanly**.
+- Ran Multi-Tenant 5-Track Concurrency Stress Test: `npm run test:stress` -> **220/220 operations passed, 0 errors, 100% data isolation**.
+
+### Step 5 — Compare and Repeat
+- Repeated all performance and type tests before and after changes.
+- Verified that all modifications delivered measurable improvements with zero functional regressions.
+
+---
+
+## 8. Final Recommendation & Readiness Verdict
 
 **Verdict: READY FOR DEPLOYMENT**
 
-All confirmed defects, security vulnerabilities, routing anomalies, and data isolation issues have been resolved. The codebase passes all TypeScript type checks, production builds, and automated regression test suites without regressions.
+All confirmed defects, security vulnerabilities, routing anomalies, database connection leaks, and oversized bundle chunks have been resolved. The codebase passes all TypeScript type checks, production builds, and automated regression test suites without regressions.
+

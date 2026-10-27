@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { SecurityRepository } from "../repositories/security.repository";
+import { prisma } from "../utils/prisma";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
 
 export class IntegrationsService {
   static async getIntegrations(organizationId: string) {
@@ -13,9 +11,11 @@ export class IntegrationsService {
   }
 
   static async getIntegrationDashboard(organizationId: string) {
-    const total = await prisma.integration.count({ where: { organizationId } });
-    const connected = await prisma.integration.count({ where: { organizationId, status: "Connected" } });
-    const errors = await prisma.integration.count({ where: { organizationId, status: "Error" } });
+    const [total, connected, errors] = await Promise.all([
+      prisma.integration.count({ where: { organizationId } }),
+      prisma.integration.count({ where: { organizationId, status: "Connected" } }),
+      prisma.integration.count({ where: { organizationId, status: "Error" } }),
+    ]);
     
     // In a real scenario, this would aggregate usage logs.
     const apiCalls30d = 12450;

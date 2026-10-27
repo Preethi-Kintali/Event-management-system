@@ -26,6 +26,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Upload, Lock, FileText, CheckCircle2, AlertCircle, AlertTriangle, Paperclip, MessageSquare, Award, Star, Eye, FileCode, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { SubmissionsAccessGate } from "../components/SubmissionsAccessGate";
+import { ProblemStatementRequiredBanner } from "../components/ProblemStatementRequiredBanner";
+import { AskMentorModal } from "../components/AskMentorModal";
+import { SubmissionPreviewDialog } from "../components/SubmissionPreviewDialog";
 
 const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg", "pdf", "doc", "docx", "mp4", "mov", "avi"];
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
@@ -508,33 +512,7 @@ export function ParticipantSubmissionsPage() {
 
       {/* ACCESS CONTROL GATE: Check Registration & Payment Status */}
       {accessStatus && !accessStatus.allowed ? (
-        <Card className="p-6 border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm rounded-xl">
-          <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
-            <div className="p-4 bg-amber-100 dark:bg-amber-900/50 rounded-full">
-              <Lock className="h-10 w-10 text-amber-600 dark:text-amber-400" />
-            </div>
-            <h2 className="text-xl font-bold tracking-tight text-foreground">🔒 Submissions Locked</h2>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Complete your event registration and payment to access problem statements and round submissions.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 py-2">
-              <Badge variant="outline" className="text-xs font-semibold px-3 py-1 bg-background">
-                Registration: {accessStatus.registrationStatus === "PENDING_PAYMENT" ? "Pending Payment ⚠️" : (accessStatus.registrationStatus === "APPROVED" || accessStatus.registrationStatus === "CONFIRMED" || accessStatus.registrationStatus === "PAID" ? "Confirmed ✓" : (accessStatus.registrationStatus || "Pending"))}
-              </Badge>
-              {accessStatus.isPaidEvent && (
-                <Badge variant="outline" className="text-xs font-semibold px-3 py-1 bg-background">
-                  Payment: {accessStatus.paymentStatus === "SUCCEEDED" || accessStatus.paymentStatus === "PAID" ? "Paid ✓" : (accessStatus.paymentStatus || "Pending")}
-                </Badge>
-              )}
-            </div>
-            <Button
-              className="gap-2 text-xs font-semibold"
-              onClick={() => navigate({ to: "/participant/discover-events" })}
-            >
-              Complete Registration
-            </Button>
-          </div>
-        </Card>
+        <SubmissionsAccessGate accessStatus={accessStatus} />
       ) : (
         <>
           {/* Header with Event Title & Status Badges */}
@@ -578,27 +556,7 @@ export function ParticipantSubmissionsPage() {
 
           {/* PROBLEM STATEMENT SELECTION GATE: Check whether team has permanently selected a Problem Statement */}
           {!isProblemStatementSelected ? (
-            <Card className="border-amber-500/30 bg-amber-500/5 shadow-sm p-6">
-              <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
-                <div className="p-3 bg-amber-500/10 rounded-full text-amber-600 dark:text-amber-400">
-                  <AlertTriangle className="h-8 w-8" />
-                </div>
-                <h2 className="text-xl font-bold tracking-tight text-foreground">
-                  Problem Statement Selection Required
-                </h2>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  Please select a Problem Statement before accessing round submissions.
-                </p>
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="text-xs font-semibold gap-1.5"
-                  onClick={() => navigate({ to: "/participant/problem-statements", search: { eventId: activeEventId } })}
-                >
-                  <FileCode className="h-4 w-4" /> Go to Problem Statements
-                </Button>
-              </div>
-            </Card>
+            <ProblemStatementRequiredBanner eventId={activeEventId} />
           ) : (
             <>
               {/* Selected Problem Statement Banner */}
@@ -1063,271 +1021,30 @@ export function ParticipantSubmissionsPage() {
       </Dialog>
 
       {/* Ask Mentor Modal */}
-      <Dialog open={showAskMentorModal} onOpenChange={setShowAskMentorModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" /> Ask Mentor a Doubt
-            </DialogTitle>
-            <DialogDescription className="pt-1 text-xs text-muted-foreground">
-              Submit your question regarding problem statement or round requirements.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Your Question / Doubt</Label>
-              <Textarea
-                rows={4}
-                placeholder="Describe your technical issue, question regarding problem statement, or round guidelines..."
-                value={mentorQuestionText}
-                onChange={(e) => setMentorQuestionText(e.target.value)}
-                className="text-xs"
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setShowAskMentorModal(false)}>
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              disabled={!mentorQuestionText.trim() || askMentorMutation.isPending}
-              onClick={handleAskMentor}
-            >
-              {askMentorMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-              Submit Question
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AskMentorModal
+        open={showAskMentorModal}
+        onOpenChange={setShowAskMentorModal}
+        questionText={mentorQuestionText}
+        onQuestionTextChange={setMentorQuestionText}
+        isSubmitting={askMentorMutation.isPending}
+        onSubmit={handleAskMentor}
+      />
 
       {/* STRICT READ-ONLY VIEW SUBMISSION DETAILS MODAL */}
-      <Dialog
+      <SubmissionPreviewDialog
         open={Boolean(viewSubmissionId || viewSubmissionModalData)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setViewSubmissionId(null);
-            setViewSubmissionModalData(null);
-          }
+        onClose={() => {
+          setViewSubmissionId(null);
+          setViewSubmissionModalData(null);
         }}
-      >
-        <DialogContent className="sm:max-w-[650px] w-[calc(100vw-24px)] max-h-[90vh] flex flex-col p-0 overflow-hidden border-border bg-card shadow-2xl">
-          {loadingFetchedSub && !activeModalSub ? (
-            <div className="p-12 flex flex-col items-center justify-center space-y-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-xs text-muted-foreground font-medium">Loading submission details...</p>
-            </div>
-          ) : fetchSubError && !activeModalSub ? (
-            <div className="p-8 text-center space-y-4">
-              <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto text-destructive">
-                <AlertCircle className="h-6 w-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-base text-foreground">Submission Not Found</h3>
-                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                  The requested submission details could not be retrieved or access is unauthorized.
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setViewSubmissionId(null);
-                  setViewSubmissionModalData(null);
-                }}
-              >
-                Close
-              </Button>
-            </div>
-          ) : activeModalSub ? (
-            <>
-              {/* Modal Header */}
-              <div className="p-5 sm:p-6 pb-4 border-b border-border flex items-start justify-between shrink-0 bg-muted/10">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                        {activeModalSub.team?.name || activeTeam?.name || "Team"}
-                      </span>
-                    </div>
-                    <h2 className="text-lg font-bold tracking-tight text-foreground leading-tight mt-0.5">
-                      Round {activeModalSub.roundNumber || activeModalSub.eventRound?.roundNumber || 1} — {activeModalSub.eventRound?.name || activeModalSub.title || "Round Submission"}
-                    </h2>
-                    <p className="text-xs text-muted-foreground font-mono mt-0.5 select-all">
-                      Submission ID: {activeModalSub.id}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Body - Scrollable Read-Only View */}
-              <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1 text-xs">
-                {/* Summary Grid */}
-                <div className="p-4 rounded-xl border bg-muted/20 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Event</span>
-                      <p className="font-semibold text-foreground mt-0.5">
-                        {activeModalSub.event?.name || activeModalSub.competition?.event?.name || activeEvent?.name || "Event"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Team</span>
-                      <p className="font-semibold text-foreground mt-0.5">
-                        {activeModalSub.team?.name || activeTeam?.name || "Team"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Problem Statement Code</span>
-                      <p className="font-mono font-bold text-primary mt-0.5">
-                        {activeModalSub.problemStatement?.code || selectedProblemStatement?.code || "—"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Problem Statement Name</span>
-                      <p className="font-semibold text-foreground mt-0.5">
-                        {activeModalSub.problemStatement?.title || selectedProblemStatement?.title || "—"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Submission Status</span>
-                      <div className="mt-0.5 flex items-center gap-1.5">
-                        <Badge variant="default" className="bg-emerald-600 text-white text-[10px] gap-1 font-bold border-transparent">
-                          <Lock className="h-3 w-3" /> 🟢 SUBMITTED & LOCKED
-                        </Badge>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Submitted Date / Time</span>
-                      <p className="font-mono text-foreground font-medium mt-0.5">
-                        {formatScheduleDate(activeModalSub.lockedAt || activeModalSub.createdAt)}
-                      </p>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Submitted By</span>
-                      <p className="font-semibold text-foreground mt-0.5">
-                        {activeModalSub.submittedBy
-                          ? `${activeModalSub.submittedBy.firstName || ''} ${activeModalSub.submittedBy.lastName || ''}`.trim() || activeModalSub.submittedBy.email
-                          : "Team Member"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submission Description */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5 text-primary" /> SUBMISSION DESCRIPTION
-                  </h4>
-                  <div className="p-3.5 rounded-lg border bg-card text-foreground text-xs leading-relaxed whitespace-pre-line">
-                    {(() => {
-                      const descText =
-                        activeModalSub.description ||
-                        (activeModalSub.payload && typeof activeModalSub.payload === "object" && ((activeModalSub.payload as any).description || (activeModalSub.payload as any).content)) ||
-                        activeModalSub.content;
-                      return descText && String(descText).trim() ? String(descText).trim() : "No project description provided for this submission.";
-                    })()}
-                  </div>
-                </div>
-
-                {/* Uploaded Files Roster */}
-                <div className="space-y-2">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <Paperclip className="h-3.5 w-3.5 text-primary" /> UPLOADED FILES ({activeModalSub.files?.length || 0})
-                    </span>
-                  </h4>
-
-                  {activeModalSub.files && activeModalSub.files.length > 0 ? (
-                    <div className="divide-y border rounded-lg overflow-hidden bg-card">
-                      {activeModalSub.files.map((file: any, idx: number) => (
-                        <div key={file.id || idx} className="p-3 flex items-center justify-between gap-3 text-xs">
-                          <div className="flex items-center gap-2.5 overflow-hidden">
-                            <FileText className="h-4 w-4 text-primary shrink-0" />
-                            <div className="truncate">
-                              <p className="font-semibold text-foreground truncate">{file.fileName}</p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {(file.fileSize / (1024 * 1024)).toFixed(2)} MB • {file.fileType}
-                              </p>
-                            </div>
-                          </div>
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-[11px] shrink-0 gap-1 font-medium hover:bg-primary/10"
-                            onClick={() => window.open(getFileViewUrl(file.fileUrl || `/uploads/${file.fileName}`), "_blank", "noopener,noreferrer")}
-                          >
-                            <Eye className="h-3 w-3" /> View
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-4 border rounded-lg bg-card text-center text-xs text-muted-foreground italic">
-                      No files uploaded for this submission.
-                    </div>
-                  )}
-                </div>
-
-                {/* Evaluation Progress */}
-                <div className="space-y-2">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 text-amber-500" /> EVALUATION PROGRESS
-                  </h4>
-
-                  {activeModalSub.evaluations && activeModalSub.evaluations.length > 0 ? (
-                    <div className="space-y-2">
-                      {activeModalSub.evaluations.map((ev: any, idx: number) => (
-                        <div key={ev.id || idx} className="p-3 rounded-lg border bg-card space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-semibold text-foreground">
-                              Judge: {ev.judge?.user ? `${ev.judge.user.firstName || ''} ${ev.judge.user.lastName || ''}`.trim() || ev.judge.user.email : ev.judge?.name || "Assigned Judge"}
-                            </span>
-                            <span className="font-mono text-sm font-bold text-primary">
-                              {ev.score ?? "—"} Marks
-                            </span>
-                          </div>
-                          {ev.feedback && (
-                            <div className="text-muted-foreground border-t pt-2 space-y-0.5">
-                              <span className="font-medium text-[10px] uppercase tracking-wider text-foreground">Judge Feedback:</span>
-                              <p className="italic text-xs leading-relaxed">{ev.feedback}</p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-3 border rounded-lg bg-card text-xs text-muted-foreground flex items-center justify-between">
-                      <span>Status: <strong className="text-amber-600">Pending Evaluation</strong></span>
-                      <span className="text-[11px] font-mono">No score assigned yet</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Modal Footer - Strictly Read-Only, Close only */}
-              <div className="p-4 border-t border-border shrink-0 bg-muted/20 flex justify-end">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setViewSubmissionId(null);
-                    setViewSubmissionModalData(null);
-                  }}
-                >
-                  Close
-                </Button>
-              </div>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+        isLoading={loadingFetchedSub}
+        error={fetchSubError}
+        submission={activeModalSub}
+        activeTeam={activeTeam}
+        activeEvent={activeEvent}
+        selectedProblemStatement={selectedProblemStatement}
+        formatScheduleDate={formatScheduleDate}
+      />
     </div>
   );
 }
