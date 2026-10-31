@@ -67,7 +67,7 @@ export function AppLoadingPage({ message = "Initializing workspace..." }: AppLoa
         {/* Application Flow Blueprint (Landing Page Flow) */}
         <div className="w-full bg-slate-900/40 border border-slate-800/60 rounded-xl p-4 backdrop-blur-md space-y-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center justify-center gap-1.5">
-            <span>Eventora Platform Flow</span>
+            <span>Eventura Platform Flow</span>
           </p>
 
           <div className="grid grid-cols-1 gap-2 text-left">

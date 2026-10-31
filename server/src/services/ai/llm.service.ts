@@ -45,12 +45,12 @@ export class LLMService {
 
   private static generateFallbackReport(prompt: string, contextString?: string): string {
     const eventNameMatch = prompt.match(/Event Name:\s*([^\n]+)/i);
-    const eventName = eventNameMatch ? eventNameMatch[1].trim() : "Eventora Innovation Hackathon";
+    const eventName = eventNameMatch ? eventNameMatch[1].trim() : "Eventura Innovation Hackathon";
 
     return `# FINAL EVENT REPORT: ${eventName.toUpperCase()}
 
 ## 1. Executive Summary
-The event **${eventName}** was successfully conducted under the Eventora Enterprise Management Platform. The program brought together multiple multidisciplinary teams participating across specialized problem statement tracks, guided by assigned mentors, and rigorously evaluated by official panel judges using multi-criteria rubrics.
+The event **${eventName}** was successfully conducted under the Eventura Enterprise Management Platform. The program brought together multiple multidisciplinary teams participating across specialized problem statement tracks, guided by assigned mentors, and rigorously evaluated by official panel judges using multi-criteria rubrics.
 
 ## 2. Event Overview & Structure
 - **Platform Governance**: Institutional multi-tenant compliance with role-based access control (RBAC).

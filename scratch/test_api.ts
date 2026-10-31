@@ -12,7 +12,7 @@ async function generateToken(email: string) {
 
 async function run() {
   console.log("Setting up tests...");
-  const adminToken = await generateToken("admin@ascent.dev");
+  const adminToken = await generateToken("admin@eventura.dev");
   const participantToken = await generateToken("bob@gmail.com");
 
   const orgs = await prisma.organization.findMany();

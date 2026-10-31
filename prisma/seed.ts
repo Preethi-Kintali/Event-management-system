@@ -99,6 +99,7 @@ async function main() {
     'hackathon_proposals.read_own', 'hackathon_proposals.update_own',
     'hackathon_proposals.submit', 'hackathon_proposals.review', 'hackathon_proposals.principal_review',
     'hackathon_proposals.create_event', 'events.read_assigned',
+    'reports.read', 'reports.export',
   ];
 
   const permissions: Record<string, { id: string; action: string }> = {};
@@ -109,7 +110,7 @@ async function main() {
   }
 
   // 3. Users
-  const passwordHash = await bcrypt.hash('Password123!', 10);
+  const passwordHash = await bcrypt.hash('password123', 10);
 
   const sudoAdmin = await prisma.user.create({
     data: { email: 'sudo@ascent.com', firstName: 'Sudo', lastName: 'Admin', passwordHash, status: UserStatus.ACTIVE },
@@ -120,7 +121,7 @@ async function main() {
   });
 
   const platformAdmin = await prisma.user.create({
-    data: { email: 'admin@ascent.dev', firstName: 'Admin', lastName: 'User', passwordHash, status: UserStatus.ACTIVE },
+    data: { email: 'admin@eventura.dev', firstName: 'Admin', lastName: 'User', passwordHash, status: UserStatus.ACTIVE },
   });
 
   const orgManager = await prisma.user.create({
@@ -239,6 +240,7 @@ async function main() {
     'hackathon_proposals.read_own', 'hackathon_proposals.update_own',
     'hackathon_proposals.submit', 'hackathon_proposals.review', 'hackathon_proposals.principal_review', 'hackathon_proposals.create_event',
     'users.read', 'users.manage',
+    'reports.read', 'reports.export',
   ];
   for (const p of orgAdminPerms) {
     await prisma.rolePermission.create({ data: { roleId: orgAdminRole.id, permissionId: permissions[p].id } });
@@ -252,6 +254,25 @@ async function main() {
   for (const p of participantPerms) {
     if (permissions[p]) {
       await prisma.rolePermission.create({ data: { roleId: participantRole.id, permissionId: permissions[p].id } });
+    }
+  }
+
+  const mentorPerms = [
+    'events.read', 'competitions.read', 'teams.read',
+    'submissions.read', 'communications.read', 'notifications.read'
+  ];
+  for (const p of mentorPerms) {
+    if (permissions[p]) {
+      await prisma.rolePermission.create({ data: { roleId: mentorRole.id, permissionId: permissions[p].id } });
+    }
+  }
+
+  const judgePerms = [
+    'events.read', 'competitions.read', 'submissions.read', 'evaluations.read', 'notifications.read'
+  ];
+  for (const p of judgePerms) {
+    if (permissions[p]) {
+      await prisma.rolePermission.create({ data: { roleId: judgeRole.id, permissionId: permissions[p].id } });
     }
   }
 
@@ -298,6 +319,64 @@ async function main() {
       status: EventStatus.DRAFT,
       startTime: new Date('2026-11-15T09:00:00Z'),
       endTime: new Date('2026-11-17T18:00:00Z'),
+    },
+  });
+
+  const round1 = await prisma.eventRound.create({
+    data: {
+      eventId: event1.id,
+      roundNumber: 1,
+      name: 'Qualifier Round',
+      description: 'Initial screening round',
+      maxMarks: 100,
+      submissionStart: new Date('2026-10-01T04:30:00.000Z'),
+      submissionDeadline: new Date('2026-10-03T12:30:00.000Z'),
+      status: 'ACTIVE',
+    },
+  });
+  const round2 = await prisma.eventRound.create({
+    data: {
+      eventId: event1.id,
+      roundNumber: 2,
+      name: 'Demo Round',
+      description: 'Prototype demonstration',
+      maxMarks: 100,
+      submissionStart: new Date('2026-10-05T04:30:00.000Z'),
+      submissionDeadline: new Date('2026-10-06T12:30:00.000Z'),
+      status: 'ACTIVE',
+    },
+  });
+  const round3 = await prisma.eventRound.create({
+    data: {
+      eventId: event1.id,
+      roundNumber: 3,
+      name: 'Final Presentation',
+      description: 'Grand finale presentation',
+      maxMarks: 100,
+      submissionStart: new Date('2026-10-08T04:30:00.000Z'),
+      submissionDeadline: new Date('2026-10-09T12:30:00.000Z'),
+      status: 'ACTIVE',
+    },
+  });
+
+  const designRound1 = await prisma.eventRound.create({
+    data: {
+      eventId: event2.id,
+      roundNumber: 1,
+      name: 'Design Wireframes',
+      description: 'UI/UX wireframes submission',
+      maxMarks: 100,
+      status: 'ACTIVE',
+    },
+  });
+  const designRound2 = await prisma.eventRound.create({
+    data: {
+      eventId: event2.id,
+      roundNumber: 2,
+      name: 'Interactive Prototype',
+      description: 'Interactive prototype submission',
+      maxMarks: 100,
+      status: 'ACTIVE',
     },
   });
 
@@ -387,6 +466,15 @@ async function main() {
     },
   });
 
+  const team3 = await prisma.team.create({
+    data: {
+      name: 'Code Crafters',
+      competitionId: comp2.id,
+      problemStatementId: ps2.id,
+      members: { create: [{ name: 'Aarav Patel', email: 'aarav@example.com', isLead: true }] },
+    },
+  });
+
   // 11. Submissions
   const sub1 = await prisma.submission.create({
     data: {
@@ -394,7 +482,10 @@ async function main() {
       payload: { description: 'A real-time AI-powered screen reader using computer vision.', url: 'https://github.com/example/accessisight' },
       teamId: team1.id,
       competitionId: comp1.id,
-      status: SubmissionStatus.SUBMITTED,
+      eventId: event1.id,
+      roundId: round1.id,
+      roundNumber: 1,
+      status: SubmissionStatus.EVALUATED,
     },
   });
 
@@ -404,7 +495,36 @@ async function main() {
       payload: { description: 'Uses MediaPipe to translate sign language in real-time.', url: 'https://github.com/example/signbridge' },
       teamId: team2.id,
       competitionId: comp1.id,
+      eventId: event1.id,
+      roundId: round2.id,
+      roundNumber: 2,
       status: SubmissionStatus.IN_REVIEW,
+    },
+  });
+
+  const sub3 = await prisma.submission.create({
+    data: {
+      title: 'GridPulse — AI Smart Energy & Peak Load Optimizer',
+      payload: { description: 'Predictive neural network for micro-grid load balancing and solar distribution.', url: 'https://github.com/example/gridpulse' },
+      teamId: team1.id,
+      competitionId: comp1.id,
+      eventId: event1.id,
+      roundId: round3.id,
+      roundNumber: 3,
+      status: SubmissionStatus.SUBMITTED,
+    },
+  });
+
+  const sub4 = await prisma.submission.create({
+    data: {
+      title: 'EcoMobility — Low-Carbon Urban Transit Dashboard',
+      payload: { description: 'Figma wireframes and UX flows for city transit decarbonization.', url: 'https://figma.com/file/ecomobility' },
+      teamId: team3.id,
+      competitionId: comp2.id,
+      eventId: event2.id,
+      roundId: designRound1.id,
+      roundNumber: 1,
+      status: SubmissionStatus.SUBMITTED,
     },
   });
 
@@ -440,7 +560,10 @@ async function main() {
     data: {
       submissionId: sub1.id,
       judgeId: judge1.id,
+      roundId: round1.id,
+      roundNumber: 1,
       score: 87.5,
+      recommendation: 'QUALIFY',
       feedback: 'Strong technical depth. Excellent use of on-device inference.',
       status: EvaluationStatus.COMPLETED,
     },
@@ -450,7 +573,10 @@ async function main() {
     data: {
       submissionId: sub2.id,
       judgeId: judge1.id,
+      roundId: round2.id,
+      roundNumber: 2,
       score: 79,
+      recommendation: 'QUALIFY',
       feedback: 'Good concept, needs more robust error handling.',
       status: EvaluationStatus.IN_PROGRESS,
     },
@@ -458,8 +584,23 @@ async function main() {
 
   await prisma.evaluation.create({
     data: {
-      submissionId: sub1.id,
+      submissionId: sub3.id,
       judgeId: judge2.id,
+      roundId: round3.id,
+      roundNumber: 3,
+      score: 94.0,
+      recommendation: 'QUALIFY',
+      feedback: 'Outstanding live demonstration and benchmark results.',
+      status: EvaluationStatus.COMPLETED,
+    },
+  });
+
+  await prisma.evaluation.create({
+    data: {
+      submissionId: sub4.id,
+      judgeId: judge1.id,
+      roundId: designRound1.id,
+      roundNumber: 1,
       score: null,
       feedback: null,
       status: EvaluationStatus.PENDING,
@@ -912,7 +1053,7 @@ async function main() {
   console.log("\n✅ Seeding complete!");
   console.log("─────────────────────────────────────────────");
   console.log("TEST CREDENTIALS (DEVELOPMENT ONLY):");
-  console.log("  Sudo Admin:      admin@ascent.dev       / password123");
+  console.log("  Sudo Admin:      admin@eventura.dev       / password123");
   console.log("  Admin:           manager@contoso.com    / password123");
   console.log("─────────────────────────────────────────────");
   console.log(`Organizations: ${org1.name}, ${org2.name}`);

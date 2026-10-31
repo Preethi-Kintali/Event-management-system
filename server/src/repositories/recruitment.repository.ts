@@ -1,6 +1,5 @@
-import { PrismaClient, JobPosting, JobApplication } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { JobPosting, JobApplication } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export class RecruitmentRepository {
   // Jobs

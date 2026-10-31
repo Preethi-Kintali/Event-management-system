@@ -4,12 +4,12 @@ import { TeamsListPage } from "@/modules/teams/pages/teams-list";
 export const Route = createFileRoute("/teams/")({
   head: () => ({
     meta: [
-      { title: "Teams · Eventora Platform" },
+      { title: "Teams · Eventura Platform" },
       {
         name: "description",
         content: "Team formation, membership and progress across all competitions.",
       },
-      { property: "og:title", content: "Teams · Eventora Platform" },
+      { property: "og:title", content: "Teams · Eventura Platform" },
       {
         property: "og:description",
         content: "Team formation, membership and progress across all competitions.",

@@ -1,6 +1,6 @@
-# Eventora (powered by Clientura) - Folder Structure & Architecture
+# Eventura (powered by Clientura) - Folder Structure & Architecture
 
-This document describes the updated file and folder structure of **Eventora powered by Clientura**, an enterprise Multi-Tenant Event Management & Enterprise Role-Based Access Control (RBAC) Platform.
+This document describes the updated file and folder structure of **Eventura powered by Clientura**, an enterprise Multi-Tenant Event Management & Enterprise Role-Based Access Control (RBAC) Platform.
 
 ---
 
@@ -64,7 +64,7 @@ event_management/
     └── routes/                 # File-based routes (TanStack Router)
         ├── __root.tsx          # Root layout route with SEO meta & favicon links
         ├── index.tsx           # Home / Dashboard landing page
-        ├── login.tsx           # Eventora Login screen with Clientura branding
+        ├── login.tsx           # Eventura Login screen with Clientura branding
         ├── signup.tsx          # Registration screen with account type selector
         ├── events.tsx          # Events list & discovery route
         ├── users.tsx           # Organization Users management route
@@ -103,6 +103,6 @@ event_management/
 
 1. **Frontend Server**: Vite dev server on port `8080`.
 2. **Backend API Server**: Express server on port `3000`.
-3. **Database**: PostgreSQL server on port `5432` (`ascent_db`).
+3. **Database**: PostgreSQL server on port `5432` (`eventura_db`).
 
 For step-by-step setup and prerequisite installation on any system, refer to [`REQUIREMENTS.md`](file:///e:/projects/event_management/REQUIREMENTS.md) and [`requirements.txt`](file:///e:/projects/event_management/requirements.txt).

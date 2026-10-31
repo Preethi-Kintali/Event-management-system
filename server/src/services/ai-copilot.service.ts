@@ -1,20 +1,23 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 import { LLMService } from "./ai/llm.service";
 import { AIContextService } from "./ai/ai-context.service";
 
-const prisma = new PrismaClient();
-
 export class AICopilotService {
   static async getUsageSummary(organizationId: string) {
-    const requests = await prisma.aIRequest.findMany({
-      where: { organizationId },
-    });
+    const [aggregateResult, successCount] = await Promise.all([
+      prisma.aIRequest.aggregate({
+        where: { organizationId },
+        _count: { id: true },
+        _sum: { tokens: true },
+      }),
+      prisma.aIRequest.count({
+        where: { organizationId, status: "Success" },
+      }),
+    ]);
 
-    const totalRequests = requests.length;
-    const totalTokens = requests.reduce((sum, req) => sum + req.tokens, 0);
-    const successRate = totalRequests > 0 
-      ? (requests.filter(r => r.status === "Success").length / totalRequests) * 100 
-      : 0;
+    const totalRequests = aggregateResult._count.id || 0;
+    const totalTokens = aggregateResult._sum.tokens || 0;
+    const successRate = totalRequests > 0 ? (successCount / totalRequests) * 100 : 0;
 
     return {
       totalRequests,

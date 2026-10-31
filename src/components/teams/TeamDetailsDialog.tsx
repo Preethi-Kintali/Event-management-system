@@ -127,7 +127,7 @@ export function TeamDetailsDialog({
                 {team && <Badge variant="outline">{team.currentRound ? `Round ${team.currentRound}` : "Active"}</Badge>}
               </div>
               <DialogDescription className="text-xs text-muted-foreground mt-1">
-                {competition?.name} • {event?.name || "Eventora Hackathon"}
+                {competition?.name} • {event?.name || "Eventura Hackathon"}
               </DialogDescription>
             </div>
 
@@ -245,7 +245,7 @@ export function TeamDetailsDialog({
                         </div>
                         <div className="grid grid-cols-3">
                           <span className="text-muted-foreground font-medium">Organization:</span>
-                          <span className="col-span-2 font-medium text-foreground">{event?.organization?.name || "Eventora"}</span>
+                          <span className="col-span-2 font-medium text-foreground">{event?.organization?.name || "Eventura"}</span>
                         </div>
                         <div className="grid grid-cols-3">
                           <span className="text-muted-foreground font-medium">Created On:</span>

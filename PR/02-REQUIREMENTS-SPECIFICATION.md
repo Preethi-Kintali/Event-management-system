@@ -1,11 +1,11 @@
-# Eventora — Product Requirements & Real-World Specification
+# Eventura — Product Requirements & Real-World Specification
 
-> **What is Eventora?**  
-> Eventora is an end-to-end event operations and governance platform built specifically for universities, colleges, and tech communities. Instead of juggling scattered Google Forms, messy judging spreadsheets, WhatsApp announcements, and manual paper certificates, Eventora unifies the entire event lifecycle into a structured, transparent, and role-governed platform.
+> **What is Eventura?**  
+> Eventura is an end-to-end event operations and governance platform built specifically for universities, colleges, and tech communities. Instead of juggling scattered Google Forms, messy judging spreadsheets, WhatsApp announcements, and manual paper certificates, Eventura unifies the entire event lifecycle into a structured, transparent, and role-governed platform.
 
 ---
 
-## 1. Why Eventora Exists (The Problem We Solved)
+## 1. Why Eventura Exists (The Problem We Solved)
 
 Running an institutional tech symposium or hackathon usually involves chaos:
 * **The Approval Bottleneck**: Student coordinators print physical proposal forms, run between department offices for faculty budget sign-offs, and wait days for the Principal's stamp of approval.
@@ -14,13 +14,13 @@ Running an institutional tech symposium or hackathon usually involves chaos:
 * **The Post-Event Reporting Nightmare**: Writing the post-hackathon completion report takes coordinators weeks of collecting photos, tracking expenses, and calculating turnout numbers.
 * **Fake Certificates**: Paper certificates are easily forged, with no quick way for recruiters or university accreditation boards to verify authenticity.
 
-**Eventora replaces this patchwork with a single, connected workflow.**
+**Eventura replaces this patchwork with a single, connected workflow.**
 
 ---
 
 ## 2. The 7-Step Institutional Event Lifecycle
 
-Here is how an event actually moves through Eventora from a student's initial idea to the final archived dossier:
+Here is how an event actually moves through Eventura from a student's initial idea to the final archived dossier:
 
 ```
 [01. Submit Proposal] 
@@ -88,7 +88,7 @@ Here is how an event actually moves through Eventora from a student's initial id
 
 ## 3. Tailored Experiences for Every Role
 
-Eventora uses clean, strict role-based access control. Users see only what they need to do their job without visual clutter:
+Eventura uses clean, strict role-based access control. Users see only what they need to do their job without visual clutter:
 
 | Role | Key Screen / URL | What They Actually Do |
 |:---|:---|:---|
@@ -110,7 +110,7 @@ Eventora uses clean, strict role-based access control. Users see only what they 
 * The Principal has a dedicated clean screen with a simple **"Approve & Allocate Venue"** button or a request-for-revision note.
 
 ### 4.2 Hackathon Tracks & Team Dynamics
-* Events aren't always one-size-fits-all. Eventora supports multiple competition tracks under a single hackathon.
+* Events aren't always one-size-fits-all. Eventura supports multiple competition tracks under a single hackathon.
 * Hackers form teams with unique invitation links. Team leaders can invite members, accept join requests, and assign roles.
 * Once the registration deadline passes or a project is submitted, team rosters lock automatically to prevent roster manipulation.
 
@@ -121,7 +121,7 @@ Eventora uses clean, strict role-based access control. Users see only what they 
 * Once submitted, scores are locked. To prevent one harsh judge from skewing the results, the system normalizes scoring across panels.
 
 ### 4.4 Automated AI Event Dossiers (The Game Changer)
-* Compiling a comprehensive post-event report usually takes weeks. In Eventora:
+* Compiling a comprehensive post-event report usually takes weeks. In Eventura:
   1. The system gathers all verified data: number of hackers, total submissions, attendance percentage, winning teams, and timeline checkpoints.
   2. With one click, **Google Gemini AI** drafts a professional, publication-ready summary covering:
      * Executive Overview
@@ -138,18 +138,18 @@ Eventora uses clean, strict role-based access control. Users see only what they 
   * A unique cryptographic serial code (e.g., `CERT-AI-2026-98124`).
   * A scannable QR code linking to:
     ```
-    https://eventora.edu/certificates/verify/:code
+    https://eventura.edu/certificates/verify/:code
     ```
 * Recruiters, employers, or university evaluators can scan the QR code from any phone and verify authenticity instantly—no login required.
 
 ### 4.6 Gate Attendance with QR Passports
 * Every registered hacker receives a personal digital badge with an encrypted QR code.
-* Volunteers stand at the entrance with their phones running Eventora's scanner screen.
+* Volunteers stand at the entrance with their phones running Eventura's scanner screen.
 * Each scan instantly flashes green with the attendee's name and photo, or red if already checked in or unapproved.
 * Works even if campus Wi-Fi drops temporarily by syncing scans locally and reconciling when back online.
 
 ### 4.7 One-Click Operational Datasets (8 Master CSVs)
-Event managers often need raw data for spreadsheets or institutional audits. Eventora provides instant CSV downloads for 8 dedicated modules:
+Event managers often need raw data for spreadsheets or institutional audits. Eventura provides instant CSV downloads for 8 dedicated modules:
 1. **Events Master**: Schedule dates, registration fees, total revenues, and status.
 2. **Competitions & Tracks**: Challenge descriptions, team capacities, and judge assignments.
 3. **Participants Roster**: Names, college emails, team affiliations, and registration timestamps.
@@ -163,7 +163,7 @@ Event managers often need raw data for spreadsheets or institutional audits. Eve
 
 ## 5. Non-Functional Guarantees (The Engine Under the Hood)
 
-We designed Eventora to handle the reality of high-pressure college events:
+We designed Eventura to handle the reality of high-pressure college events:
 
 * **Instant Responsiveness**:
   * Pages load in under 150 milliseconds.
@@ -185,7 +185,7 @@ We designed Eventora to handle the reality of high-pressure college events:
 ## 6. Real-World User Scenarios
 
 ### Scenario A: Drafting and Approving the Annual Hackathon
-1. **Alice (Student Coordinator)** logs into Eventora. She clicks *New Event Proposal*, enters "HackNova 2026", requests October 15–17, outlines an estimated budget of $4,500, and asks for the Engineering Auditorium.
+1. **Alice (Student Coordinator)** logs into Eventura. She clicks *New Event Proposal*, enters "HackNova 2026", requests October 15–17, outlines an estimated budget of $4,500, and asks for the Engineering Auditorium.
 2. **Prof. David (Event Manager)** gets an alert. He reviews Alice's proposal, notes that the dates don't clash with mid-term exams, approves the budget feasibility, and clicks *Endorse to Principal*.
 3. **Dr. Sharma (Principal)** opens his dashboard on his iPad between meetings. He sees the proposal, notes the faculty endorsement, and clicks **"Approve & Allocate Venue"**.
 4. Alice receives an instant notification: *"HackNova 2026 has been officially sanctioned!"* The event is ready for track setup.
@@ -197,7 +197,7 @@ We designed Eventora to handle the reality of high-pressure college events:
 4. Out in the auditorium, the live leaderboard recalculates instantly. Team Quantum climbs into 1st place on the big projector screen.
 
 ### Scenario C: Sealing the Final Report with AI
-1. The hackathon concludes on Sunday evening. Alice opens the Eventora Reports tab.
+1. The hackathon concludes on Sunday evening. Alice opens the Eventura Reports tab.
 2. She clicks **"Generate AI Report"**. In seconds, Google Gemini reads the final turnout numbers, average scores, and winning team summaries, drafting a 4-page structured executive dossier.
 3. Alice adds two photos of the podium ceremony and submits it to Prof. David.
 4. Prof. David reviews the expenditure ledger, confirms the cash prizes, and signs off.
@@ -205,9 +205,9 @@ We designed Eventora to handle the reality of high-pressure college events:
 
 ### Scenario D: A Hacker Shares Their Win on LinkedIn
 1. **Rajat (Team Quantum Lead)** receives an email: *"Your HackNova 2026 Winner Certificate is Ready!"*
-2. He opens his Eventora profile and downloads his high-resolution certificate.
+2. He opens his Eventura profile and downloads his high-resolution certificate.
 3. He shares the public verification link on his LinkedIn profile:
-   `https://eventora.edu/certificates/verify/CERT-HN26-10492`
+   `https://eventura.edu/certificates/verify/CERT-HN26-10492`
 4. A recruiter clicks the link and immediately sees a verified green badge from the university confirming Rajat took 1st place in the AI Track on October 17, 2026.
 
 ---
@@ -229,5 +229,5 @@ We designed Eventora to handle the reality of high-pressure college events:
 
 ---
 
-*Authored by the Product & Architecture Team — Eventora Platform*  
+*Authored by the Product & Architecture Team — Eventura Platform*  
 *Last Updated: October 2026*

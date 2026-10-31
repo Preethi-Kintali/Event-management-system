@@ -1,8 +1,8 @@
 # REQUIREMENTS & SYSTEM SETUP GUIDE
 
-## 🚀 Eventora powered by Clientura
+## 🚀 Eventura powered by Clientura
 
-This document provides step-by-step setup instructions to run **Eventora powered by Clientura** on any new desktop, laptop, server, or operating system (Windows, macOS, Linux).
+This document provides step-by-step setup instructions to run **Eventura powered by Clientura** on any new desktop, laptop, server, or operating system (Windows, macOS, Linux).
 
 ---
 
@@ -16,7 +16,7 @@ Before starting, ensure your system has the following installed:
    - Verify installation: `npm -v`
 3. **PostgreSQL Database** (v14.0 or higher)
    - Ensure PostgreSQL service is running on your system (Default Port: `5432`).
-   - Create a target database named `ascent_db` (or custom name of your choice).
+   - Create a target database named `eventura_db` (or custom name of your choice).
 
 ---
 
@@ -44,7 +44,7 @@ cp .env.example .env
 Ensure your `.env` file contains your database connection details and secret keys:
 ```env
 # Database Connection (PostgreSQL)
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ascent_db?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/eventura_db?schema=public"
 
 # Backend REST API Server Port
 PORT=3000

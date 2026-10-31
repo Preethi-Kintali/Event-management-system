@@ -3,7 +3,7 @@ import { ManagerDashboard } from "@/modules/manager/pages/dashboard";
 
 export const Route = createFileRoute("/manager/")({
   head: () => ({
-    meta: [{ title: "Manager Dashboard · Eventora Platform" }],
+    meta: [{ title: "Manager Dashboard · Eventura Platform" }],
   }),
   component: ManagerDashboard,
 });

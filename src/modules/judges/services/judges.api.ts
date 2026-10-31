@@ -69,14 +69,34 @@ export function useJudgeProfiles() {
   });
 }
 
-export function useMyEvaluations(profileId: string | null) {
+export function useMyEvaluations(params?: {
+  profileId?: string | null | undefined;
+  eventId?: string | undefined;
+  roundId?: string | undefined;
+} | string | null | undefined) {
+  const profileId = typeof params === "string" || params === null ? params : params?.profileId;
+  const eventId = typeof params === "object" && params !== null ? params.eventId : undefined;
+  const roundId = typeof params === "object" && params !== null ? params.roundId : undefined;
+
   return useQuery({
-    queryKey: ["evaluations", "my", profileId],
+    queryKey: [
+      "evaluations",
+      "my",
+      {
+        judgeId: profileId || "self",
+        eventId: eventId && eventId !== "ALL" ? eventId : "ALL",
+        roundId: roundId && roundId !== "ALL" ? roundId : "ALL",
+      },
+    ],
     queryFn: async () => {
-      const res = await fetchApi(`/evaluations/my?profileId=${profileId}`);
+      const searchParams = new URLSearchParams();
+      if (profileId) searchParams.set("profileId", profileId);
+      if (eventId && eventId !== "ALL") searchParams.set("eventId", eventId);
+      if (roundId && roundId !== "ALL") searchParams.set("roundId", roundId);
+      const qs = searchParams.toString();
+      const res = await fetchApi(`/evaluations/my${qs ? `?${qs}` : ""}`);
       return res.data;
     },
-    enabled: !!profileId,
   });
 }
 
@@ -146,6 +166,9 @@ export function useUpdateEvaluation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["evaluations"] });
+      queryClient.invalidateQueries({ queryKey: ["submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["manager", "evaluations"] });
+      queryClient.invalidateQueries({ queryKey: ["manager", "submissions"] });
     },
   });
 }

@@ -1,6 +1,6 @@
-# Eventora powered by Clientura - Application Enhancements & Feature Roadmap
+# Eventura powered by Clientura - Application Enhancements & Feature Roadmap
 
-This document outlines the complete list of system enhancements, architectural upgrades, security features, AI capabilities, and user experience improvements planned for **Eventora powered by Clientura**.
+This document outlines the complete list of system enhancements, architectural upgrades, security features, AI capabilities, and user experience improvements planned for **Eventura powered by Clientura**.
 
 ---
 

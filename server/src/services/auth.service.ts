@@ -12,6 +12,10 @@ export class AuthService {
       throw { status: 400, code: "USER_EXISTS", message: "Email is already registered" };
     }
 
+    if (data.mobileNumber && !/^\d{10}$/.test(data.mobileNumber.trim())) {
+      throw { status: 400, code: "INVALID_MOBILE_NUMBER", message: "Mobile number must contain exactly 10 digits" };
+    }
+
     const passwordHash = await bcrypt.hash(data.password, 10);
     
     // Find default organization and Participant role
@@ -82,24 +86,21 @@ export class AuthService {
 
   static async login(data: any) {
     const cleanEmail = data.email ? data.email.trim().toLowerCase() : "";
-    console.log("AuthService.login: Start for", cleanEmail);
     const user = await prisma.user.findFirst({ 
       where: { 
         email: { equals: cleanEmail, mode: "insensitive" }
       },
       include: { 
         mfa: true,
-        memberships: { include: { role: true } }
+        memberships: { include: { role: true, organization: true } }
       }
     });
-    console.log("AuthService.login: User found?", !!user);
+
     if (!user) {
       throw { status: 401, code: "INVALID_CREDENTIALS", message: "Invalid email or password" };
     }
 
-    console.log("AuthService.login: Checking password...");
     const isValid = await bcrypt.compare(data.password, user.passwordHash);
-    console.log("AuthService.login: Password valid?", isValid);
     if (!isValid) {
       throw { status: 401, code: "INVALID_CREDENTIALS", message: "Invalid email or password" };
     }
@@ -123,7 +124,7 @@ export class AuthService {
       expiresAt = new Date(Date.now() + 15 * 60000); // default 15m
     }
 
-    if (user.mfa?.enabled && user.email !== 'admin@ascent.dev') {
+    if (user.mfa?.enabled) {
       const challengeToken = jwt.sign(
         { 
           type: "mfa_challenge", 
@@ -139,7 +140,6 @@ export class AuthService {
     }
 
     const tokenIdentifier = randomUUID();
-    console.log("AuthService.login: Creating session in DB...");
 
     // Create session in database
     const session = await prisma.userSession.create({
@@ -153,11 +153,9 @@ export class AuthService {
       }
     });
 
-    console.log("AuthService.login: Signing token...");
     const token = jwt.sign({ id: user.id, email: user.email, sessionId: session.id, tokenIdentifier }, secret, { expiresIn });
 
     const { passwordHash: _, mfa: __, ...safeUser } = user;
-    console.log("AuthService.login: Done.");
     return { token, user: safeUser, mfaRequired: false };
   }
 

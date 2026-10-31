@@ -5,7 +5,7 @@ async function run() {
   const loginRes = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@ascent.dev", password: "password123" }),
+    body: JSON.stringify({ email: "admin@eventura.dev", password: "password123" }),
   });
   const loginData = await loginRes.json();
   const token = loginData.data?.token;
@@ -13,14 +13,10 @@ async function run() {
 
   console.log("Logged in");
 
-  const userOrgId = loginData.data?.user?.organizationId || "org-uuid"; // We'll try to extract it from login, or hardcode the first org id if we know it. Let's just fetch /users? oh wait /users requires tenant too!
-  // Wait, let's just fetch organizations first. Oh wait, /organizations doesn't require tenant if it's the list.
-  // Actually I know the organization ID is in the JWT or user object.
-  const tenantId = loginData.data?.user?.organizationId || "org-123";
-
+  const orgId = loginData.data?.user?.organizationId || loginData.data?.user?.memberships?.[0]?.organizationId;
   const headers = { 
     Authorization: `Bearer ${token}`,
-    "x-organization-id": loginData.data?.user?.organizationId 
+    "x-organization-id": orgId 
   };
 
   const eventsRes = await fetch(`${API_URL}/events`, { headers });
@@ -36,7 +32,7 @@ async function run() {
   const fakeUserId = "00000000-0000-0000-0000-000000000000";
   const issueFailRes = await fetch(`${API_URL}/certificates`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: { ...headers, "Content-Type": "application/json" },
     body: JSON.stringify({ eventId: event.id, userId: fakeUserId, type: "PARTICIPATION", title: "Test" })
   });
   if (issueFailRes.status !== 403) errors.push(`Expected 403 for unregistered user, got ${issueFailRes.status}`);

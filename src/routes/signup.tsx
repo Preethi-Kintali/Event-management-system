@@ -13,11 +13,7 @@ import {
   Sparkles,
   ArrowRight,
   Loader2,
-  ShieldCheck,
-  CheckCircle2,
   Users,
-  GraduationCap,
-  Gavel,
 } from "lucide-react";
 import { ClienturaLogo } from "@/components/ds/clientura-logo";
 import { InteractiveMascot } from "@/components/auth/interactive-mascot";
@@ -26,8 +22,8 @@ import { AnimatedEyeToggle } from "@/components/auth/animated-eye-toggle";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Create Account · Eventora" },
-      { name: "description", content: "Create an enterprise account on Eventora." },
+      { title: "Create Account · Eventura" },
+      { name: "description", content: "Create an enterprise account on Eventura." },
     ],
   }),
   component: SignupPage,
@@ -42,12 +38,12 @@ const signupSchema = z
       .string()
       .optional()
       .refine(
-        (val) => !val || /^[0-9+\s-]{10,15}$/.test(val),
-        "Please enter a valid mobile number (10-15 digits)"
+        (val) => !val || /^\d{10}$/.test(val.trim()),
+        "Phone number must contain exactly 10 digits"
       ),
     password: z.string().min(8, "Password must be at least 8 characters long"),
     confirmPassword: z.string().min(8, "Password confirmation is required"),
-    role: z.enum(["Participant", "Student Coordinator", "Faculty Coordinator", "Judge"]),
+    role: z.enum(["Participant"]),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -104,13 +100,7 @@ function SignupPage() {
       });
 
       if (res.success) {
-        if (data.role === "Faculty Coordinator") {
-          toast.success(
-            "Your Faculty Coordinator request has been submitted. A Manager will review your request."
-          );
-        } else {
-          toast.success("Account created successfully! Please sign in.");
-        }
+        toast.success("Account created successfully! Please sign in.");
         router.navigate({ to: "/login" });
       } else {
         toast.error(res.error?.message || "Failed to create account. Please try again.");
@@ -132,24 +122,6 @@ function SignupPage() {
       title: "Participant",
       desc: "Register for events and compete in hackathons",
       icon: Users,
-    },
-    {
-      value: "Student Coordinator" as const,
-      title: "Student Coordinator",
-      desc: "Manage attendees when assigned by faculty",
-      icon: CheckCircle2,
-    },
-    {
-      value: "Faculty Coordinator" as const,
-      title: "Faculty Coordinator",
-      desc: "Oversee operations (requires manager approval)",
-      icon: GraduationCap,
-    },
-    {
-      value: "Judge" as const,
-      title: "Judge / Evaluator",
-      desc: "Grade submissions and submit scorecards",
-      icon: Gavel,
     },
   ];
 
@@ -348,8 +320,6 @@ function SignupPage() {
                   placeholder="9876543210"
                   disabled={isLoading}
                   {...register("mobileNumber")}
-                  onFocus={() => setFocusState("email")}
-                  onBlur={() => setFocusState("idle")}
                   className="w-full bg-transparent pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none disabled:opacity-50"
                 />
               </div>
@@ -447,7 +417,7 @@ function SignupPage() {
             {/* Account Type Selection (Dark Glass Cards) */}
             <div className="space-y-2 pt-1">
               <label className="block text-xs font-medium text-slate-300 tracking-wide">
-                Choose Account Type
+                Account Type
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {roleOptions.map((opt) => {

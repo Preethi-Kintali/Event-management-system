@@ -24,10 +24,10 @@ async function testConnection(url: string) {
 
 async function main() {
   const urlsToTest = [
-    "postgresql://postgres:1508@127.0.0.1:5432/ascent_db",
-    "postgresql://postgres:1508@localhost:5432/ascent_db",
-    "postgresql://postgres:postgres@127.0.0.1:5432/ascent_db",
-    "postgresql://postgres:@127.0.0.1:5432/ascent_db",
+    "postgresql://postgres:1508@127.0.0.1:5432/eventura_db",
+    "postgresql://postgres:1508@localhost:5432/eventura_db",
+    "postgresql://postgres:postgres@127.0.0.1:5432/eventura_db",
+    "postgresql://postgres:@127.0.0.1:5432/eventura_db",
   ];
 
   for (const url of urlsToTest) {

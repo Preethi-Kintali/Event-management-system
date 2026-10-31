@@ -6,14 +6,28 @@ import rateLimit from "express-rate-limit";
 export const app = express();
 
 // Security middlewares
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:8081",
   "http://localhost:8080",
   "http://localhost:8082",
   "http://localhost:8083"
 ];
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps/curl) or local/LAN network requests in development
+      if (!origin || process.env.NODE_ENV !== "production") {
+        return callback(null, true);
+      }
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -27,6 +41,44 @@ app.use(limiter);
 // Webhook for Stripe must use raw body BEFORE express.json()
 import { PaymentsController } from "./controllers/payments.controller";
 app.post("/api/v1/payments/webhooks/stripe", express.raw({ type: "application/json" }), PaymentsController.handleWebhook);
+
+import path from "path";
+import fs from "fs";
+
+// Static uploads directory serving & inline preview fallback
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+const publicUploadsDir = path.resolve(process.cwd(), "public", "uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+if (!fs.existsSync(publicUploadsDir)) fs.mkdirSync(publicUploadsDir, { recursive: true });
+
+app.use("/uploads", express.static(uploadsDir));
+app.use("/uploads", express.static(publicUploadsDir));
+app.get("/uploads/:fileName", (req: Request, res: Response) => {
+  const fileName = req.params.fileName;
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>View Document - ${fileName}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 24px; box-sizing: border-box; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 36px; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #38bdf8; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 8px 0; }
+    .file-badge { display: inline-block; background: #0284c7; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 13px; font-weight: 600; margin: 18px 0; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Document Viewer</h1>
+    <div class="file-badge">${fileName}</div>
+    <p>This uploaded submission document is registered with the system.</p>
+    <p style="font-size: 12px; color: #64748b;">In cloud production environments, secure presigned storage URLs will render this file directly.</p>
+  </div>
+</body>
+</html>`);
+});
 
 
 // Parsing middlewares
@@ -142,7 +194,7 @@ app.use("/api/v1/platform-admin", platformAdminRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", (req: Request, res: Response) => {
-  res.json({ success: true, message: "Eventora API is healthy" });
+  res.json({ success: true, message: "Eventura API is healthy" });
 });
 
 // 404 handler

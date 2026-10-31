@@ -1,6 +1,5 @@
-import { PrismaClient, Course, CourseEnrollment, LearningResource, Workshop } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Course, CourseEnrollment, LearningResource, Workshop } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export class LearningRepository {
   // Courses

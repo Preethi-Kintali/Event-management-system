@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Technical Documentation - Eventura Enterprise</title>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --bg-code: #0f172a;
+    --border-color: #cbd5e1;
+    --border-light: #e2e8f0;
+    --table-header: #f8fafc;
+    --table-alt: #f1f5f9;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 13.5px;
+    margin: 0;
+    padding: 32px 40px;
+  }
+
+  .report-header {
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: #e0f2fe;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid #bae6fd;
+  }
+
+  .doc-title-h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .confidential-tag {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h1, h2, h3, h4, h5 {
+    color: #0f172a;
+    font-weight: 700;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h1 {
+    font-size: 22px;
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: 8px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    color: #0369a1;
+  }
+
+  h2 {
+    font-size: 17px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 6px;
+    margin-top: 26px;
+    margin-bottom: 12px;
+    color: #0f172a;
+  }
+
+  h3 {
+    font-size: 14.5px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+
+  p {
+    margin: 0 0 12px 0;
+    text-align: justify;
+  }
+
+  strong {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  table th {
+    background-color: var(--table-header);
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    letter-spacing: 0.02em;
+  }
+
+  table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+
+  table tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    background: #f1f5f9;
+    color: #0369a1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 16px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #1e293b;
+  }
+
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  blockquote {
+    margin: 16px 0;
+    padding: 12px 18px;
+    border-left: 4px solid var(--primary);
+    background: #f0f9ff;
+    color: #0369a1;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  blockquote p {
+    margin: 0;
+    color: #0c4a6e;
+    font-weight: 500;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 24px 0;
+  }
+
+  ul, ol {
+    margin: 0 0 14px 0;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  .footer-notice {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+
+  @media print {
+    body {
+      padding: 0;
+      font-size: 12.5px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="report-header">
+    <div>
+      <span class="header-badge">Official Project Deliverable</span>
+      <div class="doc-meta">Eventura (powered by Clientura) &bull; Enterprise Handover Deliverable</div>
+    </div>
+    <div class="confidential-tag">
+      CONFIDENTIAL &bull; ENTERPRISE RELEASE
+    </div>
+  </div>
+
+  <main>
+    <h1>[4] Technical Documentation</h1>
+<p><strong>Project</strong>: Eventura (powered by Clientura) — Enterprise Event &amp; Hackathon Platform<br><strong>Document Version</strong>: 1.0.0<br><strong>Date</strong>: October 29, 2026<br><strong>Audience</strong>: Enterprise Architects, Lead Developers, Security Reviewers, DevOps Engineers  </p>
+<hr>
+<h2>1. System Overview &amp; Architectural Topology</h2>
+<p>Eventura is architected around a decoupled, high-performance web topology. The system combines an SSR-capable modern React client built on TanStack Start / Nitro with a high-throughput Express REST API server and a PostgreSQL 15+ relational database governed by Prisma ORM.</p>
+<pre><code class="language-text">┌─────────────────────────────────────────────────────────────────────────────┐
+│                             CLIENT LAYER (PWA &amp; SSR)                        │
+│                                                                             │
+│  React 19 + TypeScript + TanStack Router (File-based) + TanStack Query v5  │
+│  Tailwind CSS + shadcn/ui primitives + Lucide Icons                         │
+│  Nitro SSR Server (Serving compiled SSR HTML chunks on Port 8080)            │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ HTTPS / JSON REST API
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          GATEWAY &amp; SECURITY PERIMETER                       │
+│                                                                             │
+│  1. Express Global Middlewares (CORS, Rate Limiting, Helmet headers)       │
+│  2. Authentication Guard (JWT Signature Verification, Token Expiry)         │
+│  3. Tenant Guard (Strict x-organization-id enforcement &amp; Member check)      │
+│  4. RBAC Engine (Role &amp; Granular Permission Resolver)                       │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ Authorized Request Context
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              DOMAIN SERVICES LAYER                          │
+│                                                                             │
+│  • AuthService (Bcrypt, JWT, TOTP MFA RFC 6238)                             │
+│  • OrganizationService (Multi-tenant workspaces, domain scoping)            │
+│  • EventService &amp; HackathonProposalService (Approval workflows, stages)     │
+│  • RegistrationService &amp; PaymentService (Stripe Checkout &amp; Webhooks)        │
+│  • ProblemStatementService (Eligibility verification &amp; single-lock rules)    │
+│  • SubmissionService (Artifact ingest &amp; protected inline view streaming)    │
+│  • EvaluationService (Rubric score calculations &amp; real-time leaderboard)    │
+│  • AttendanceService (Signed QR generation, gate scanning, session metrics) │
+│  • CertificateService (Cryptographic PDF generation &amp; SHA verification)     │
+│  • GeminiAIService (Proposal classification, AI copilot, mentor assistant)  │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ ACID Transactions (prisma.$transaction)
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            DATA PERSISTENCE LAYER                           │
+│                                                                             │
+│  PostgreSQL 15+ Relational Database (45+ Tables, Composite Indexes)          │
+│  Local Disk / S3 Object Storage (Uploaded submission artifacts &amp; PDFs)       │
+│  In-Memory / Redis (Distributed rate-limiting and session cache)            │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2>2. Multi-Tenant Isolation Architecture</h2>
+<p>Eventura is designed for strict multi-tenancy where multiple universities, enterprise divisions, or corporate incubators share the same platform infrastructure without any possibility of cross-tenant data contamination.</p>
+<h3>2.1 The Zero-Fallback Tenant Model</h3>
+<p>In multi-tenant software, a common vulnerability is &quot;silent fallback&quot; (where a request without a tenant identifier defaults to a global or first-available tenant). In Eventura:</p>
+<ol>
+<li>Every tenant-scoped request must supply the HTTP header:<pre><code class="language-http">x-organization-id: &lt;organization-uuid&gt;
+</code></pre>
+</li>
+<li>The <code>tenant.middleware.ts</code> intercepts the request:<ul>
+<li>Verifies the user is authenticated.</li>
+<li>Queries <code>OrganizationMember</code> where <code>userId = req.user.id</code> and <code>organizationId = headerOrgId</code>.</li>
+<li>If the header is missing, the request is immediately rejected with <code>HTTP 400 MISSING_TENANT</code>.</li>
+<li>If the user is not an active member of that organization, the request is immediately rejected with <code>HTTP 403 FORBIDDEN</code>.</li>
+<li>Zero fallback queries are permitted.</li>
+</ul>
+</li>
+</ol>
+<h3>2.2 Data Layer Multi-Tenant Scoping</h3>
+<p>All database queries in repositories and services enforce composite filtering:</p>
+<pre><code class="language-typescript">const events = await prisma.event.findMany({
+  where: {
+    organizationId: req.tenant.id,
+    deletedAt: null,
+  },
+});
+</code></pre>
+<hr>
+<h2>3. Authentication &amp; Security Subsystems</h2>
+<h3>3.1 Dual-Token Authentication Lifecycle</h3>
+<ul>
+<li><strong>Access Tokens</strong>: Short-lived JSON Web Tokens (15-minute expiration) signed with <code>JWT_SECRET</code> (HMAC SHA-256). Payload includes <code>userId</code>, <code>email</code>, and token issuance timestamps.</li>
+<li><strong>Refresh Tokens</strong>: Longer-lived tokens (7-day expiration) signed with <code>JWT_REFRESH_SECRET</code> and stored with user session records. Rotating refresh tokens prevent replay attacks.</li>
+<li><strong>Password Protection</strong>: Hashed using <code>bcrypt</code> with work factor 10. Plaintext passwords never enter logs or database tables.</li>
+</ul>
+<h3>3.2 Universal TOTP Multi-Factor Authentication</h3>
+<ul>
+<li>Implements RFC 6238 Time-Based One-Time Passwords via <code>otplib</code>.</li>
+<li>Upon MFA enrollment, the server generates a base32 secret and an <code>otpauth://</code> QR code URI.</li>
+<li>Emergency recovery codes are cryptographically generated, hashed, and stored in <code>UserRecoveryCode</code>.</li>
+<li>During login, if <code>user.isMfaEnabled</code> is true, the server returns <code>mfaRequired: true</code> with a temporary MFA challenge token. The user must submit a valid 6-digit TOTP code before the full session JWT is issued.</li>
+</ul>
+<h3>3.3 Granular Role-Based Access Control (RBAC)</h3>
+<p>Eventura decouples roles from users via organization memberships:</p>
+<pre><code class="language-text">User ──── (1:N) ──── OrganizationMember ──── (N:1) ──── Role ──── (N:N) ──── Permission
+</code></pre>
+<ul>
+<li>A user can be a <code>Student Coordinator</code> in Organization A, and a <code>Judge</code> in Organization B.</li>
+<li>Middleware helper <code>requirePermission(&quot;permission.name&quot;)</code> validates that the user&#39;s active role possesses the required permission.</li>
+</ul>
+<hr>
+<h2>4. Core Subsystem Workflows &amp; Logic</h2>
+<h3>4.1 Hackathon Proposal &amp; Event Lifecycle</h3>
+<pre><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; ProposalDraft: Coordinator drafts proposal
+    ProposalDraft --&gt; ProposalSubmitted: Submit to Manager
+    ProposalSubmitted --&gt; ProposalApproved: Manager approves budget/tracks
+    ProposalSubmitted --&gt; ProposalRejected: Rejection with feedback
+    ProposalApproved --&gt; EventDraft: System creates Event record
+    EventDraft --&gt; RegistrationOpen: Configured rounds &amp; rubrics
+    RegistrationOpen --&gt; RegistrationClosed: Deadline reached or cap hit
+    RegistrationClosed --&gt; EventOngoing: Hackathon starts &amp; check-in
+    EventOngoing --&gt; JudgingPhase: Submissions closed, evaluations active
+    JudgingPhase --&gt; EventCompleted: Winners announced &amp; certs issued
+    EventCompleted --&gt; [*]
+</code></pre>
+<h3>4.2 Problem Statement Permanent Lock Rules</h3>
+<ul>
+<li>Participants browse available problem statements published for an event.</li>
+<li>Eligibility check verifies that the participant is registered with status in <code>[&#39;APPROVED&#39;, &#39;PAID&#39;, &#39;CONFIRMED&#39;, &#39;REGISTERED&#39;]</code>.</li>
+<li>When a team lead locks a problem statement, the system creates a permanent binding on <code>Team.problemStatementId</code>. Once locked, teams cannot arbitrarily swap problem statements, guaranteeing academic and corporate competition integrity.</li>
+</ul>
+<h3>4.3 Secure Submission File Streaming (<code>Content-Disposition: inline</code>)</h3>
+<ul>
+<li>Submissions support multi-file uploads (slide decks, architecture diagrams, demo videos, zip archives).</li>
+<li>Files are saved in a protected upload volume.</li>
+<li>To prevent unauthorized file downloads or path traversal attacks, files are accessed strictly via:<pre><code class="language-http">GET /api/v1/submissions/:id/files/:fileId/view
+</code></pre>
+</li>
+<li>The controller verifies:<ol>
+<li>Requester is the submitter or a member of the submitting team; OR</li>
+<li>Requester is an evaluator assigned to the submission&#39;s competition round; OR</li>
+<li>Requester possesses <code>submissions.manage</code> permission.</li>
+</ol>
+</li>
+<li>The file is streamed with <code>Content-Disposition: inline</code> and sanitized MIME types, enabling seamless browser preview for judges without forcing downloads.</li>
+</ul>
+<h3>4.4 Automated QR Code Attendance</h3>
+<ul>
+<li>Every approved registration receives a cryptographically signed QR code containing <code>registrationId</code> and a HMAC signature.</li>
+<li>Check-in coordinators use the embedded camera scanner (<code>html5-qrcode</code>) at event entrances.</li>
+<li>Scanning verifies the HMAC signature, confirms the attendee is registered for the active event session, logs check-in timestamp and volunteer ID, and prevents duplicate check-ins.</li>
+</ul>
+<h3>4.5 Digital Certificates &amp; Public Verification</h3>
+<ul>
+<li>Certificates are generated as vector PDFs via <code>pdfkit</code> featuring participant name, event title, award classification (Winner, Runner-up, Finalist, Participant), and an embedded QR code.</li>
+<li>Each certificate is assigned a unique SHA-256 verification string.</li>
+<li>Anyone can verify credential authenticity via the public URL:
+<code>https://&lt;DOMAIN&gt;/certificates/verify/:verificationCode</code></li>
+</ul>
+<hr>
+<h2>5. Third-Party Integrations &amp; External Gateways</h2>
+<h3>5.1 Stripe Payment Engine</h3>
+<ul>
+<li>Integrated via <code>@stripe/stripe-node</code> SDK.</li>
+<li>Free events bypass payment gateways and immediately transition registrations to <code>APPROVED</code>.</li>
+<li>Paid events create Stripe Checkout Sessions with line items matching the ticket tier.</li>
+<li>Stripe Webhook listener (<code>POST /api/v1/payments/webhook</code>) validates signatures (<code>STRIPE_WEBHOOK_SECRET</code>) and updates database registration records to <code>PAID</code> upon receiving <code>checkout.session.completed</code>.</li>
+</ul>
+<h3>5.2 Google Gemini Generative AI</h3>
+<ul>
+<li>Integrated via <code>@google/genai</code>.</li>
+<li><strong>Hackathon Proposal Classification</strong>: Evaluates proposed hackathon tracks, budgets, and hardware requirements, returning structured risk assessments for event managers.</li>
+<li><strong>AI Copilot &amp; Mentor Assistant</strong>: Provides participants with real-time technical guidance and debugging suggestions within competition guidelines.</li>
+</ul>
+<hr>
+<h2>6. High Availability &amp; Deployment Topology</h2>
+<pre><code class="language-text">                        ┌───────────────────────────────┐
+                        │      Cloudflare / AWS WAF     │
+                        │    (DDoS, SSL Termination)    │
+                        └───────────────┬───────────────┘
+                                        │
+                                        ▼
+                        ┌───────────────────────────────┐
+                        │      NGINX Reverse Proxy      │
+                        │    (HTTP/2, Static Caching)   │
+                        └───────┬───────────────┬───────┘
+                                │               │
+          Path: /* (Web App SSR)│               │ Path: /api/* (REST API)
+                                ▼               ▼
+                ┌───────────────────────┐ ┌───────────────────────┐
+                │ Nitro Node SSR Server │ │ Express REST API Pods │
+                │      (Port 8080)      │ │      (Port 3000)      │
+                └───────────────────────┘ └───────────┬───────────┘
+                                                      │
+                                                      ▼
+                                        ┌───────────────────────────┐
+                                        │ PostgreSQL Primary Cluster│
+                                        │  (Prisma ORM + Replicas)  │
+                                        └───────────────────────────┘
+</code></pre>
+
+  </main>
+
+  <div class="footer-notice">
+    <span>Eventura Platform Handover Suite &bull; Version 1.0.0</span>
+    <span>Generated: October 29, 2026 &bull; Strict Multi-Tenant Architecture</span>
+  </div>
+</body>
+</html>

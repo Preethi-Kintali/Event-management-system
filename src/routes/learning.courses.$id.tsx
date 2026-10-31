@@ -3,7 +3,7 @@ import { CourseDetailsPage } from "@/modules/learning/pages/course-details";
 
 export const Route = createFileRoute("/learning/courses/$id")({
   head: () => ({
-    meta: [{ title: "Course Details · Eventora Platform" }],
+    meta: [{ title: "Course Details · Eventura Platform" }],
   }),
   component: CourseDetailsPage,
 });

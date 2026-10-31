@@ -3,7 +3,7 @@ import { CommunicationDashboard } from "@/modules/communication/pages/dashboard"
 
 export const Route = createFileRoute("/communication/")({
   head: () => ({
-    meta: [{ title: "Communication Center · Eventora Platform" }],
+    meta: [{ title: "Communication Center · Eventura Platform" }],
   }),
   component: CommunicationDashboard,
 });

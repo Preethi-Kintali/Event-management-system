@@ -8,7 +8,7 @@ import { CreditCard, CheckCircle2, Download, Receipt, ShieldCheck } from "lucide
 const STATIC_PAYMENT_DATA = [
   {
     id: "txn-demo-001",
-    event: { name: "Eventora Hackathon 2026" },
+    event: { name: "Eventura Hackathon 2026" },
     status: "PAID",
     transactionId: "TXN-DEMO-001",
     amount: 500,
@@ -44,7 +44,7 @@ export function ParticipantTransactionsPage() {
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                   <CardTitle className="text-base font-bold text-foreground">
-                    {txn.event?.name || "Eventora Hackathon 2026"}
+                    {txn.event?.name || "Eventura Hackathon 2026"}
                   </CardTitle>
                 </div>
                 <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 font-bold">

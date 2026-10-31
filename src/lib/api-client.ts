@@ -1,6 +1,17 @@
 import { appLogger } from "./app-logger";
 
-const API_BASE_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:3000/api/v1';
+export function getApiBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    const envUrl = import.meta.env['VITE_API_URL'];
+    if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+      return envUrl;
+    }
+    return `${protocol}//${hostname}:3000/api/v1`;
+  }
+  return import.meta.env['VITE_API_URL'] || 'http://localhost:3000/api/v1';
+}
 
 export class ApiError extends Error {
   public status: number;
@@ -17,7 +28,9 @@ export class ApiError extends Error {
 }
 
 export function getAuthToken(): string | null {
-  return typeof window !== "undefined" ? localStorage.getItem('ascent_token') : null;
+  return typeof window !== "undefined"
+    ? localStorage.getItem('eventura_token') || localStorage.getItem('ascent_token')
+    : null;
 }
 
 export async function fetchApi<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -30,12 +43,15 @@ export async function fetchApi<T = any>(endpoint: string, options: RequestInit =
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const activeOrgId = typeof window !== "undefined" ? localStorage.getItem('ascent_active_org') : null;
+  const activeOrgId = typeof window !== "undefined"
+    ? localStorage.getItem('eventura_active_org') || localStorage.getItem('ascent_active_org')
+    : null;
   if (activeOrgId) {
     headers.set('x-organization-id', activeOrgId);
   }
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const baseUrl = getApiBaseUrl();
+  const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
   const method = options.method || 'GET';
   const startTime = performance.now();
 

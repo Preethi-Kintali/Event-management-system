@@ -3,7 +3,7 @@ import { LicensesPage } from "@/modules/platform-admin/pages/licenses";
 
 export const Route = createFileRoute("/platform-admin/licenses")({
   head: () => ({
-    meta: [{ title: "License Management · Eventora Platform" }],
+    meta: [{ title: "License Management · Eventura Platform" }],
   }),
   component: LicensesPage,
 });

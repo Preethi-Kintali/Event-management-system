@@ -1,6 +1,5 @@
-import { PrismaClient, CommunityGroup, GroupMembership, Discussion, DiscussionReply } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { CommunityGroup, GroupMembership, Discussion, DiscussionReply } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export class CommunityRepository {
   // Groups

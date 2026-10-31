@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export class WorkflowsService {
   static async getWorkflows(organizationId: string) {
@@ -11,15 +9,17 @@ export class WorkflowsService {
   }
 
   static async getWorkflowDashboard(organizationId: string) {
-    const total = await prisma.workflow.count({ where: { organizationId } });
-    const active = await prisma.workflow.count({ where: { organizationId, status: "Active" } });
-    const paused = await prisma.workflow.count({ where: { organizationId, status: "Paused" } });
-    const executions = await prisma.workflowExecution.count({
-      where: { workflow: { organizationId } },
-    });
-    const failed = await prisma.workflowExecution.count({
-      where: { workflow: { organizationId }, status: "Failed" },
-    });
+    const [total, active, paused, executions, failed] = await Promise.all([
+      prisma.workflow.count({ where: { organizationId } }),
+      prisma.workflow.count({ where: { organizationId, status: "Active" } }),
+      prisma.workflow.count({ where: { organizationId, status: "Paused" } }),
+      prisma.workflowExecution.count({
+        where: { workflow: { organizationId } },
+      }),
+      prisma.workflowExecution.count({
+        where: { workflow: { organizationId }, status: "Failed" },
+      }),
+    ]);
 
     return {
       totalWorkflows: total,

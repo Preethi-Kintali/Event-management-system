@@ -1,6 +1,5 @@
-import { PrismaClient, Survey, SurveyQuestion, SurveyResponse } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Survey, SurveyQuestion, SurveyResponse } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export class FeedbackRepository {
   // Surveys

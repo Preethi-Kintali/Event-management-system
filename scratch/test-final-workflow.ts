@@ -7,7 +7,7 @@ async function main() {
 
   // 1. Get or create Organization & Event & Competition
   const org = await prisma.organization.findFirst() || await prisma.organization.create({
-    data: { name: "Ascent Innovation Labs", slug: "ascent-labs" }
+    data: { name: "Eventura Innovation Labs", slug: "ascent-labs" }
   });
 
   let event = await prisma.event.findFirst({ where: { organizationId: org.id } });

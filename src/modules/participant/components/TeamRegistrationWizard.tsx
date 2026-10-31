@@ -42,6 +42,7 @@ export function TeamRegistrationWizard({
   const { user } = useAuth();
   const registerTeamMutation = useRegisterTeamForEvent();
 
+  const minTeamSize = event.minTeamSize ?? 1;
   const maxTeamSize = event.maxTeamSize ?? 4;
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -52,6 +53,7 @@ export function TeamRegistrationWizard({
   );
 
   const currentTotalParticipants = 1 + additionalMembers.length;
+  const isMinSatisfied = currentTotalParticipants >= minTeamSize;
   const isMaxReached = currentTotalParticipants >= maxTeamSize;
 
   // Calculate fees
@@ -98,8 +100,13 @@ export function TeamRegistrationWizard({
       return false;
     }
 
+    if (currentTotalParticipants < minTeamSize) {
+      toast.error(`At least ${minTeamSize} participant${minTeamSize > 1 ? 's are' : ' is'} required for this event.`);
+      return false;
+    }
+
     if (currentTotalParticipants > maxTeamSize) {
-      toast.error(`Team cannot have more than ${maxTeamSize} participants for this event.`);
+      toast.error(`This event allows a maximum of ${maxTeamSize} participant${maxTeamSize > 1 ? 's' : ''} per team.`);
       return false;
     }
 
@@ -125,6 +132,11 @@ export function TeamRegistrationWizard({
 
       if (!emailRegex.test(m.email.trim())) {
         toast.error(`Invalid email format for ${memberIndexStr}.`);
+        return false;
+      }
+
+      if (m.contactNumber && !/^\d{10}$/.test(m.contactNumber.trim())) {
+        toast.error(`Phone number for ${memberIndexStr} must contain exactly 10 digits.`);
         return false;
       }
 
@@ -225,9 +237,9 @@ export function TeamRegistrationWizard({
             <span className="font-semibold text-emerald-600 dark:text-emerald-400">{formattedFee}</span>
           </div>
           <div>
-            <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Max Team Size</span>
+            <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Team Size Requirement</span>
             <span className="font-semibold text-foreground">
-              {maxTeamSize} Participants
+              Min: {minTeamSize}, Max: {maxTeamSize}
             </span>
           </div>
           <div>
@@ -255,15 +267,24 @@ export function TeamRegistrationWizard({
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Team Size Counter</Label>
+                <Label className="text-xs font-semibold">Team Size Requirement</Label>
                 <div className="h-9 border rounded-md px-3 flex items-center justify-between bg-muted/20 text-xs font-mono">
-                  <span className="text-muted-foreground">Participants:</span>
-                  <Badge variant={isMaxReached ? "secondary" : "outline"} className="font-bold">
+                  <span className="text-muted-foreground">Min {minTeamSize} – Max {maxTeamSize}</span>
+                  <Badge variant={!isMinSatisfied ? "destructive" : isMaxReached ? "secondary" : "outline"} className="font-bold">
                     {currentTotalParticipants} / {maxTeamSize}
                   </Badge>
                 </div>
               </div>
             </div>
+
+            {!isMinSatisfied && (
+              <div className="p-2.5 bg-amber-500/10 rounded-md border border-amber-500/20 text-xs text-amber-700 dark:text-amber-400 flex items-center justify-between">
+                <span>⚠️ At least {minTeamSize} participant{minTeamSize > 1 ? 's are' : ' is'} required for this event.</span>
+                <Button size="sm" variant="outline" onClick={handleAddMember} className="h-7 text-[11px] px-2.5">
+                  + Add Member
+                </Button>
+              </div>
+            )}
 
             {/* Track / Competition selection if available */}
             {event.competitions && event.competitions.length > 1 && (
@@ -394,16 +415,18 @@ export function TeamRegistrationWizard({
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-[11px]">Phone Number</Label>
+                          <Label className="text-[11px]">Phone Number (10 digits)</Label>
                           <Input
+                            type="tel"
+                            maxLength={10}
                             value={member.contactNumber}
                             onChange={(e) => {
-                              const val = e.target.value;
+                              const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                               setAdditionalMembers((prev) =>
                                 prev.map((item, i) => (i === idx ? { ...item, contactNumber: val } : item))
                               );
                             }}
-                            placeholder="+91 9876543210"
+                            placeholder="9876543210"
                             className="h-8 text-xs"
                           />
                         </div>

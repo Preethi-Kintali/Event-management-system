@@ -28,14 +28,21 @@ export function MobileBottomNav() {
     if (roleName === "Student Coordinator") return "/coordinator";
     if (roleName === "Faculty Coordinator") return "/faculty-coordinator";
     if (roleName === "Participant") return "/participant";
-    if (roleName === "Judge") return "/evaluations";
+    if (roleName === "Judge" || roleName === "Evaluator") return "/judge";
     if (roleName === "Mentor") return "/teams";
     if (roleName === "Volunteer") return "/volunteers";
     return "/events";
   };
 
   const roleName = user?.memberships?.[0]?.role?.name;
-  const eventsUrl = roleName === "Participant" ? "/participant/discover-events" : roleName === "Manager" ? "/manager/events" : "/events";
+  const eventsUrl =
+    roleName === "Participant"
+      ? "/participant/discover-events"
+      : roleName === "Manager"
+      ? "/manager/events"
+      : roleName === "Judge" || roleName === "Evaluator"
+      ? "/judge/events"
+      : "/events";
   const standingsUrl = roleName === "Participant" ? "/leaderboard" : "/winners";
 
   const navItems = [
@@ -43,7 +50,7 @@ export function MobileBottomNav() {
       label: "Home",
       to: getDashboardUrl(),
       icon: LayoutDashboard,
-      isActive: currentPath === getDashboardUrl() || (currentPath.startsWith("/manager") && !currentPath.includes("events")),
+      isActive: currentPath === getDashboardUrl(),
     },
     {
       label: "Events",

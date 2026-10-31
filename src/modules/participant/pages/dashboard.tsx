@@ -34,7 +34,7 @@ export function ParticipantDashboard() {
           Hello {teamName}
         </h1>
         <p className="text-muted-foreground text-sm">
-          Welcome to your Eventora Hackathon portal. Track your team status, problem statement selection, and project submission.
+          Welcome to your Eventura Hackathon portal. Track your team status, problem statement selection, and project submission.
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export function ParticipantDashboard() {
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Event: Eventora Hackathon 2026
+              Event: Eventura Hackathon 2026
             </p>
           </CardContent>
         </Card>

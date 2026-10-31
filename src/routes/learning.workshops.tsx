@@ -3,7 +3,7 @@ import { WorkshopsPage } from "@/modules/learning/pages/workshops";
 
 export const Route = createFileRoute("/learning/workshops")({
   head: () => ({
-    meta: [{ title: "Workshops · Eventora Platform" }],
+    meta: [{ title: "Workshops · Eventura Platform" }],
   }),
   component: WorkshopsPage,
 });

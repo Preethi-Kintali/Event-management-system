@@ -64,7 +64,7 @@ async function main() {
   // Map users to their correct roles
   const userRoleAssignments: Record<string, string> = {
     "sudo@ascent.com": "Sudo Admin",
-    "admin@ascent.dev": "Platform Admin",
+    "admin@eventura.dev": "Platform Admin",
     "admin@ascent.com": "Organization Admin",
     "manager@contoso.com": "Manager",
     "coordinator@contoso.com": "Student Coordinator",

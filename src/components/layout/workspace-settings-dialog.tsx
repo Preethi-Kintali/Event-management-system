@@ -20,7 +20,7 @@ export function WorkspaceSettingsDialog({ open, onOpenChange }: WorkspaceSetting
   const [activeTab, setActiveTab] = useState("general");
 
   // Settings state with localStorage persistence
-  const [orgName, setOrgName] = useState(() => localStorage.getItem("setting_org_name") || "Eventora powered by Clientura");
+  const [orgName, setOrgName] = useState(() => localStorage.getItem("setting_org_name") || "Eventura powered by Clientura");
   const [timezone, setTimezone] = useState(() => localStorage.getItem("setting_timezone") || "Asia/Kolkata (IST)");
   const [language, setLanguage] = useState(() => localStorage.getItem("setting_language") || "en");
 

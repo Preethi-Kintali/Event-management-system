@@ -10,13 +10,13 @@ export const Route = createFileRoute("/events/new")({
   validateSearch: eventNewSearchSchema,
   head: () => ({
     meta: [
-      { title: "Create event · Eventora Platform" },
+      { title: "Create event · Eventura Platform" },
       {
         name: "description",
         content:
           "Multi-step event creation with validation, scheduling, media and publishing controls.",
       },
-      { property: "og:title", content: "Create event · Eventora Platform" },
+      { property: "og:title", content: "Create event · Eventura Platform" },
       {
         property: "og:description",
         content:

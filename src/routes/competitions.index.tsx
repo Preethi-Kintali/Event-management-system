@@ -4,12 +4,12 @@ import { CompetitionsListPage } from "@/modules/competitions/pages/competitions-
 export const Route = createFileRoute("/competitions/")({
   head: () => ({
     meta: [
-      { title: "Competitions · Eventora Platform" },
+      { title: "Competitions · Eventura Platform" },
       {
         name: "description",
         content: "Hackathons, case studies and challenges with rounds, teams and prize pools.",
       },
-      { property: "og:title", content: "Competitions · Eventora Platform" },
+      { property: "og:title", content: "Competitions · Eventura Platform" },
       {
         property: "og:description",
         content: "Hackathons, case studies and challenges with rounds, teams and prize pools.",

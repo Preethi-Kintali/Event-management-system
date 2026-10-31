@@ -51,7 +51,7 @@ export class EvaluationRepository {
       andConditions.push({ judgeId: filters.judgeId });
     }
 
-    return prisma.evaluation.findMany({
+    const results = await prisma.evaluation.findMany({
       where: { AND: andConditions },
       include: {
         eventRound: true,
@@ -60,6 +60,7 @@ export class EvaluationRepository {
             competition: { select: { id: true, name: true, rubric: true, event: { select: { id: true, name: true } } } },
             event: { select: { id: true, name: true } },
             eventRound: true,
+            problemStatement: { select: { id: true, code: true, title: true, description: true, category: true } },
             team: {
               select: {
                 id: true,
@@ -77,44 +78,199 @@ export class EvaluationRepository {
             files: true
           },
         },
-        judge: { select: { id: true, firstName: true, lastName: true, email: true } },
+        judge: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            userId: true,
+            user: { select: { id: true, firstName: true, lastName: true, email: true } }
+          }
+        },
       },
       orderBy: { createdAt: "desc" },
+    });
+
+    return results.map((ev) => {
+      if (ev.judge) {
+        const fn = ev.judge.user?.firstName || ev.judge.name?.split(" ")[0] || "";
+        const ln = ev.judge.user?.lastName || ev.judge.name?.split(" ").slice(1).join(" ") || "";
+        (ev.judge as any).firstName = fn;
+        (ev.judge as any).lastName = ln;
+      }
+      return ev;
     });
   }
 
   /** List evaluations assigned to the current judge within a tenant */
-  static async findByJudge(tenantId: string, judgeUserId: string) {
-    // Return evaluations where user is directly assigned in Evaluation or in SubmissionJudgeAssignment
-    return prisma.evaluation.findMany({
+  static async findByJudge(
+    tenantId: string,
+    judgeUserId: string,
+    profileId?: string,
+    filters?: { eventId?: string; roundId?: string; roundNumber?: number }
+  ) {
+    const judgeConditions: any[] = [{ userId: judgeUserId }];
+    if (profileId) judgeConditions.push({ id: profileId });
+
+    let judges = await prisma.judge.findMany({
+      where: { OR: judgeConditions, organizationId: tenantId },
+      select: { id: true }
+    });
+
+    if (judges.length === 0) {
+      // Find or create judge profile for this user
+      const user = await prisma.user.findUnique({ where: { id: judgeUserId } });
+      if (user) {
+        const createdJudge = await prisma.judge.create({
+          data: {
+            userId: judgeUserId,
+            name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email,
+            email: user.email,
+            organizationId: tenantId
+          }
+        });
+        judges = [{ id: createdJudge.id }];
+      }
+    }
+
+    const judgeIds = judges.map((j) => j.id);
+
+    // Auto-sync: Ensure an Evaluation record exists for every submission assigned to this judge
+    const assignments = await prisma.submissionJudgeAssignment.findMany({
       where: {
         judgeId: judgeUserId,
+        submission: {
+          OR: [
+            { competition: { event: { organizationId: tenantId } } },
+            { event: { organizationId: tenantId } }
+          ]
+        }
+      },
+      include: { submission: true }
+    });
+
+    if (judges.length > 0 && assignments.length > 0) {
+      const primaryJudgeId = judges[0].id;
+      for (const assignment of assignments) {
+        await prisma.evaluation.upsert({
+          where: {
+            submissionId_judgeId: {
+              submissionId: assignment.submissionId,
+              judgeId: primaryJudgeId,
+            }
+          },
+          update: {},
+          create: {
+            submissionId: assignment.submissionId,
+            judgeId: primaryJudgeId,
+            roundId: assignment.submission.roundId || null,
+            roundNumber: assignment.submission.roundNumber || 1,
+            status: "PENDING"
+          }
+        }).catch(() => {});
+      }
+    }
+
+    const andConditions: any[] = [
+      {
+        OR: [
+          { judgeId: { in: [...judgeIds, judgeUserId] } },
+          { judge: { userId: judgeUserId } }
+        ]
+      },
+      {
         OR: [
           { submission: { competition: { event: { organizationId: tenantId } } } },
           { submission: { event: { organizationId: tenantId } } }
         ]
-      },
+      }
+    ];
+
+    if (filters?.eventId && filters.eventId !== "ALL") {
+      andConditions.push({
+        OR: [
+          { submission: { eventId: filters.eventId } },
+          { submission: { competition: { eventId: filters.eventId } } },
+          { submission: { eventRound: { eventId: filters.eventId } } }
+        ]
+      });
+    }
+
+    if (filters?.roundId && filters.roundId !== "ALL") {
+      const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(filters.roundId);
+      if (isUuid) {
+        andConditions.push({
+          OR: [
+            { roundId: filters.roundId },
+            { eventRound: { id: filters.roundId } },
+            { submission: { roundId: filters.roundId } },
+            { submission: { eventRound: { id: filters.roundId } } }
+          ]
+        });
+      } else {
+        const rNum = parseInt(filters.roundId, 10);
+        if (!isNaN(rNum)) {
+          andConditions.push({
+            OR: [
+              { roundNumber: rNum },
+              { eventRound: { roundNumber: rNum } },
+              { submission: { roundNumber: rNum } },
+              { submission: { eventRound: { roundNumber: rNum } } }
+            ]
+          });
+        }
+      }
+    }
+
+    const results = await prisma.evaluation.findMany({
+      where: { AND: andConditions },
       include: {
         eventRound: true,
         submission: {
           include: {
-            competition: { select: { name: true, rubric: true, event: { select: { id: true, name: true } } } },
+            competition: { select: { id: true, name: true, rubric: true, event: { select: { id: true, name: true } } } },
             event: { select: { id: true, name: true } },
             eventRound: true,
-            team: { select: { name: true } },
-            submittedBy: { select: { firstName: true, lastName: true, email: true } },
+            problemStatement: { select: { id: true, code: true, title: true, description: true, category: true } },
+            team: {
+              select: {
+                id: true,
+                name: true,
+                competitionId: true,
+                members: { include: { user: { select: { id: true, firstName: true, lastName: true, email: true } } } }
+              }
+            },
+            submittedBy: { select: { id: true, firstName: true, lastName: true, email: true } },
             files: true
           },
         },
-        judge: { select: { id: true, firstName: true, lastName: true, email: true } }
+        judge: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            userId: true,
+            user: { select: { id: true, firstName: true, lastName: true, email: true } }
+          }
+        }
       },
       orderBy: { createdAt: "desc" },
+    });
+
+    return results.map((ev) => {
+      if (ev.judge) {
+        const fn = ev.judge.user?.firstName || ev.judge.name?.split(" ")[0] || "";
+        const ln = ev.judge.user?.lastName || ev.judge.name?.split(" ").slice(1).join(" ") || "";
+        (ev.judge as any).firstName = fn;
+        (ev.judge as any).lastName = ln;
+      }
+      return ev;
     });
   }
 
   /** Find one evaluation - enforces tenant scope */
   static async findById(tenantId: string, id: string) {
-    return prisma.evaluation.findFirst({
+    const ev = await prisma.evaluation.findFirst({
       where: {
         id,
         OR: [
@@ -126,17 +282,42 @@ export class EvaluationRepository {
         eventRound: true,
         submission: {
           include: {
-            competition: { select: { name: true, rubric: true, event: { select: { id: true, name: true } } } },
+            competition: { select: { id: true, name: true, rubric: true, event: { select: { id: true, name: true } } } },
             event: { select: { id: true, name: true } },
             eventRound: true,
-            team: { select: { name: true } },
-            submittedBy: { select: { firstName: true, lastName: true, email: true } },
+            problemStatement: { select: { id: true, code: true, title: true, description: true, category: true } },
+            team: {
+              select: {
+                id: true,
+                name: true,
+                competitionId: true,
+                members: { include: { user: { select: { id: true, firstName: true, lastName: true, email: true } } } }
+              }
+            },
+            submittedBy: { select: { id: true, firstName: true, lastName: true, email: true } },
             files: true
           },
         },
-        judge: { select: { id: true, firstName: true, lastName: true, email: true } },
+        judge: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            userId: true,
+            user: { select: { id: true, firstName: true, lastName: true, email: true } }
+          }
+        },
       },
     });
+
+    if (ev && ev.judge) {
+      const fn = ev.judge.user?.firstName || ev.judge.name?.split(" ")[0] || "";
+      const ln = ev.judge.user?.lastName || ev.judge.name?.split(" ").slice(1).join(" ") || "";
+      (ev.judge as any).firstName = fn;
+      (ev.judge as any).lastName = ln;
+    }
+
+    return ev;
   }
 
   /** Assign a submission to a judge (create evaluation record) */

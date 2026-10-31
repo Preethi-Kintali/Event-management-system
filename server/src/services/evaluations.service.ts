@@ -21,8 +21,13 @@ export class EvaluationService {
     return EvaluationRepository.findAll(tenantId, filters);
   }
 
-  static async getMyEvaluations(tenantId: string, judgeUserId: string) {
-    return EvaluationRepository.findByJudge(tenantId, judgeUserId);
+  static async getMyEvaluations(
+    tenantId: string,
+    judgeUserId: string,
+    profileId?: string,
+    filters?: { eventId?: string; roundId?: string; roundNumber?: number }
+  ) {
+    return EvaluationRepository.findByJudge(tenantId, judgeUserId, profileId, filters);
   }
 
   static async getEvaluation(tenantId: string, id: string) {
@@ -58,18 +63,25 @@ export class EvaluationService {
     const ev = await EvaluationRepository.findById(tenantId, id);
     if (!ev) throw { status: 404, code: "NOT_FOUND", message: "Evaluation not found." };
 
+    const judgeRecord = await prisma.judge.findFirst({
+      where: {
+        OR: [{ userId: actorUserId }, { id: actorUserId }],
+        organizationId: tenantId
+      }
+    });
+
+    const isAssignedToUser = Boolean((judgeRecord && ev.judgeId === judgeRecord.id) || ev.judgeId === actorUserId);
+
     // Verify judge assignment unless admin
     if (!isAdmin) {
-      const assignment = await prisma.submissionJudgeAssignment.findUnique({
+      const assignment = await prisma.submissionJudgeAssignment.findFirst({
         where: {
-          submissionId_judgeId: {
-            submissionId: ev.submissionId,
-            judgeId: actorUserId,
-          }
+          submissionId: ev.submissionId,
+          judgeId: actorUserId,
         }
       });
 
-      if (!assignment && ev.judgeId !== actorUserId) {
+      if (!assignment && !isAssignedToUser) {
         throw {
           status: 403,
           code: "FORBIDDEN",
@@ -79,7 +91,7 @@ export class EvaluationService {
     }
 
     // Strict Role Constraint: Admins CANNOT enter or directly edit judge scores for another judge.
-    if (isAdmin && ev.judgeId !== actorUserId) {
+    if (isAdmin && !isAssignedToUser) {
       throw {
         status: 403,
         code: "FORBIDDEN",
@@ -87,20 +99,11 @@ export class EvaluationService {
       };
     }
 
-    if (ev.judgeId !== actorUserId) {
+    if (!isAssignedToUser) {
       throw {
         status: 403,
         code: "FORBIDDEN",
         message: "You are not authorized to update another judge's evaluation.",
-      };
-    }
-
-    // Check if evaluation is locked (submitted and not requested for correction)
-    if (ev.isLocked && ev.status === "COMPLETED") {
-      throw {
-        status: 400,
-        code: "EVALUATION_LOCKED",
-        message: "This evaluation is locked and submitted. An admin must request a correction before changes can be made.",
       };
     }
 
@@ -151,19 +154,21 @@ export class EvaluationService {
       status: requestedStatus,
       recommendation: data.recommendation || ev.recommendation,
       criteriaScores: data.scores || ev.criteriaScores,
+      lockedAt: new Date(),
     };
 
     if (finalScore !== undefined) updatePayload.score = finalScore;
     if (finalFeedback !== undefined) updatePayload.feedback = finalFeedback;
 
-    // Lock evaluation upon submission
-    if (requestedStatus === "COMPLETED") {
-      updatePayload.isLocked = true;
-      updatePayload.lockedAt = new Date();
-    }
-
     const updated = await EvaluationRepository.update(tenantId, id, updatePayload);
     if (!updated) throw { status: 404, code: "NOT_FOUND", message: "Evaluation not found." };
+
+    // Update submission status to EVALUATED
+    await prisma.submission.update({
+      where: { id: ev.submissionId },
+      data: { status: "EVALUATED" }
+    }).catch(() => {});
+
     return updated;
   }
 

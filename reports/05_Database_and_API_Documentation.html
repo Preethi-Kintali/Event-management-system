@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Database and API Documentation - Eventura Enterprise</title>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --bg-code: #0f172a;
+    --border-color: #cbd5e1;
+    --border-light: #e2e8f0;
+    --table-header: #f8fafc;
+    --table-alt: #f1f5f9;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 13.5px;
+    margin: 0;
+    padding: 32px 40px;
+  }
+
+  .report-header {
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: #e0f2fe;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid #bae6fd;
+  }
+
+  .doc-title-h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .confidential-tag {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h1, h2, h3, h4, h5 {
+    color: #0f172a;
+    font-weight: 700;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h1 {
+    font-size: 22px;
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: 8px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    color: #0369a1;
+  }
+
+  h2 {
+    font-size: 17px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 6px;
+    margin-top: 26px;
+    margin-bottom: 12px;
+    color: #0f172a;
+  }
+
+  h3 {
+    font-size: 14.5px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+
+  p {
+    margin: 0 0 12px 0;
+    text-align: justify;
+  }
+
+  strong {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  table th {
+    background-color: var(--table-header);
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    letter-spacing: 0.02em;
+  }
+
+  table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+
+  table tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    background: #f1f5f9;
+    color: #0369a1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 16px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #1e293b;
+  }
+
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  blockquote {
+    margin: 16px 0;
+    padding: 12px 18px;
+    border-left: 4px solid var(--primary);
+    background: #f0f9ff;
+    color: #0369a1;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  blockquote p {
+    margin: 0;
+    color: #0c4a6e;
+    font-weight: 500;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 24px 0;
+  }
+
+  ul, ol {
+    margin: 0 0 14px 0;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  .footer-notice {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+
+  @media print {
+    body {
+      padding: 0;
+      font-size: 12.5px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="report-header">
+    <div>
+      <span class="header-badge">Official Project Deliverable</span>
+      <div class="doc-meta">Eventura (powered by Clientura) &bull; Enterprise Handover Deliverable</div>
+    </div>
+    <div class="confidential-tag">
+      CONFIDENTIAL &bull; ENTERPRISE RELEASE
+    </div>
+  </div>
+
+  <main>
+    <h1>[5] Database and API Documentation</h1>
+<p><strong>Project</strong>: Eventura (powered by Clientura) — Enterprise Event &amp; Hackathon Platform<br><strong>Document Version</strong>: 1.0.0<br><strong>Date</strong>: October 29, 2026<br><strong>Audience</strong>: Backend Engineers, Database Administrators, API Consumers, Integration Partners  </p>
+<hr>
+<h2>1. Database Architecture &amp; Engine Overview</h2>
+<p>Eventura utilizes <strong>PostgreSQL 15+</strong> as its primary persistent relational datastore, managed and queried through <strong>Prisma ORM</strong>. The data tier enforces ACID transactions, foreign key constraints, composite unique indexes, and audit timestamps across all tables.</p>
+<h3>1.1 Key Database Characteristics</h3>
+<ul>
+<li><strong>Relational Integrity</strong>: Strict cascading rules (<code>ON DELETE CASCADE</code> or <code>RESTRICT</code>) to ensure orphan records cannot exist.</li>
+<li><strong>Multi-Tenant Composite Keys</strong>: Critical tables enforce composite unique constraints (e.g. <code>[organizationId, slug]</code>, <code>[eventId, userId]</code>) to prevent duplicate records within the same tenant.</li>
+<li><strong>Audit Tracking</strong>: Every domain entity contains <code>createdAt</code> and <code>updatedAt</code> timestamps, with soft-deletion support (<code>deletedAt</code>) on sensitive operational tables.</li>
+<li><strong>Migration Discipline</strong>: All schema changes are tracked in forward-only SQL migration files in <code>prisma/migrations/</code>.</li>
+</ul>
+<hr>
+<h2>2. Relational Entity Catalog</h2>
+<p>The database schema encompasses 45+ relational entities categorized into 7 core functional clusters:</p>
+<pre><code class="language-text">┌─────────────────────────────────────────────────────────────────────────────┐
+│                          CORE DATABASE ENTITY CLUSTERS                      │
+├──────────────────────────────┬──────────────────────────────────────────────┤
+│ 1. Identity &amp; Security       │ User, UserMfa, UserRecoveryCode, Session,    │
+│                              │ AuditLog, SecurityEvent                      │
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ 2. Multi-Tenancy &amp; RBAC      │ Organization, OrganizationMember, Role,      │
+│                              │ Permission, RolePermission, ApiKey           │
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ 3. Event Lifecycle           │ Event, Competition, Round, ProblemStatement, │
+│                              │ HackathonProposal, EventFinalReport          │
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ 4. Teams &amp; Registrations     │ Registration, Team, TeamMember, Payment,     │
+│                              │ Coupon, Invoice, Refund                      │
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ 5. Submissions &amp; Judging     │ Submission, SubmissionFile, Evaluation,      │
+│                              │ Rubric, SubmissionJudgeAssignment, Judge    │
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ 6. Operations &amp; Credentials  │ AttendanceSession, AttendanceRecord,         │
+│                              │ Certificate, Badge, BadgeAward, Prize, Winner│
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ 7. Community &amp; Analytics     │ Discussion, DiscussionReply, Course,         │
+│                              │ JobPosting, LearningResource, SurveyResponse │
+└──────────────────────────────┴──────────────────────────────────────────────┘
+</code></pre>
+<h3>2.1 Identity &amp; Multi-Tenancy Schema Details</h3>
+<ul>
+<li><strong><code>User</code></strong>: Core identity table storing UUID, unique email, bcrypt <code>passwordHash</code>, first/last names, and operational status (<code>ACTIVE</code>, <code>PENDING</code>, <code>SUSPENDED</code>).</li>
+<li><strong><code>UserMfa</code></strong>: Stores base32 TOTP secret, enrollment status, and last verification timestamp.</li>
+<li><strong><code>Organization</code></strong>: Multi-tenant workspace entity storing UUID, human-readable name, unique URL slug, and lifecycle status.</li>
+<li><strong><code>OrganizationMember</code></strong>: Join record mapping <code>userId</code> to <code>organizationId</code> with assigned <code>roleId</code>.</li>
+<li><strong><code>Role</code> &amp; <code>Permission</code></strong>: Decoupled RBAC definition allowing tenants to define custom access rules.</li>
+</ul>
+<h3>2.2 Event &amp; Hackathon Competition Details</h3>
+<ul>
+<li><strong><code>Event</code></strong>: Stores event title, description, banner URL, venue/mode (IN_PERSON, VIRTUAL, HYBRID), dates, registration deadlines, max team sizes, and status (<code>DRAFT</code>, <code>PUBLISHED</code>, <code>REGISTRATION_OPEN</code>, <code>ONGOING</code>, <code>COMPLETED</code>).</li>
+<li><strong><code>Competition</code> &amp; <code>Round</code></strong>: Defines event tracks, multi-round elimination schedules, and specific judging rubrics.</li>
+<li><strong><code>ProblemStatement</code></strong>: Technical briefs published per event. When a team registers their choice, <code>Team.problemStatementId</code> is locked.</li>
+<li><strong><code>Submission</code> &amp; <code>SubmissionFile</code></strong>: Stores project deliverables, GitHub repository links, demo URLs, file sizes, MIME types, and local/S3 storage paths.</li>
+<li><strong><code>Evaluation</code></strong>: Quantitative scores and qualitative feedback recorded by assigned judges.</li>
+</ul>
+<hr>
+<h2>3. RESTful API Specification</h2>
+<p>The Eventura backend exposes a uniform REST API mounted at <code>/api/v1</code>.</p>
+<h3>3.1 Global Conventions &amp; Headers</h3>
+<ul>
+<li><strong>Base URL</strong>: <code>https://&lt;API_DOMAIN&gt;/api/v1</code></li>
+<li><strong>Authentication</strong>: <code>Authorization: Bearer &lt;JWT_ACCESS_TOKEN&gt;</code></li>
+<li><strong>Tenant Scope</strong>: <code>x-organization-id: &lt;ORGANIZATION_UUID&gt;</code> (Required for all tenant-scoped endpoints)</li>
+<li><strong>Content Type</strong>: <code>Content-Type: application/json</code></li>
+</ul>
+<h3>3.2 Standard Response Schemas</h3>
+<p><strong>Success Response (HTTP 200 / 201):</strong></p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;data&quot;: { ... },
+  &quot;message&quot;: &quot;Operation completed successfully&quot;
+}
+</code></pre>
+<p><strong>Error Response (HTTP 400 / 401 / 403 / 404 / 500):</strong></p>
+<pre><code class="language-json">{
+  &quot;success&quot;: false,
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;MISSING_TENANT&quot;,
+    &quot;message&quot;: &quot;x-organization-id header is required for this route&quot;,
+    &quot;details&quot;: []
+  }
+}
+</code></pre>
+<hr>
+<h2>4. Complete API Endpoints Catalog</h2>
+<p>Below is the definitive catalog of all 40 API route groups mounted in <code>server/src/routes/</code>:</p>
+<h3>4.1 Authentication &amp; Profile (<code>/auth</code>, <code>/users</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST</code></td>
+<td><code>/auth/signup</code></td>
+<td>Public</td>
+<td>None</td>
+<td>Register new participant account</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/login</code></td>
+<td>Public</td>
+<td>None</td>
+<td>Authenticate with email/password; returns JWT or MFA challenge</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/mfa/verify</code></td>
+<td>Public</td>
+<td>Temp MFA Token</td>
+<td>Validate 6-digit TOTP code and issue session JWT</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/refresh</code></td>
+<td>Optional</td>
+<td>Refresh Token</td>
+<td>Issue new access token using refresh token</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/logout</code></td>
+<td>Required</td>
+<td>Any Authenticated</td>
+<td>Invalidate active user session</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users/me</code></td>
+<td>Required</td>
+<td>Any Authenticated</td>
+<td>Retrieve current user profile and memberships</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/users/me</code></td>
+<td>Required</td>
+<td>Any Authenticated</td>
+<td>Update current user profile details</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users</code></td>
+<td>Required</td>
+<td><code>users.read</code></td>
+<td>List organization users with pagination</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/users/:id/role</code></td>
+<td>Required</td>
+<td><code>users.manage</code></td>
+<td>Update a user&#39;s role in the organization</td>
+</tr>
+</tbody></table>
+<h3>4.2 Multi-Tenant Organizations (<code>/organizations</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET</code></td>
+<td><code>/organizations</code></td>
+<td>Required</td>
+<td>Any Authenticated</td>
+<td>List organizations where user has active membership</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/organizations</code></td>
+<td>Required</td>
+<td><code>org.create</code> / Sudo</td>
+<td>Create a new organization tenant workspace</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/organizations/:id</code></td>
+<td>Required</td>
+<td>Member</td>
+<td>Get details and settings for specific organization</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/organizations/:id</code></td>
+<td>Required</td>
+<td><code>org.manage</code></td>
+<td>Update organization settings and domain branding</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/organizations/:id/members</code></td>
+<td>Required</td>
+<td><code>org.members.read</code></td>
+<td>List members and their assigned roles</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/organizations/:id/members</code></td>
+<td>Required</td>
+<td><code>org.members.invite</code></td>
+<td>Invite new member to organization</td>
+</tr>
+</tbody></table>
+<h3>4.3 Events &amp; Competitions (<code>/events</code>, <code>/competitions</code>, <code>/hackathon-proposals</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET</code></td>
+<td><code>/events</code></td>
+<td>Tenant</td>
+<td>Public / Member</td>
+<td>List events scoped to tenant workspace</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/events</code></td>
+<td>Required</td>
+<td><code>events.create</code></td>
+<td>Create a new event draft</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/events/:id</code></td>
+<td>Tenant</td>
+<td>Public / Member</td>
+<td>Retrieve comprehensive event details, rounds, tracks</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/events/:id</code></td>
+<td>Required</td>
+<td><code>events.manage</code></td>
+<td>Update event information, schedule, or banners</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/events/:id</code></td>
+<td>Required</td>
+<td><code>events.delete</code></td>
+<td>Soft delete event</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/events/:id/publish</code></td>
+<td>Required</td>
+<td><code>events.publish</code></td>
+<td>Transition event status to <code>PUBLISHED</code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/hackathon-proposals</code></td>
+<td>Required</td>
+<td><code>proposals.read</code></td>
+<td>List hackathon proposals submitted by coordinators</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/hackathon-proposals</code></td>
+<td>Required</td>
+<td><code>proposals.create</code></td>
+<td>Submit new hackathon proposal with budget and tracks</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/hackathon-proposals/:id/approve</code></td>
+<td>Required</td>
+<td><code>proposals.approve</code></td>
+<td>Approve proposal and spawn draft event</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/hackathon-proposals/:id/reject</code></td>
+<td>Required</td>
+<td><code>proposals.reject</code></td>
+<td>Reject proposal with structured feedback</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/competitions/:id/rounds</code></td>
+<td>Tenant</td>
+<td>Member</td>
+<td>List rounds and stage criteria for competition</td>
+</tr>
+</tbody></table>
+<h3>4.4 Registrations, Teams &amp; Payments (<code>/registrations</code>, <code>/teams</code>, <code>/payments</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST</code></td>
+<td><code>/registrations</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>Register for event (individual or team)</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/registrations/me</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>Get current user&#39;s registration tickets and statuses</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/registrations/event/:id</code></td>
+<td>Required</td>
+<td><code>events.manage</code></td>
+<td>List all registered attendees for an event</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/teams</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>Create a new team and generate invite code</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/teams/join</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>Join existing team using invite code</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/payments/checkout</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>Create Stripe Checkout Session for paid event</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/payments/webhook</code></td>
+<td>Public</td>
+<td>Stripe Signature</td>
+<td>Handle Stripe webhook events (<code>checkout.session.completed</code>)</td>
+</tr>
+</tbody></table>
+<h3>4.5 Problem Statements &amp; Submissions (<code>/problem-statements</code>, <code>/submissions</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET</code></td>
+<td><code>/problem-statements</code></td>
+<td>Tenant</td>
+<td>Registered / Staff</td>
+<td>List available problem statements for event</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/problem-statements/select</code></td>
+<td>Required</td>
+<td>Participant (Team Lead)</td>
+<td>Permanently lock chosen problem statement for team</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/submissions</code></td>
+<td>Required</td>
+<td>Participant (Team Member)</td>
+<td>Upload deliverable files, GitHub links, demo URL</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/submissions/round/:roundId</code></td>
+<td>Required</td>
+<td>Judge / Manager</td>
+<td>List submissions submitted for specific round</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/submissions/:id</code></td>
+<td>Required</td>
+<td>Team / Judge / Staff</td>
+<td>Get full submission details and attachments</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/submissions/:id/files/:fileId/view</code></td>
+<td>Required</td>
+<td>Team / Assigned Judge / Staff</td>
+<td><strong>Stream submission file inline for safe view-only preview</strong></td>
+</tr>
+</tbody></table>
+<h3>4.6 Judging, Evaluator Scoring &amp; Leaderboard (<code>/evaluations</code>, <code>/judges</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET</code></td>
+<td><code>/judges/assigned</code></td>
+<td>Required</td>
+<td>Judge</td>
+<td>List competitions and submissions assigned to current judge</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/judges/assign</code></td>
+<td>Required</td>
+<td><code>events.manage</code></td>
+<td>Assign judge to specific competition round</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/evaluations</code></td>
+<td>Required</td>
+<td>Judge</td>
+<td>Submit rubric criteria scores and qualitative feedback</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/evaluations/submission/:id</code></td>
+<td>Required</td>
+<td>Judge / Manager</td>
+<td>Get submitted scores for a submission</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/evaluations/leaderboard/:eventId</code></td>
+<td>Tenant</td>
+<td>Member</td>
+<td>Get real-time computed leaderboard rankings</td>
+</tr>
+</tbody></table>
+<h3>4.7 Attendance &amp; Check-In (<code>/attendance</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST</code></td>
+<td><code>/attendance/sessions</code></td>
+<td>Required</td>
+<td><code>attendance.manage</code></td>
+<td>Create check-in session for event (e.g. Day 1 Morning)</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/attendance/ticket/:regId</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>Get signed QR code token for event entry</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/attendance/scan</code></td>
+<td>Required</td>
+<td>Coordinator / Staff</td>
+<td>Scan attendee QR code and record check-in timestamp</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/attendance/session/:id/stats</code></td>
+<td>Required</td>
+<td><code>attendance.read</code></td>
+<td>Get real-time check-in counts and attendance rate</td>
+</tr>
+</tbody></table>
+<h3>4.8 Certificates &amp; Verification (<code>/certificates</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST</code></td>
+<td><code>/certificates/issue</code></td>
+<td>Required</td>
+<td><code>certificates.manage</code></td>
+<td>Issue digital certificates to event participants/winners</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/certificates/me</code></td>
+<td>Required</td>
+<td>Participant</td>
+<td>List certificates awarded to current user</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/certificates/:id/download</code></td>
+<td>Required</td>
+<td>Recipient / Admin</td>
+<td>Download generated vector PDF certificate</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/certificates/verify/:code</code></td>
+<td>Public</td>
+<td>None</td>
+<td><strong>Public verification endpoint for certificate authenticity</strong></td>
+</tr>
+</tbody></table>
+<h3>4.9 Reports &amp; Analytics (<code>/reports</code>, <code>/analytics</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET</code></td>
+<td><code>/reports/dashboard</code></td>
+<td>Required</td>
+<td><code>reports.read</code></td>
+<td>Retrieve executive KPI metrics (revenue, attendees, teams)</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/reports/export/:type</code></td>
+<td>Required</td>
+<td><code>reports.export</code></td>
+<td>Export CSV report for registrations, scores, or attendance</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/analytics/events/:id</code></td>
+<td>Required</td>
+<td><code>analytics.read</code></td>
+<td>Real-time event engagement and submission metrics</td>
+</tr>
+</tbody></table>
+<h3>4.10 AI Services (<code>/ai-copilot</code>, <code>/ai-validation</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Roles / Permissions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST</code></td>
+<td><code>/ai-copilot/query</code></td>
+<td>Required</td>
+<td>Participant / Mentor</td>
+<td>Submit technical coding question to Gemini AI Copilot</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/ai-validation/proposal</code></td>
+<td>Required</td>
+<td><code>proposals.manage</code></td>
+<td>AI risk and feasibility evaluation for hackathon proposal</td>
+</tr>
+</tbody></table>
+<h3>4.11 Extended Platform Routes</h3>
+<p>The platform additionally mounts specialized routes for:</p>
+<ul>
+<li><code>/badges</code>: Gamification badges, achievements, and criteria evaluations.</li>
+<li><code>/winners</code>: Winner selection, podium distribution, and prize allocations.</li>
+<li><code>/communications</code> &amp; <code>/notifications</code>: Broadcast announcements and notification feeds.</li>
+<li><code>/community</code>: Discussion forums, channels, and networking groups.</li>
+<li><code>/learning</code>: Educational workshops, video modules, and resource libraries.</li>
+<li><code>/recruitment</code>: Talent search and resume pool for event sponsors.</li>
+<li><code>/sponsors</code>: Sponsor tier management and booth analytics.</li>
+<li><code>/volunteers</code>: Volunteer scheduling and shift management.</li>
+<li><code>/feedback</code>: Post-event feedback surveys and NPS scoring.</li>
+<li><code>/developer</code> &amp; <code>/security</code>: API key management, webhook logs, and security audit events.</li>
+</ul>
+<hr>
+<h2>5. Schema Migration &amp; Synchronization Strategy</h2>
+<ol>
+<li><strong>Deploying Schema Changes</strong>:<pre><code class="language-bash">npx prisma migrate deploy
+</code></pre>
+</li>
+<li><strong>Generating Updated Types</strong>:<pre><code class="language-bash">npx prisma generate
+</code></pre>
+</li>
+<li><strong>Idempotent RBAC Sync</strong>:
+Whenever new route permissions are introduced, execute:<pre><code class="language-bash">npx tsx prisma/scripts/sync-reports-permissions.ts
+</code></pre>
+</li>
+</ol>
+
+  </main>
+
+  <div class="footer-notice">
+    <span>Eventura Platform Handover Suite &bull; Version 1.0.0</span>
+    <span>Generated: October 29, 2026 &bull; Strict Multi-Tenant Architecture</span>
+  </div>
+</body>
+</html>

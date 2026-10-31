@@ -2,7 +2,7 @@
 
 ## 1. High-Level Architecture Overview
 
-The future architecture of the **Eventora Platform** evolves the system into an **Event-Driven, Distributed Micro-Kernel System** built for high throughput, real-time interactivity, and AI capabilities.
+The future architecture of the **Eventura Platform** evolves the system into an **Event-Driven, Distributed Micro-Kernel System** built for high throughput, real-time interactivity, and AI capabilities.
 
 ```mermaid
 graph TD

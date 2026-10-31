@@ -41,7 +41,7 @@ export function ClienturaLogo({ size = "md", showText = true, variant = "auto", 
       {showText && (
         <div className="flex flex-col leading-none text-left">
           <span className={`font-extrabold tracking-tight drop-shadow-sm ${titleColor} ${currentSize.title}`}>
-            Eventora
+            Eventura
           </span>
           <span className={`tracking-wide mt-0.5 ${subColor} ${currentSize.sub}`}>
             powered by Clientura

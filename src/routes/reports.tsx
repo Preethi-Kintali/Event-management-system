@@ -14,7 +14,7 @@ import { useReportsDashboard, useEventReports, useCompetitionReports, usePartici
 export const Route = createFileRoute("/reports")({
   head: () => ({
     meta: [
-      { title: "Reports & Compliance Audit · Eventora Platform" },
+      { title: "Reports & Compliance Audit · Eventura Platform" },
       {
         name: "description",
         content: "Scheduled and on-demand operational reports and immutable compliance audit logs.",
@@ -36,7 +36,7 @@ const reportTypes = [
 ];
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchApi } from "@/lib/api-client";
+import { fetchApi, getApiBaseUrl } from "@/lib/api-client";
 
 interface AuditLogEntry {
   id: string;
@@ -112,7 +112,7 @@ function ReportsPage() {
     try {
       const token = localStorage.getItem("ascent_token");
       const url = `/reports/${selectedReport}/export?format=csv`;
-      const baseUrl = import.meta.env['VITE_API_URL'] || 'http://localhost:3000/api/v1';
+      const baseUrl = getApiBaseUrl();
       
       const response = await fetch(`${baseUrl}${url}`, {
         headers: {

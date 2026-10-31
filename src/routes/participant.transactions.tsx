@@ -3,7 +3,7 @@ import { ParticipantTransactionsPage } from "@/modules/participant/pages/transac
 
 export const Route = createFileRoute("/participant/transactions")({
   head: () => ({
-    meta: [{ title: "My Transactions · Eventora Platform" }],
+    meta: [{ title: "My Transactions · Eventura Platform" }],
   }),
   component: ParticipantTransactionsPage,
 });

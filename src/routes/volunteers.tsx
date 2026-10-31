@@ -4,12 +4,12 @@ import { VolunteersPage } from "@/modules/volunteers/pages/volunteers-page";
 export const Route = createFileRoute("/volunteers")({
   head: () => ({
     meta: [
-      { title: "Volunteers · Eventora Platform" },
+      { title: "Volunteers · Eventura Platform" },
       {
         name: "description",
         content: "Volunteer management, event assignments, shifts and hours.",
       },
-      { property: "og:title", content: "Volunteers · Eventora Platform" },
+      { property: "og:title", content: "Volunteers · Eventura Platform" },
       {
         property: "og:description",
         content: "Volunteer management, event assignments, shifts and hours.",

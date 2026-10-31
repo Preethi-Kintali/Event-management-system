@@ -44,7 +44,7 @@ export function ParticipantTeamsPage() {
             <div>
               <CardTitle className="text-xl font-bold text-foreground">{team?.name || "Team Alpha"}</CardTitle>
               <CardDescription className="text-xs mt-1">
-                Track: {team?.competition?.name || "Eventora Hackathon Main Track"}
+                Track: {team?.competition?.name || "Eventura Hackathon Main Track"}
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">

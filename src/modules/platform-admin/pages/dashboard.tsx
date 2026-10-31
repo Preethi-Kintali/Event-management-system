@@ -58,7 +58,7 @@ export function PlatformAdminDashboard() {
     <>
       <PageHeader
         title="Platform Administration"
-        description="Global metrics and system health for the Eventora Platform."
+        description="Global metrics and system health for the Eventura Platform."
         crumbs={[{ label: "Platform" }, { label: "Dashboard" }]}
         actions={
           <div className="flex items-center gap-2">

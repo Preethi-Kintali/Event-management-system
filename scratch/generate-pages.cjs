@@ -61,7 +61,7 @@ function generateRouteFile(role, name, componentName) {
 import { ${componentName} } from "@/modules/${role}/pages/${name}";
 
 export const Route = createFileRoute("/${role}/${name}")({
-  head: () => ({ meta: [{ title: "${componentName} · Ascent Platform" }] }),
+  head: () => ({ meta: [{ title: "${componentName} · Eventura Platform" }] }),
   component: ${componentName},
 });
 `;

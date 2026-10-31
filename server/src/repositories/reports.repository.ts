@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export class ReportsRepository {
   static async getDashboardStats(organizationId: string) {
@@ -8,29 +6,21 @@ export class ReportsRepository {
       events,
       registrations,
       certificates,
-      winners
+      winners,
+      competitions,
+      teams,
+      submissions,
+      evaluations,
     ] = await Promise.all([
       prisma.event.count({ where: { organizationId } }),
       prisma.registration.count({ where: { event: { organizationId } } }),
       prisma.certificate.count({ where: { organizationId } }),
       prisma.winner.count({ where: { organizationId } }),
+      prisma.competition.count({ where: { event: { organizationId } } }),
+      prisma.team.count({ where: { competition: { event: { organizationId } } } }),
+      prisma.submission.count({ where: { competition: { event: { organizationId } } } }),
+      prisma.evaluation.count({ where: { submission: { competition: { event: { organizationId } } } } }),
     ]);
-
-    const competitions = await prisma.competition.count({
-      where: { event: { organizationId } },
-    });
-
-    const teams = await prisma.team.count({
-      where: { competition: { event: { organizationId } } },
-    });
-
-    const submissions = await prisma.submission.count({
-      where: { competition: { event: { organizationId } } },
-    });
-
-    const evaluations = await prisma.evaluation.count({
-      where: { submission: { competition: { event: { organizationId } } } },
-    });
 
     return {
       totalEvents: events,

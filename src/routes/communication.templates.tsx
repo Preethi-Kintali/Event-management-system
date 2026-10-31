@@ -3,7 +3,7 @@ import { CommunicationTemplatesPage } from "@/modules/communication/pages/templa
 
 export const Route = createFileRoute("/communication/templates")({
   head: () => ({
-    meta: [{ title: "Templates · Eventora Platform" }],
+    meta: [{ title: "Templates · Eventura Platform" }],
   }),
   component: CommunicationTemplatesPage,
 });

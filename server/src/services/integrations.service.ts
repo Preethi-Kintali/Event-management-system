@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { SecurityRepository } from "../repositories/security.repository";
+import { prisma } from "../utils/prisma";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
 
 export class IntegrationsService {
   static async getIntegrations(organizationId: string) {
@@ -13,9 +11,11 @@ export class IntegrationsService {
   }
 
   static async getIntegrationDashboard(organizationId: string) {
-    const total = await prisma.integration.count({ where: { organizationId } });
-    const connected = await prisma.integration.count({ where: { organizationId, status: "Connected" } });
-    const errors = await prisma.integration.count({ where: { organizationId, status: "Error" } });
+    const [total, connected, errors] = await Promise.all([
+      prisma.integration.count({ where: { organizationId } }),
+      prisma.integration.count({ where: { organizationId, status: "Connected" } }),
+      prisma.integration.count({ where: { organizationId, status: "Error" } }),
+    ]);
     
     // In a real scenario, this would aggregate usage logs.
     const apiCalls30d = 12450;
@@ -199,12 +199,12 @@ export class IntegrationsService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "User-Agent": "Eventora-Webhook-Dispatcher/1.0"
+          "User-Agent": "Eventura-Webhook-Dispatcher/1.0"
         },
         body: JSON.stringify({
           event: "ping",
           timestamp: new Date().toISOString(),
-          data: { message: "Test ping from Eventora Developer Platform" }
+          data: { message: "Test ping from Eventura Developer Platform" }
         }),
         signal: controller.signal
       });

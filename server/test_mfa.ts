@@ -4,7 +4,7 @@ import speakeasy from 'speakeasy';
 const p = new PrismaClient();
 
 async function run() {
-  const admin = await p.user.findUnique({ where: { email: 'admin@ascent.dev' } });
+  const admin = await p.user.findUnique({ where: { email: 'admin@eventura.dev' } });
   const org = await p.organization.findFirst();
   
   // 2. Clear user MFA
@@ -14,7 +14,7 @@ async function run() {
   const loginRes = await fetch('http://localhost:3000/api/v1/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'admin@ascent.dev', password: 'password123' })
+    body: JSON.stringify({ email: 'admin@eventura.dev', password: 'password123' })
   });
   const loginData = await loginRes.json();
   const token = loginData.data?.token;
@@ -53,7 +53,7 @@ async function run() {
   const login2Res = await fetch('http://localhost:3000/api/v1/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'admin@ascent.dev', password: 'password123' })
+    body: JSON.stringify({ email: 'admin@eventura.dev', password: 'password123' })
   });
   const login2Data = await login2Res.json();
   console.log('Login 2 response:', login2Data);

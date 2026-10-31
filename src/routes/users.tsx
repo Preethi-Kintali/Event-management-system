@@ -16,12 +16,12 @@ type Row = AuthUser & { roleName: string };
 export const Route = createFileRoute("/users")({
   head: () => ({
     meta: [
-      { title: "Users · Eventora Platform" },
+      { title: "Users · Eventura Platform" },
       {
         name: "description",
         content: "Directory of every platform user with roles, organizations and security posture.",
       },
-      { property: "og:title", content: "Users · Eventora Platform" },
+      { property: "og:title", content: "Users · Eventura Platform" },
       {
         property: "og:description",
         content: "Directory of every platform user with roles, organizations and security posture.",

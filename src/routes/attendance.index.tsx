@@ -3,7 +3,7 @@ import { AttendanceDashboard } from "@/modules/attendance/pages/dashboard";
 
 export const Route = createFileRoute("/attendance/")({
   head: () => ({
-    meta: [{ title: "Attendance Dashboard · Eventora Platform" }],
+    meta: [{ title: "Attendance Dashboard · Eventura Platform" }],
   }),
   component: AttendanceDashboard,
 });
