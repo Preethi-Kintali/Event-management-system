@@ -1,5 +1,5 @@
 # PRODUCTION DEPLOYMENT CHECKLIST & RUNBOOK
-**Eventora powered by Clientura — Enterprise Event & Hackathon Platform**
+**Eventura powered by Clientura — Enterprise Event & Hackathon Platform**
 
 ---
 
@@ -130,7 +130,7 @@ Execute the following verification checklist immediately after deployment:
 - [ ] **API Health Check**:
   ```bash
   curl -i https://<API_DOMAIN>/api/v1/health
-  # Expected: HTTP 200 OK, {"success": true, "message": "Eventora API is healthy"}
+  # Expected: HTTP 200 OK, {"success": true, "message": "Eventura API is healthy"}
   ```
 - [ ] **Automated Smoke Test Suite**:
   ```bash

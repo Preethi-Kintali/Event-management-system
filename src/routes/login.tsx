@@ -94,8 +94,8 @@ function LoginPage() {
       router.navigate({ to: "/coordinator" });
     } else if (roleName === "Participant" || roleName === "STUDENT" || roleName === "Student") {
       router.navigate({ to: "/participant" });
-    } else if (roleName === "Judge") {
-      router.navigate({ to: "/evaluations" });
+    } else if (roleName === "Judge" || roleName === "Evaluator") {
+      router.navigate({ to: "/judge" });
     } else if (roleName === "Mentor") {
       router.navigate({ to: "/teams" });
     } else if (roleName === "Volunteer") {

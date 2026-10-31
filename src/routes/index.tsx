@@ -35,9 +35,10 @@ function getDashboardUrl(user: any) {
   const roleName = user.memberships[0]?.role?.name;
   if (roleName === "Sudo Admin" || roleName === "Platform Admin") return "/platform-admin";
   if (roleName === "Admin" || roleName === "Organization Admin" || roleName === "Manager") return "/manager";
+  if (roleName === "Faculty Coordinator") return "/faculty-coordinator";
   if (roleName === "Student Coordinator") return "/coordinator";
   if (roleName === "Participant") return "/participant";
-  if (roleName === "Judge") return "/evaluations";
+  if (roleName === "Judge" || roleName === "Evaluator") return "/judge";
   if (roleName === "Mentor") return "/teams";
   if (roleName === "Volunteer") return "/volunteers";
   return "/events";
@@ -124,7 +125,7 @@ export function LandingPage() {
           <div className="lg:col-span-6 text-center lg:text-left space-y-6 sm:space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-xs font-semibold text-blue-400 backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-spin-slow" />
-              <span>Eventora 2.0 · Powered by Clientura Platform</span>
+              <span>Eventura 2.0 · Powered by Clientura Platform</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
@@ -409,7 +410,7 @@ export function LandingPage() {
       <section className="py-24 bg-[#070b19] border-t border-slate-800/80 relative overflow-hidden">
         <div className="container relative mx-auto px-6 text-center md:px-12">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Ready to Run Your Next Event with Eventora?
+            Ready to Run Your Next Event with Eventura?
           </h2>
           <p className="mt-4 text-base text-slate-400 mb-10 max-w-2xl mx-auto">
             Unify proposals, approvals, registrations, evaluations, and compliance reporting in one single platform.
@@ -467,7 +468,7 @@ export function LandingPage() {
 
           <div className="mt-12 pt-8 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-500">
-              © 2026 Eventora powered by Clientura. All rights reserved.
+              © 2026 Eventura powered by Clientura. All rights reserved.
             </p>
           </div>
         </div>

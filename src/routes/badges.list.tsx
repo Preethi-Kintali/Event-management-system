@@ -3,7 +3,7 @@ import { BadgeListPage } from "@/modules/badges/pages/badge-list";
 
 export const Route = createFileRoute("/badges/list")({
   head: () => ({
-    meta: [{ title: "Badges · Eventora Platform" }],
+    meta: [{ title: "Badges · Eventura Platform" }],
   }),
   component: BadgeListPage,
 });

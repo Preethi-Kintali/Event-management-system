@@ -1,5 +1,5 @@
 /**
- * Eventora Platform - Frontend Application Logger & Error Tracker
+ * Eventura Platform - Frontend Application Logger & Error Tracker
  * Captures, formats, and logs client-side runtime errors, API traces, and boundary exceptions.
  */
 

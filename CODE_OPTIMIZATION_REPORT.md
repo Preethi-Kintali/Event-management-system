@@ -1,5 +1,5 @@
 # CODE OPTIMIZATION & PRODUCTION READINESS AUDIT REPORT
-**Eventora powered by Clientura — Enterprise Event & Hackathon Management Platform**
+**Eventura powered by Clientura — Enterprise Event & Hackathon Management Platform**
 
 ---
 
@@ -18,7 +18,7 @@
 
 | File Path | Component | Nature of Improvement / Fix |
 |---|---|---|
-| `server/src/services/auth.service.ts` | Backend Auth Service | **Security Fix**: Removed hardcoded MFA bypass (`&& user.email !== 'admin@ascent.dev'`). Enforced universal TOTP MFA. Removed noisy debug console statements. |
+| `server/src/services/auth.service.ts` | Backend Auth Service | **Security Fix**: Removed hardcoded MFA bypass (`&& user.email !== 'admin@eventura.dev'`). Enforced universal TOTP MFA. Removed noisy debug console statements. |
 | `server/src/middleware/tenant.middleware.ts` | Backend Security Middleware | **Security Fix & Multi-Tenant Isolation**: Removed silent fallback that defaulted unauthenticated or header-less requests to a random database tenant. Enforced strict HTTP 400 `MISSING_TENANT` rejection. |
 | `server/src/controllers/problem-statements.controller.ts` | Backend Controller | **Bug Fix**: Added staff/student eligibility check in `getAll` and injected `userId` to ensure participant problem statement access control is active. |
 | `server/src/services/problem-statements.service.ts` | Backend Service | **Bug Fix & Business Logic**: Expanded allowed registration statuses in `selectProblemStatement` from `['APPROVED']` to `['APPROVED', 'PAID', 'CONFIRMED', 'REGISTERED']`, preventing valid attendees from being blocked during problem statement selection. |
@@ -42,7 +42,7 @@
 ### Bug 1: Hardcoded MFA Bypass in Authentication Service
 - **Severity**: Critical (Security Vulnerability)
 - **Location**: `server/src/services/auth.service.ts` (line 130)
-- **Root Cause**: An arbitrary condition `&& user.email !== 'admin@ascent.dev'` bypassed two-factor authentication verification specifically for the administrative account, creating a severe backdoor.
+- **Root Cause**: An arbitrary condition `&& user.email !== 'admin@eventura.dev'` bypassed two-factor authentication verification specifically for the administrative account, creating a severe backdoor.
 - **Resolution**: Removed the hardcoded bypass. MFA challenges and TOTP verification are now strictly enforced across all user accounts with MFA enabled.
 
 ### Bug 2: Multi-Tenant Boundary Bypass via Middleware Fallback

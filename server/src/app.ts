@@ -194,7 +194,7 @@ app.use("/api/v1/platform-admin", platformAdminRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", (req: Request, res: Response) => {
-  res.json({ success: true, message: "Eventora API is healthy" });
+  res.json({ success: true, message: "Eventura API is healthy" });
 });
 
 // 404 handler

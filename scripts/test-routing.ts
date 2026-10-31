@@ -91,7 +91,7 @@ async function runRoutingTests() {
     console.log("--- Initializing Test Context & Security Personas ---");
     adminUser = await prisma.user.findFirst({
       where: {
-        email: "admin@ascent.dev",
+        email: "admin@eventura.dev",
       },
       include: {
         memberships: {

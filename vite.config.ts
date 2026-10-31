@@ -1,4 +1,4 @@
-// Eventora Platform - Vite & TanStack Start Configuration
+// Eventura Platform - Vite & TanStack Start Configuration
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({

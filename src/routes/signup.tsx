@@ -22,8 +22,8 @@ import { AnimatedEyeToggle } from "@/components/auth/animated-eye-toggle";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Create Account · Eventora" },
-      { name: "description", content: "Create an enterprise account on Eventora." },
+      { title: "Create Account · Eventura" },
+      { name: "description", content: "Create an enterprise account on Eventura." },
     ],
   }),
   component: SignupPage,

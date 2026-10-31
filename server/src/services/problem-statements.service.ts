@@ -3,9 +3,15 @@ import { prisma } from "../utils/prisma";
 export class ProblemStatementService {
   static async getAll(organizationId?: string, isStudent: boolean = false, eventId?: string, userId?: string) {
     const where: any = {};
-    if (organizationId) {
+    if (!organizationId && eventId && eventId !== "ALL" && eventId !== "ALL_EVENTS") {
+      const evt = await prisma.event.findUnique({ where: { id: eventId }, select: { organizationId: true } });
+      if (evt?.organizationId) {
+        where.organizationId = evt.organizationId;
+      }
+    } else if (organizationId) {
       where.organizationId = organizationId;
     }
+
     if (isStudent) {
       where.isReleased = true;
     }
@@ -18,13 +24,38 @@ export class ProblemStatementService {
 
     // Security check: if student mode with specific eventId & userId, verify participant registration eligibility
     if (isStudent && eventId && eventId !== "ALL" && eventId !== "ALL_EVENTS" && userId) {
-      const isRegistered = await prisma.registration.findFirst({
+      let isRegistered = await prisma.registration.findFirst({
         where: {
           userId,
           eventId,
-          status: { in: ['APPROVED', 'REGISTERED', 'PAID', 'CONFIRMED'] }
+          status: { in: ['APPROVED', 'PAID'] }
         }
       });
+
+      // Also verify if user is part of a registered team for this event
+      if (!isRegistered) {
+        const teamMember = await prisma.teamMember.findFirst({
+          where: {
+            userId,
+            team: { competition: { eventId } }
+          },
+          include: { team: { include: { members: true } } }
+        });
+
+        if (teamMember?.team) {
+          const memberUserIds = teamMember.team.members.map(m => m.userId).filter(Boolean) as string[];
+          if (memberUserIds.length > 0) {
+            isRegistered = await prisma.registration.findFirst({
+              where: {
+                eventId,
+                userId: { in: memberUserIds },
+                status: { in: ['APPROVED', 'PAID'] }
+              }
+            });
+          }
+        }
+      }
+
       if (!isRegistered) {
         return [];
       }
@@ -256,15 +287,11 @@ export class ProblemStatementService {
       });
     }
 
-    if (!member && ps.eventId) {
+    if (!member) {
       member = await prisma.teamMember.findFirst({
         where: {
           userId,
-          team: {
-            competition: {
-              eventId: ps.eventId
-            }
-          }
+          ...(ps.eventId ? { team: { competition: { eventId: ps.eventId } } } : {})
         },
         include: {
           team: {
@@ -278,45 +305,48 @@ export class ProblemStatementService {
     }
 
     if (!member || !member.team) {
+      const regWhere: any = {
+        userId,
+        status: { in: ['APPROVED', 'PAID'] }
+      };
       if (ps.eventId) {
-        const registration = await prisma.registration.findFirst({
-          where: {
-            userId,
-            eventId: ps.eventId,
-            status: { in: ['APPROVED', 'PAID', 'CONFIRMED', 'REGISTERED'] }
+        regWhere.eventId = ps.eventId;
+      }
+      const registration = await prisma.registration.findFirst({
+        where: regWhere
+      });
+
+      if (registration) {
+        const targetEventId = ps.eventId || registration.eventId;
+        let comp = await prisma.competition.findFirst({ where: { eventId: targetEventId } });
+        if (!comp) {
+          comp = await prisma.competition.create({
+            data: { eventId: targetEventId, name: "Main Track", description: "Default competition track" }
+          });
+        }
+        const userObj = await prisma.user.findUnique({ where: { id: userId } });
+        const newTeam = await prisma.team.create({
+          data: {
+            competitionId: comp.id,
+            name: `${userObj?.firstName || 'Participant'}'s Team`,
+            size: 1,
+            members: {
+              create: [
+                {
+                  userId,
+                  name: `${userObj?.firstName || ''} ${userObj?.lastName || ''}`.trim() || 'Lead',
+                  email: userObj?.email || '',
+                  isLead: true
+                }
+              ]
+            }
+          },
+          include: {
+            competition: { include: { event: true } },
+            problemStatement: true
           }
         });
-        if (registration) {
-          let comp = await prisma.competition.findFirst({ where: { eventId: ps.eventId } });
-          if (!comp) {
-            comp = await prisma.competition.create({
-              data: { eventId: ps.eventId, name: "Main Track", description: "Default competition track" }
-            });
-          }
-          const userObj = await prisma.user.findUnique({ where: { id: userId } });
-          const newTeam = await prisma.team.create({
-            data: {
-              competitionId: comp.id,
-              name: `${userObj?.firstName || 'Participant'}'s Team`,
-              size: 1,
-              members: {
-                create: [
-                  {
-                    userId,
-                    name: `${userObj?.firstName || ''} ${userObj?.lastName || ''}`.trim() || 'Lead',
-                    email: userObj?.email || '',
-                    isLead: true
-                  }
-                ]
-              }
-            },
-            include: {
-              competition: { include: { event: true } },
-              problemStatement: true
-            }
-          });
-          member = { team: newTeam } as any;
-        }
+        member = { team: newTeam } as any;
       }
     }
 

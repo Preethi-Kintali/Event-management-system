@@ -153,7 +153,7 @@ export class FinalReportPDFService {
         for (let i = 0; i < pages.count; i++) {
           doc.switchToPage(i);
           doc.fontSize(9).fillColor('#94a3b8').text(
-            `Eventora Compliance Audit Trail • Page ${i + 1} of ${pages.count}`,
+            `Eventura Compliance Audit Trail • Page ${i + 1} of ${pages.count}`,
             50,
             doc.page.height - 40,
             { align: 'center' }

@@ -1,5 +1,5 @@
 /**
- * Eventora Platform - Enterprise Logger Utility
+ * Eventura Platform - Enterprise Logger Utility
  * Provides structured logging with log levels, timestamps, request timing, and error formatting.
  */
 

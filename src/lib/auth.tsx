@@ -50,7 +50,7 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("ascent_token");
+      return localStorage.getItem("eventura_token") || localStorage.getItem("ascent_token");
     }
     return null;
   });
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [activeOrganization, setActiveOrganizationState] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("ascent_active_org");
+      return localStorage.getItem("eventura_active_org") || localStorage.getItem("ascent_active_org");
     }
     return null;
   });
@@ -67,8 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setActiveOrganization = (id: string | null) => {
     setActiveOrganizationState(id);
     if (id) {
+      localStorage.setItem("eventura_active_org", id);
       localStorage.setItem("ascent_active_org", id);
     } else {
+      localStorage.removeItem("eventura_active_org");
       localStorage.removeItem("ascent_active_org");
     }
   };
@@ -112,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [error]);
 
   const login = (newToken: string) => {
+    localStorage.setItem("eventura_token", newToken);
     localStorage.setItem("ascent_token", newToken);
     setToken(newToken);
     // Invalidate queries so the user profile is fetched immediately
@@ -119,7 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    localStorage.removeItem("eventura_token");
     localStorage.removeItem("ascent_token");
+    localStorage.removeItem("eventura_active_org");
     localStorage.removeItem("ascent_active_org");
     setToken(null);
     setActiveOrganizationState(null);

@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 const BASE_URL = "http://localhost:3000/api/v1";
-const ADMIN_CREDENTIALS = { email: "admin@ascent.dev", password: "password123" };
+const ADMIN_CREDENTIALS = { email: "admin@eventura.dev", password: "password123" };
 
 async function runTests() {
   console.log("=== Phase 4D API E2E Verification ===");

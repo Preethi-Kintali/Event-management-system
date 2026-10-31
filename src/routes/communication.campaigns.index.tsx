@@ -3,7 +3,7 @@ import { CommunicationCampaignsPage } from "@/modules/communication/pages/campai
 
 export const Route = createFileRoute("/communication/campaigns/")({
   head: () => ({
-    meta: [{ title: "Campaigns · Eventora Platform" }],
+    meta: [{ title: "Campaigns · Eventura Platform" }],
   }),
   component: CommunicationCampaignsPage,
 });

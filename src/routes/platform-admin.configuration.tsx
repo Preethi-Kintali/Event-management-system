@@ -3,7 +3,7 @@ import { ConfigurationPage } from "@/modules/platform-admin/pages/configuration"
 
 export const Route = createFileRoute("/platform-admin/configuration")({
   head: () => ({
-    meta: [{ title: "Configuration · Eventora Platform" }],
+    meta: [{ title: "Configuration · Eventura Platform" }],
   }),
   component: ConfigurationPage,
 });

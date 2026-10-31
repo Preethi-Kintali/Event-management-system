@@ -830,7 +830,7 @@ export function ManagerReportsPage() {
               </DialogTitle>
             </div>
             <DialogDescription className="text-xs">
-              Synthesized by Eventora Intelligence from verified database metrics & coordinator inputs
+              Synthesized by Eventura Intelligence from verified database metrics & coordinator inputs
             </DialogDescription>
           </DialogHeader>
 

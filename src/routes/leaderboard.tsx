@@ -27,7 +27,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
-    meta: [{ title: "Live Leaderboard · Eventora Platform" }],
+    meta: [{ title: "Live Leaderboard · Eventura Platform" }],
   }),
   component: LiveLeaderboardPage,
 });

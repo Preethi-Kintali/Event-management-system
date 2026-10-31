@@ -3,7 +3,7 @@ import { CommunityDashboard } from "@/modules/community/pages/dashboard";
 
 export const Route = createFileRoute("/community/")({
   head: () => ({
-    meta: [{ title: "Community Dashboard · Eventora Platform" }],
+    meta: [{ title: "Community Dashboard · Eventura Platform" }],
   }),
   component: CommunityDashboard,
 });

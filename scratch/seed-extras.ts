@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Adding extra seed data for Evaluation and Attendance...");
 
-  const admin = await prisma.user.findUnique({ where: { email: 'admin@ascent.dev' } });
+  const admin = await prisma.user.findUnique({ where: { email: 'admin@eventura.dev' } });
   const org = await prisma.organization.findUnique({ where: { slug: 'contoso-labs' } });
   
   if (!admin || !org) {

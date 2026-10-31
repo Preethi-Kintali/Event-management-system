@@ -121,7 +121,7 @@ async function main() {
   });
 
   const platformAdmin = await prisma.user.create({
-    data: { email: 'admin@ascent.dev', firstName: 'Admin', lastName: 'User', passwordHash, status: UserStatus.ACTIVE },
+    data: { email: 'admin@eventura.dev', firstName: 'Admin', lastName: 'User', passwordHash, status: UserStatus.ACTIVE },
   });
 
   const orgManager = await prisma.user.create({
@@ -1053,7 +1053,7 @@ async function main() {
   console.log("\n✅ Seeding complete!");
   console.log("─────────────────────────────────────────────");
   console.log("TEST CREDENTIALS (DEVELOPMENT ONLY):");
-  console.log("  Sudo Admin:      admin@ascent.dev       / password123");
+  console.log("  Sudo Admin:      admin@eventura.dev       / password123");
   console.log("  Admin:           manager@contoso.com    / password123");
   console.log("─────────────────────────────────────────────");
   console.log(`Organizations: ${org1.name}, ${org2.name}`);

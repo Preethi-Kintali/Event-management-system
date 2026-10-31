@@ -28,7 +28,9 @@ export class ApiError extends Error {
 }
 
 export function getAuthToken(): string | null {
-  return typeof window !== "undefined" ? localStorage.getItem('ascent_token') : null;
+  return typeof window !== "undefined"
+    ? localStorage.getItem('eventura_token') || localStorage.getItem('ascent_token')
+    : null;
 }
 
 export async function fetchApi<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -41,7 +43,9 @@ export async function fetchApi<T = any>(endpoint: string, options: RequestInit =
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const activeOrgId = typeof window !== "undefined" ? localStorage.getItem('ascent_active_org') : null;
+  const activeOrgId = typeof window !== "undefined"
+    ? localStorage.getItem('eventura_active_org') || localStorage.getItem('ascent_active_org')
+    : null;
   if (activeOrgId) {
     headers.set('x-organization-id', activeOrgId);
   }

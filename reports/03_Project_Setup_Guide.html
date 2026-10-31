@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Setup Guide - Eventura Enterprise</title>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --bg-code: #0f172a;
+    --border-color: #cbd5e1;
+    --border-light: #e2e8f0;
+    --table-header: #f8fafc;
+    --table-alt: #f1f5f9;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 13.5px;
+    margin: 0;
+    padding: 32px 40px;
+  }
+
+  .report-header {
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: #e0f2fe;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid #bae6fd;
+  }
+
+  .doc-title-h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .confidential-tag {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h1, h2, h3, h4, h5 {
+    color: #0f172a;
+    font-weight: 700;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h1 {
+    font-size: 22px;
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: 8px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    color: #0369a1;
+  }
+
+  h2 {
+    font-size: 17px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 6px;
+    margin-top: 26px;
+    margin-bottom: 12px;
+    color: #0f172a;
+  }
+
+  h3 {
+    font-size: 14.5px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+
+  p {
+    margin: 0 0 12px 0;
+    text-align: justify;
+  }
+
+  strong {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  table th {
+    background-color: var(--table-header);
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    letter-spacing: 0.02em;
+  }
+
+  table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+
+  table tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    background: #f1f5f9;
+    color: #0369a1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 16px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #1e293b;
+  }
+
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  blockquote {
+    margin: 16px 0;
+    padding: 12px 18px;
+    border-left: 4px solid var(--primary);
+    background: #f0f9ff;
+    color: #0369a1;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  blockquote p {
+    margin: 0;
+    color: #0c4a6e;
+    font-weight: 500;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 24px 0;
+  }
+
+  ul, ol {
+    margin: 0 0 14px 0;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  .footer-notice {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+
+  @media print {
+    body {
+      padding: 0;
+      font-size: 12.5px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="report-header">
+    <div>
+      <span class="header-badge">Official Project Deliverable</span>
+      <div class="doc-meta">Eventura (powered by Clientura) &bull; Enterprise Handover Deliverable</div>
+    </div>
+    <div class="confidential-tag">
+      CONFIDENTIAL &bull; ENTERPRISE RELEASE
+    </div>
+  </div>
+
+  <main>
+    <h1>[3] Project Setup Guide</h1>
+<p><strong>Project</strong>: Eventura (powered by Clientura) — Enterprise Event &amp; Hackathon Management Platform<br><strong>Document Version</strong>: 1.0.0<br><strong>Target Environments</strong>: Local Development, Staging, and Production<br><strong>Date</strong>: October 29, 2026<br><strong>Audience</strong>: DevOps Engineers, Full-Stack Developers, QA Engineers, System Administrators  </p>
+<hr>
+<h2>1. Introduction</h2>
+<p>This guide provides end-to-end, reproducible setup instructions to install, configure, migrate, and run <strong>Eventura</strong> across any development workstation or cloud server environment (Windows, macOS, Ubuntu/Debian Linux).</p>
+<hr>
+<h2>2. System Prerequisites &amp; Hardware Specifications</h2>
+<h3>2.1 Hardware Requirements</h3>
+<ul>
+<li><strong>Minimum</strong>: 4 CPU cores, 8 GB RAM, 10 GB free disk space.</li>
+<li><strong>Recommended</strong>: 8 CPU cores, 16 GB RAM, NVMe SSD storage.</li>
+</ul>
+<h3>2.2 Software Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Software Dependency</th>
+<th>Required Version</th>
+<th>Verification Command</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Node.js</strong></td>
+<td><code>&gt;= 18.0.0</code> (v20.x or v22.x LTS recommended)</td>
+<td><code>node -v</code></td>
+<td>JavaScript runtime</td>
+</tr>
+<tr>
+<td><strong>npm</strong> or <strong>bun</strong></td>
+<td>npm <code>&gt;= 9.0.0</code> / bun <code>&gt;= 1.1.0</code></td>
+<td><code>npm -v</code> / <code>bun -v</code></td>
+<td>Package manager</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td><code>&gt;= 14.0</code> (v15+ recommended)</td>
+<td><code>psql --version</code></td>
+<td>Primary relational database</td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td><code>&gt;= 2.30.0</code></td>
+<td><code>git --version</code></td>
+<td>Source control</td>
+</tr>
+<tr>
+<td><strong>Google Chrome / Chromium</strong></td>
+<td>Latest</td>
+<td><code>chrome --version</code></td>
+<td>Required for headless PDF generation</td>
+</tr>
+<tr>
+<td><strong>Redis</strong> <em>(Optional)</em></td>
+<td><code>&gt;= 7.0</code></td>
+<td><code>redis-cli ping</code></td>
+<td>Distributed caching &amp; rate limiting</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. Step-by-Step Installation</h2>
+<h3>Step 3.1: Clone the Repository</h3>
+<p>Clone the codebase to your chosen local directory:</p>
+<pre><code class="language-bash">git clone &lt;repository-url&gt; event_management
+cd event_management
+</code></pre>
+<h3>Step 3.2: Install Node Dependencies</h3>
+<p>Install all required production and development dependencies using npm or bun:</p>
+<pre><code class="language-bash"># Using npm
+npm install
+
+# Alternatively using bun
+bun install
+</code></pre>
+<h3>Step 3.3: Environment Configuration</h3>
+<p>Duplicate the <code>.env.example</code> file to create your active <code>.env</code>:</p>
+<pre><code class="language-bash"># Windows PowerShell
+Copy-Item .env.example .env
+
+# macOS / Linux
+cp .env.example .env
+</code></pre>
+<p>Open <code>.env</code> and verify the following environment variable definitions:</p>
+<table>
+<thead>
+<tr>
+<th>Variable Name</th>
+<th>Required</th>
+<th>Default / Example Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NODE_ENV</code></td>
+<td>Yes</td>
+<td><code>development</code></td>
+<td>Set to <code>production</code> in staging/production</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td>Yes</td>
+<td><code>3000</code></td>
+<td>Port for the Express REST API backend server</td>
+</tr>
+<tr>
+<td><code>DATABASE_URL</code></td>
+<td>Yes</td>
+<td><code>postgresql://postgres:postgres@localhost:5432/eventura_db?schema=public</code></td>
+<td>PostgreSQL connection string</td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>Yes</td>
+<td><code>super-secret-high-entropy-jwt-key-256bit</code></td>
+<td>Secret key for signing access JWT tokens</td>
+</tr>
+<tr>
+<td><code>JWT_REFRESH_SECRET</code></td>
+<td>Yes</td>
+<td><code>super-secret-refresh-token-key-256bit</code></td>
+<td>Secret key for signing refresh tokens</td>
+</tr>
+<tr>
+<td><code>FRONTEND_URL</code></td>
+<td>Yes</td>
+<td><code>http://localhost:8080</code></td>
+<td>URL of the frontend application (for CORS)</td>
+</tr>
+<tr>
+<td><code>VITE_API_BASE_URL</code></td>
+<td>Yes</td>
+<td><code>http://localhost:3000/api/v1</code></td>
+<td>Backend API base URL for client requests</td>
+</tr>
+<tr>
+<td><code>STRIPE_SECRET_KEY</code></td>
+<td>No</td>
+<td><code>sk_test_...</code></td>
+<td>Stripe secret key for payment processing</td>
+</tr>
+<tr>
+<td><code>STRIPE_WEBHOOK_SECRET</code></td>
+<td>No</td>
+<td><code>whsec_...</code></td>
+<td>Stripe webhook signing secret</td>
+</tr>
+<tr>
+<td><code>GEMINI_API_KEY</code></td>
+<td>No</td>
+<td><code>AIzaSy...</code></td>
+<td>Google Gemini AI key for copilot &amp; validation</td>
+</tr>
+<tr>
+<td><code>REDIS_URL</code></td>
+<td>No</td>
+<td><code>redis://localhost:6379</code></td>
+<td>Optional Redis cache connection string</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. Database Setup, Migrations &amp; Seeding</h2>
+<h3>Step 4.1: Create PostgreSQL Database</h3>
+<p>Ensure your PostgreSQL server is active, then create the target database:</p>
+<pre><code class="language-sql">-- Connect via psql
+psql -U postgres
+CREATE DATABASE eventura_db;
+\q
+</code></pre>
+<h3>Step 4.2: Generate Prisma Client &amp; Run Migrations</h3>
+<p>Run Prisma client generation and apply the forward-only database migrations:</p>
+<pre><code class="language-bash"># 1. Generate Prisma Client bindings
+npm run db:generate
+# (or npx prisma generate)
+
+# 2. Apply all forward migrations to the database
+npx prisma migrate deploy
+
+# (For clean development environments, you may also use: npx prisma db push)
+</code></pre>
+<h3>Step 4.3: Seed Initial Data &amp; RBAC Permissions</h3>
+<p>Populate the database with default organizations, roles, permissions, administrative accounts, and sample events:</p>
+<pre><code class="language-bash"># Run master database seeder
+npm run db:seed
+
+# Run idempotent reports permissions sync
+npm run sync:reports-permissions
+# (or npx tsx prisma/scripts/sync-reports-permissions.ts)
+</code></pre>
+<hr>
+<h2>5. Running the Application</h2>
+<h3>Option 5.1: Local Development Mode (Concurrent)</h3>
+<p>To develop locally with hot module replacement (HMR), run the backend API and frontend Vite servers in separate terminals:</p>
+<p><strong>Terminal 1 — Backend Express API (Port 3000):</strong></p>
+<pre><code class="language-bash">npm run dev:server
+# Output: [server] Express API listening on port 3000
+# Output: [server] Health check: http://localhost:3000/api/v1/health
+</code></pre>
+<p><strong>Terminal 2 — Frontend React + Vite SSR (Port 8080):</strong></p>
+<pre><code class="language-bash">npm run dev
+# Output: [vite] Local: http://localhost:8080/
+</code></pre>
+<h3>Option 5.2: Production Build &amp; Execution</h3>
+<p>To compile and execute the production server locally or on a staging server:</p>
+<pre><code class="language-bash"># Step 1: Compile the frontend and Nitro SSR server bundle
+npm run build
+
+# Step 2: Start the production Nitro SSR server
+node .output/server/index.mjs
+
+# Step 3: In a separate process, start the production backend API
+npm run server
+</code></pre>
+<hr>
+<h2>6. Default Administrative Credentials &amp; Test Accounts</h2>
+<p>The seeder initializes predefined accounts for testing each persona:</p>
+<table>
+<thead>
+<tr>
+<th>Role / Persona</th>
+<th>Email Address</th>
+<th>Default Password</th>
+<th>Initial MFA State</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sudo / Super Admin</strong></td>
+<td><code>admin@eventura.dev</code></td>
+<td><code>Admin123!</code></td>
+<td>TOTP MFA Enabled</td>
+</tr>
+<tr>
+<td><strong>Organization Admin</strong></td>
+<td><code>orgadmin@eventura.dev</code></td>
+<td><code>Admin123!</code></td>
+<td>TOTP MFA Enabled</td>
+</tr>
+<tr>
+<td><strong>Event Manager</strong></td>
+<td><code>manager@ascent.dev</code></td>
+<td><code>Password123!</code></td>
+<td>Standard Password</td>
+</tr>
+<tr>
+<td><strong>Faculty Coordinator</strong></td>
+<td><code>faculty@ascent.dev</code></td>
+<td><code>Password123!</code></td>
+<td>Standard Password</td>
+</tr>
+<tr>
+<td><strong>Student Coordinator</strong></td>
+<td><code>student@ascent.dev</code></td>
+<td><code>Password123!</code></td>
+<td>Standard Password</td>
+</tr>
+<tr>
+<td><strong>Judge / Evaluator</strong></td>
+<td><code>judge@ascent.dev</code></td>
+<td><code>Password123!</code></td>
+<td>Standard Password</td>
+</tr>
+<tr>
+<td><strong>Mentor</strong></td>
+<td><code>mentor@ascent.dev</code></td>
+<td><code>Password123!</code></td>
+<td>Standard Password</td>
+</tr>
+<tr>
+<td><strong>Participant</strong></td>
+<td><code>participant@ascent.dev</code></td>
+<td><code>Password123!</code></td>
+<td>Standard Password</td>
+</tr>
+</tbody></table>
+<p><strong>[NOTE]</strong>: &gt; For administrative accounts with TOTP MFA configured in development, recovery codes are generated during enrollment or can be managed in the <code>UserMfa</code> table.</p>
+<hr>
+<h2>7. Verification &amp; Health Check Procedure</h2>
+<p>Once the servers are running, verify system integrity with the following checks:</p>
+<ol>
+<li><strong>API Health Endpoint</strong>:<pre><code class="language-bash">curl http://localhost:3000/api/v1/health
+# Expected: {&quot;success&quot;:true,&quot;message&quot;:&quot;Eventura API is healthy&quot;}
+</code></pre>
+</li>
+<li><strong>Automated Smoke Test</strong>:<pre><code class="language-bash">npm run test:smoke
+# Expected: Total Checks: 10 | Passed: 10 | Failed: 0
+</code></pre>
+</li>
+<li><strong>Frontend Application</strong>:
+Navigate to <code>http://localhost:8080/login</code> in your web browser. Confirm the login interface and mascot animations load cleanly.</li>
+</ol>
+<hr>
+<h2>8. Troubleshooting &amp; Common Issues</h2>
+<table>
+<thead>
+<tr>
+<th>Issue / Error</th>
+<th>Likely Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PrismaClientInitializationError: Can&#39;t reach database server</code></td>
+<td>PostgreSQL is not running or credentials in <code>DATABASE_URL</code> are incorrect.</td>
+<td>Verify PostgreSQL service is active (<code>Get-Service postgresql*</code> or <code>sudo systemctl status postgresql</code>) and test credentials with <code>psql</code>.</td>
+</tr>
+<tr>
+<td><code>HTTP 400 MISSING_TENANT</code></td>
+<td>The HTTP request is missing the required <code>x-organization-id</code> header on a tenant-scoped endpoint.</td>
+<td>Ensure your frontend or API client includes the <code>x-organization-id</code> header matching the active workspace.</td>
+</tr>
+<tr>
+<td><code>CORS Error: No &#39;Access-Control-Allow-Origin&#39; header</code></td>
+<td><code>FRONTEND_URL</code> in backend <code>.env</code> does not match the client origin.</td>
+<td>Set <code>FRONTEND_URL=&quot;http://localhost:8080&quot;</code> in <code>.env</code> and restart the API server.</td>
+</tr>
+<tr>
+<td><code>HTTP 403 Forbidden on /reports/*</code></td>
+<td>The user role lacks <code>reports.read</code> or <code>reports.export</code> permission.</td>
+<td>Run <code>npm run sync:reports-permissions</code> to synchronize permissions to database roles.</td>
+</tr>
+<tr>
+<td><code>Port 3000 or 8080 already in use</code></td>
+<td>A zombie Node process is occupying the port.</td>
+<td>Kill existing processes: <code>Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess -Force</code> (Windows) or <code>kill -9 $(lsof -t -i:3000)</code> (Linux/macOS).</td>
+</tr>
+</tbody></table>
+
+  </main>
+
+  <div class="footer-notice">
+    <span>Eventura Platform Handover Suite &bull; Version 1.0.0</span>
+    <span>Generated: October 29, 2026 &bull; Strict Multi-Tenant Architecture</span>
+  </div>
+</body>
+</html>

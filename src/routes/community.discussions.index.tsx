@@ -3,7 +3,7 @@ import { DiscussionsPage } from "@/modules/community/pages/discussions";
 
 export const Route = createFileRoute("/community/discussions/")({
   head: () => ({
-    meta: [{ title: "Discussions · Eventora Platform" }],
+    meta: [{ title: "Discussions · Eventura Platform" }],
   }),
   component: DiscussionsPage,
 });

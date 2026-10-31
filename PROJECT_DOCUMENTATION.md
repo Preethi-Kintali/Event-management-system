@@ -4,7 +4,7 @@
 
 # 1. Cover Page
 
-- **Project Name**: Eventora (powered by Clientura)
+- **Project Name**: Eventura (powered by Clientura)
 - **Version**: `1.0.0`
 - **Document Version**: `1.0`
 - **Prepared By**: Senior Full-Stack Engineering & Enterprise Architecture Team
@@ -15,10 +15,10 @@
 # 2. Project Summary
 
 - **Purpose of the Project**:
-  Eventora is an enterprise-grade multi-tenant event, competition, and hackathon management platform designed for universities, enterprises, and tech communities. It streamlines the end-to-end event lifecycle from initial hackathon proposal submission, multi-tenant approval, registration, team formation, problem statement locking, submission management, and multi-round judging, to automated QR attendance, tamper-proof certificate issuance, and analytics reporting.
+  Eventura is an enterprise-grade multi-tenant event, competition, and hackathon management platform designed for universities, enterprises, and tech communities. It streamlines the end-to-end event lifecycle from initial hackathon proposal submission, multi-tenant approval, registration, team formation, problem statement locking, submission management, and multi-round judging, to automated QR attendance, tamper-proof certificate issuance, and analytics reporting.
 
 - **Business Problem It Solves**:
-  Traditional event and hackathon operations suffer from fragmented toolchains (spreadsheets for attendance, separate submission forms, disconnected judging portals, unverified certificates, and manual payment tracking). Eventora unifies all stakeholders into a single, cohesive, auditable platform with strict role-based access control and tenant data isolation.
+  Traditional event and hackathon operations suffer from fragmented toolchains (spreadsheets for attendance, separate submission forms, disconnected judging portals, unverified certificates, and manual payment tracking). Eventura unifies all stakeholders into a single, cohesive, auditable platform with strict role-based access control and tenant data isolation.
 
 - **Intended Users**:
   1. **Participants / Hackers**: Discover events, register individual/teams, pick problem statements, submit deliverables, connect with mentors, and earn verified certificates.
@@ -36,7 +36,7 @@
 # 3. Business Context
 
 - **Why Was This Project Built?**
-  Organizations and educational institutions host large-scale hackathons and innovation sprints but lack enterprise tooling that supports multi-tenant isolation, automated round progressions, verifiable digital credentials, and real-time sponsor/recruitment analytics. Eventora was built to deliver a modern, high-performance solution that handles thousands of concurrent operations without data leakage.
+  Organizations and educational institutions host large-scale hackathons and innovation sprints but lack enterprise tooling that supports multi-tenant isolation, automated round progressions, verifiable digital credentials, and real-time sponsor/recruitment analytics. Eventura was built to deliver a modern, high-performance solution that handles thousands of concurrent operations without data leakage.
 
 - **What Problem Does It Solve?**
   - **Eliminates Manual Chaos**: Eliminates spreadsheet coordination, lost submissions, and uncoordinated judge scorecards.
@@ -52,7 +52,7 @@
 
 # 4. System Overview
 
-Eventora is structured around a decoupled, modular full-stack architecture featuring a server-side rendered (SSR) React frontend powered by Vite and TanStack Router/Query, backed by an Express REST API with Prisma ORM persisting to PostgreSQL.
+Eventura is structured around a decoupled, modular full-stack architecture featuring a server-side rendered (SSR) React frontend powered by Vite and TanStack Router/Query, backed by an Express REST API with Prisma ORM persisting to PostgreSQL.
 
 ### High-Level Architecture Diagram
 

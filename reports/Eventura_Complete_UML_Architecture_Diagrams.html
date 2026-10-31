@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventura - Complete UML 2.5 Architecture Specification</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 14mm 14mm 14mm;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    /* Cover Page */
+    .cover-page {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 40px;
+      page-break-after: always;
+      border: 2px solid #0284c7;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 40%, #ffffff 100%);
+    }
+
+    .cover-header {
+      border-bottom: 3px solid #0284c7;
+      padding-bottom: 24px;
+    }
+
+    .badge-primary {
+      display: inline-block;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    .cover-title {
+      font-size: 34px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 12px 0;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .cover-subtitle {
+      font-size: 18px;
+      color: #0369a1;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+    }
+
+    .cover-desc {
+      font-size: 14px;
+      color: #475569;
+      max-width: 650px;
+      line-height: 1.6;
+    }
+
+    .cover-toc {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 24px 32px;
+      margin: 20px 0;
+    }
+
+    .toc-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 8px;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 32px;
+      font-size: 12.5px;
+    }
+
+    .toc-column h4 {
+      margin: 0 0 8px 0;
+      color: #0369a1;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toc-list {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .toc-list li {
+      margin-bottom: 6px;
+      color: #334155;
+    }
+
+    .toc-list strong {
+      color: #0f172a;
+    }
+
+    .cover-footer {
+      border-top: 1px solid #cbd5e1;
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Diagram Section Pages */
+    .diagram-page {
+      page-break-after: always;
+      break-after: page;
+      padding: 10px 0;
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .diagram-header {
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .diagram-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-structural {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .badge-behavioral {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .diagram-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 4px 0 0 0;
+    }
+
+    .diagram-meta {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .diagram-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 18px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      flex: 1;
+    }
+
+    .mermaid {
+      width: 100%;
+      text-align: center;
+      background: transparent;
+    }
+
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+      max-height: 520px !important;
+    }
+
+    .spec-details {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 12px;
+      margin-top: auto;
+    }
+
+    .spec-details h4 {
+      margin: 0 0 6px 0;
+      font-size: 12.5px;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .spec-details p {
+      margin: 0 0 6px 0;
+      color: #334155;
+      text-align: justify;
+    }
+
+    .spec-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .spec-tag {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    .diagram-footer {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover-page">
+    <div class="cover-header">
+      <span class="badge-primary">Enterprise UML 2.5 Specification</span>
+      <h1 class="cover-title">Eventura Architecture Specification</h1>
+      <div class="cover-subtitle">Complete 14 Structural & Behavioral UML Diagrams</div>
+      <div class="cover-desc">
+        Formal software engineering architecture documentation for <strong>Eventura (powered by Clientura)</strong>. 
+        This definitive specification models the multi-tenant architecture, security boundaries, domain entities, 
+        and asynchronous runtime workflows across all 14 standard UML 2.5 diagram types.
+      </div>
+    </div>
+
+    <div class="cover-toc">
+      <div class="toc-title">Table of Architecture Diagrams (14 Total)</div>
+      <div class="toc-grid">
+        <div class="toc-column">
+          <h4>Part I: Structural Diagrams</h4>
+          <ul class="toc-list">
+            <li><strong>01.</strong> Class Diagram (Core Domain Entities)</li>
+            <li><strong>02.</strong> Object Diagram (Runtime Event Snapshot)</li>
+            <li><strong>03.</strong> Component Diagram (Internal Modules & Ports)</li>
+            <li><strong>04.</strong> Composite Structure Diagram (Classifier Parts)</li>
+            <li><strong>05.</strong> Deployment Diagram (Physical Nodes & Tiers)</li>
+            <li><strong>06.</strong> Package Diagram (Layered Namespace Modules)</li>
+            <li><strong>07.</strong> Profile Diagram (UML Extensions & Stereotypes)</li>
+          </ul>
+        </div>
+        <div class="toc-column">
+          <h4>Part II: Behavioral Diagrams</h4>
+          <ul class="toc-list">
+            <li><strong>08.</strong> Use Case Diagram (Stakeholders & Operations)</li>
+            <li><strong>09.</strong> Activity Diagram (End-to-End Event Workflow)</li>
+            <li><strong>10.</strong> State Machine Diagram (Event & Submission States)</li>
+            <li><strong>11.</strong> Sequence Diagram (Submission & Judging Pipeline)</li>
+            <li><strong>12.</strong> Communication Diagram (Collaboration Topology)</li>
+            <li><strong>13.</strong> Timing Diagram (Linear Lifecycle State Transitions)</li>
+            <li><strong>14.</strong> Interaction Overview Diagram (Process Framing)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <span><strong>Eventura Platform v1.0.0</strong> &bull; Production Architecture</span>
+      <span>Date: October 29, 2026 &bull; Strict Multi-Tenant Separation</span>
+      <span>Document Ref: EVT-UML-14-ALL</span>
+    </div>
+  </div>
+
+  <!-- ==================== PART I: STRUCTURAL DIAGRAMS ==================== -->
+
+  <!-- 01. CLASS DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 01 of 14</span>
+        <div class="diagram-title">Class Diagram: Core Domain Entities & Relationships</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Domain Model</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+classDiagram
+    direction TB
+    class Organization {
+        +UUID id
+        +String name
+        +String slug
+        +OrganizationStatus status
+        +createEvent() Event
+        +inviteMember() Member
+    }
+    class OrganizationMember {
+        +UUID id
+        +UUID organizationId
+        +UUID userId
+        +UUID roleId
+        +MemberStatus status
+    }
+    class User {
+        +UUID id
+        +String email
+        +String passwordHash
+        +Boolean isMfaEnabled
+        +authenticate() Boolean
+        +generateRecoveryCodes()
+    }
+    class Role {
+        +UUID id
+        +String name
+        +Boolean isSystem
+        +hasPermission() Boolean
+    }
+    class Event {
+        +UUID id
+        +UUID organizationId
+        +String title
+        +EventStatus status
+        +DateTime registrationDeadline
+        +publish()
+        +complete()
+    }
+    class Competition {
+        +UUID id
+        +UUID eventId
+        +String trackName
+        +createRound() Round
+    }
+    class Round {
+        +UUID id
+        +UUID competitionId
+        +Int roundNumber
+        +DateTime submissionDeadline
+    }
+    class Team {
+        +UUID id
+        +UUID eventId
+        +String name
+        +String joinCode
+        +UUID problemStatementId
+        +lockProblemStatement()
+    }
+    class ProblemStatement {
+        +UUID id
+        +UUID eventId
+        +String title
+        +String description
+        +Boolean isAvailable
+    }
+    class Submission {
+        +UUID id
+        +UUID roundId
+        +UUID teamId
+        +String repoUrl
+        +String demoUrl
+        +SubmissionStatus status
+        +streamFile()
+    }
+    class Evaluation {
+        +UUID id
+        +UUID submissionId
+        +UUID judgeId
+        +Float totalScore
+        +String feedback
+        +validateScore()
+    }
+    class Certificate {
+        +UUID id
+        +UUID eventId
+        +UUID userId
+        +String verificationCode
+        +String pdfUrl
+        +verifyPublic() Boolean
+    }
+
+    Organization "1" --* "0..*" OrganizationMember : has
+    User "1" --o "0..*" OrganizationMember : belongs_to
+    Role "1" --o "0..*" OrganizationMember : assigned_as
+    Organization "1" --* "0..*" Event : owns
+    Event "1" --* "1..*" Competition : hosts
+    Competition "1" --* "1..*" Round : contains
+    Event "1" --* "0..*" Team : registers
+    Event "1" --* "0..*" ProblemStatement : provides
+    Team "0..*" --> "0..1" ProblemStatement : selects_and_locks
+    Round "1" --* "0..*" Submission : receives
+    Team "1" --o "0..*" Submission : submits
+    Submission "1" --* "0..*" Evaluation : graded_by
+    Event "1" --* "0..*" Certificate : issues
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Class Diagram models the core entity-relational schema of Eventura. It captures the multi-tenant container 
+        (<code>Organization</code>), RBAC mappings (<code>User</code>, <code>OrganizationMember</code>, <code>Role</code>), 
+        competition lifecycle, permanent problem statement locking, submission tracking, judge rubric evaluations, and verifiable certificates.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Composite Aggregations</span>
+        <span class="spec-tag">Multi-Tenant Scoping</span>
+        <span class="spec-tag">ACID Relational Mappings</span>
+        <span class="spec-tag">Multiplicity Constraints</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 1 / 7</span>
+    </div>
+  </div>
+
+  <!-- 02. OBJECT DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 02 of 14</span>
+        <div class="diagram-title">Object Diagram: Runtime Event Snapshot</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Instance Graph</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+classDiagram
+    direction LR
+    class univ_org {
+        id = "org-8842-ntu"
+        name = "National Tech University"
+        slug = "ntu"
+        status = "ACTIVE"
+    }
+    class hack_event {
+        id = "evt-2026-ai"
+        title = "AI Global Hackathon 2026"
+        status = "ONGOING"
+        maxTeamSize = 4
+    }
+    class comp_track {
+        id = "comp-genai"
+        trackName = "Autonomous Agents Track"
+    }
+    class round_two {
+        id = "rnd-02-finals"
+        roundNumber = 2
+        deadline = "2026-10-30T18:00:00Z"
+    }
+    class team_neural {
+        id = "team-neural-forge"
+        name = "NeuralForge"
+        joinCode = "NF-994"
+        lockedStmt = "stmt-04"
+    }
+    class alice_lead {
+        email = "alice@ntu.edu"
+        role = "TeamLead"
+    }
+    class prob_agent {
+        id = "stmt-04"
+        title = "Edge Autonomous Copilot"
+        isLocked = true
+    }
+    class sub_final {
+        id = "sub-8812"
+        repoUrl = "github.com/neural/copilot"
+        status = "SUBMITTED"
+    }
+    class judge_smith {
+        email = "dr.smith@judge.org"
+        role = "Judge"
+    }
+    class eval_final {
+        totalScore = 96.5
+        status = "COMPLETED"
+    }
+
+    univ_org --> hack_event : owns
+    hack_event --> comp_track : hosts
+    comp_track --> round_two : executes
+    hack_event --> team_neural : registers
+    team_neural --> alice_lead : leader
+    team_neural --> prob_agent : locked_choice
+    team_neural --> sub_final : submitted
+    round_two --> sub_final : evaluated_in
+    sub_final --> eval_final : scored
+    judge_smith --> eval_final : evaluated_by
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Object Diagram illustrates a live, concrete runtime state during an ongoing competition. It validates the instantiation of 
+        <code>National Tech University</code> holding an active hackathon, team <code>NeuralForge</code> locking problem statement 
+        <code>Edge Autonomous Copilot</code>, submitting code for Round 2, and receiving an official score of 96.5 from <code>Dr. Smith</code>.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Concrete Runtime Snapshot</span>
+        <span class="spec-tag">Attribute Value Bindings</span>
+        <span class="spec-tag">Live State Validation</span>
+        <span class="spec-tag">Instance Associations</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 2 / 7</span>
+    </div>
+  </div>
+
+  <!-- 03. COMPONENT DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 03 of 14</span>
+        <div class="diagram-title">Component Diagram: Subsystems, Interfaces & Ports</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Component Topology</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+graph TD
+    subgraph ClientPresentationLayer ["«component» Client Presentation Subsystem"]
+        ReactApp["«component» React 19 Frontend"]
+        RouterComp["«component» TanStack Router (File-Based)"]
+        QueryCache["«component» TanStack Query Cache"]
+        ReactApp --> RouterComp
+        ReactApp --> QueryCache
+    end
+
+    subgraph SecurityPerimeterGateway ["«component» Security & Perimeter Gateway"]
+        AuthGuard["«component» JWT & MFA AuthGuard"]
+        TenantGuard["«component» Strict Tenant Scoper"]
+        RBACResolver["«component» Granular RBAC Engine"]
+        AuthGuard --> TenantGuard --> RBACResolver
+    end
+
+    subgraph CoreApplicationServices ["«component» Core Domain Application Services"]
+        EventSvc["«component» Event & Proposal Service"]
+        RegPaySvc["«component» Registration & Stripe Service"]
+        SubDocSvc["«component» Submission & Inline Viewer Service"]
+        EvalSvc["«component» Evaluation & Leaderboard Service"]
+        CertSvc["«component» Certificate & QR PDF Engine"]
+    end
+
+    subgraph DataPersistenceInfrastructure ["«component» Infrastructure & Storage Providers"]
+        PostgresDB[("«component» PostgreSQL 15 Database")]
+        FileStorage[("«component» Persistent Uploads Volume")]
+        StripeGateway["«component» Stripe Payment API"]
+        GeminiGateway["«component» Google Gemini AI SDK"]
+    end
+
+    QueryCache -->|HTTPS / REST API| AuthGuard
+    RBACResolver --> EventSvc
+    RBACResolver --> RegPaySvc
+    RBACResolver --> SubDocSvc
+    RBACResolver --> EvalSvc
+    RBACResolver --> CertSvc
+
+    EventSvc --> PostgresDB
+    RegPaySvc --> PostgresDB
+    RegPaySvc --> StripeGateway
+    SubDocSvc --> PostgresDB
+    SubDocSvc --> FileStorage
+    EvalSvc --> PostgresDB
+    CertSvc --> PostgresDB
+    CertSvc --> FileStorage
+    EventSvc -.-> GeminiGateway
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Component Diagram details the modular composition and provided/required interface boundaries of Eventura. 
+        The client presentation subsystem communicates exclusively through the security perimeter gateway, which guards 
+        the core domain application services before persisting records into PostgreSQL, local/cloud storage, or external APIs.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Modular Decoupling</span>
+        <span class="spec-tag">Perimeter Gateway Ports</span>
+        <span class="spec-tag">External Service Adapters</span>
+        <span class="spec-tag">Infrastructure Boundaries</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 3 / 7</span>
+    </div>
+  </div>
+
+  <!-- 04. COMPOSITE STRUCTURE DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 04 of 14</span>
+        <div class="diagram-title">Composite Structure Diagram: Submission & Evaluation Classifier</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Internal Classifier Architecture</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+graph LR
+    subgraph SubmissionEvaluationEngine ["«classifier» SubmissionEvaluationEngine"]
+        portInSub["«port» pSubmissionIn"]
+        portInJudge["«port» pJudgePortal"]
+        portOutBoard["«port» pLeaderboardOut"]
+
+        subgraph EngineInternalParts ["Internal Parts & Collaboration"]
+            partSanitizer["sanitizer : InputSanitizer"]
+            partStorage["fileStreamer : ProtectedInlineStreamer"]
+            partScorer["rubricScorer : RubricScoringEngine"]
+            partRanker["ranker : LeaderboardCalculator"]
+            partAudit["auditLogger : SecurityAuditor"]
+        end
+
+        portInSub -->|raw payload| partSanitizer
+        partSanitizer -->|safe stream| partStorage
+        partSanitizer -.->|audit event| partAudit
+
+        portInJudge -->|judge criteria| partScorer
+        partScorer -->|scores| partRanker
+        partRanker -->|aggregated leaderboard| portOutBoard
+        partScorer -.->|judge activity| partAudit
+    end
+
+    TeamClient["«client» Hacker Squad"] -->|POST /submissions| portInSub
+    JudgeClient["«client» Evaluator"] -->|GET /files/view & POST /evaluations| portInJudge
+    portOutBoard -->|Live Ranking Updates| PublicBoard["«display» Live Stadium Display"]
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Composite Structure Diagram zooms into the internal wiring of the <code>SubmissionEvaluationEngine</code> classifier. 
+        It reveals the internal ports, sanitized file ingestion, protected inline streaming, rubric calculation parts, 
+        and real-time ranker collaboration without exposing internal plumbing to outside consumers.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Internal Classifier Parts</span>
+        <span class="spec-tag">Port-to-Port Connectors</span>
+        <span class="spec-tag">Role Bindings</span>
+        <span class="spec-tag">Sandboxed Stream Processing</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 4 / 7</span>
+    </div>
+  </div>
+
+  <!-- 05. DEPLOYMENT DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 05 of 14</span>
+        <div class="diagram-title">Deployment Diagram: Physical Hardware & Cloud Topology</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Deployment Infrastructure</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+graph TD
+    subgraph ClientDeviceNode ["«device» Client Workstation / Mobile"]
+        BrowserEnv["«execution environment» Web Browser (Chrome/Safari)"]
+        ClientApp["«artifact» React 19 SPA (Hydrated)"]
+        BrowserEnv --- ClientApp
+    end
+
+    subgraph EdgeNetworkNode ["«node» Edge Security & CDN (Cloudflare)"]
+        WAF["«component» Cloudflare WAF & DDoS Shield"]
+        TLSEndpoint["«component» TLS 1.3 Termination"]
+    end
+
+    subgraph WebServerTierNode ["«node» Application Reverse Proxy (NGINX)"]
+        NGINXServer["«execution environment» NGINX Reverse Proxy"]
+    end
+
+    subgraph AppServerNode ["«node» SSR & API Application Servers"]
+        SSRNode["«execution environment» Node.js Nitro Server (Port 8080)"]
+        SSRArtifact["«artifact» .output/server/index.mjs"]
+        SSRNode --- SSRArtifact
+
+        ExpressNode["«execution environment» Node.js Express API (Port 3000)"]
+        APIArtifact["«artifact» server/src/server.ts (Express)"]
+        ExpressNode --- APIArtifact
+    end
+
+    subgraph DatabaseNode ["«device» Primary Database Server"]
+        PostgresInstance["«execution environment» PostgreSQL 15.x"]
+        DBArtifact["«artifact» eventura_db (Prisma Managed Relational Schema)"]
+        PostgresInstance --- DBArtifact
+    end
+
+    subgraph StorageNode ["«node» Persistent Network File Storage"]
+        DiskVolume["«execution environment» Persistent Disk Volume"]
+        UploadsArtifact["«artifact» /uploads (Submissions & Cert PDFs)"]
+        DiskVolume --- UploadsArtifact
+    end
+
+    ClientDeviceNode -->|HTTPS (Port 443)| EdgeNetworkNode
+    EdgeNetworkNode -->|HTTP/2 Proxy| WebServerTierNode
+    WebServerTierNode -->|Path /*| SSRNode
+    WebServerTierNode -->|Path /api/v1/*| ExpressNode
+    ExpressNode -->|TCP / Prisma Driver (Port 5432)| DatabaseNode
+    ExpressNode -->|POSIX File I/O| StorageNode
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Deployment Diagram specifies the physical and virtual nodes, execution environments, network protocols, 
+        and compiled artifact deployments. It illustrates edge TLS termination, NGINX path-based routing dividing traffic 
+        between the Nitro SSR server (8080) and Express API (3000), and secured database connections.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Physical & Virtual Nodes</span>
+        <span class="spec-tag">Execution Environments</span>
+        <span class="spec-tag">Artifact Deployment</span>
+        <span class="spec-tag">Network Protocol Bindings</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 5 / 7</span>
+    </div>
+  </div>
+
+  <!-- 06. PACKAGE DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 06 of 14</span>
+        <div class="diagram-title">Package Diagram: Codebase Namespaces & Layer Dependencies</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Package Hierarchy</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+graph TB
+    subgraph eventora_client ["«package» eventora::client"]
+        pkg_routes["«package» client::routes"]
+        pkg_modules["«package» client::modules"]
+        pkg_components["«package» client::components"]
+        pkg_lib["«package» client::lib"]
+        
+        pkg_routes ..> pkg_modules : «import»
+        pkg_modules ..> pkg_components : «import»
+        pkg_modules ..> pkg_lib : «use»
+    end
+
+    subgraph eventora_server ["«package» eventora::server"]
+        pkg_server_routes["«package» server::routes"]
+        pkg_controllers["«package» server::controllers"]
+        pkg_services["«package» server::services"]
+        pkg_repos["«package» server::repositories"]
+        pkg_middleware["«package» server::middleware"]
+        pkg_validators["«package» server::validators"]
+
+        pkg_server_routes ..> pkg_controllers : «delegate»
+        pkg_server_routes ..> pkg_middleware : «guarded_by»
+        pkg_controllers ..> pkg_validators : «validates»
+        pkg_controllers ..> pkg_services : «call»
+        pkg_services ..> pkg_repos : «query»
+    end
+
+    subgraph eventora_data ["«package» eventora::database"]
+        pkg_prisma["«package» prisma::schema"]
+        pkg_migrations["«package» prisma::migrations"]
+        pkg_seeds["«package» prisma::seeds"]
+    end
+
+    subgraph eventora_external ["«package» eventora::integrations"]
+        pkg_stripe["«package» integration::stripe"]
+        pkg_gemini["«package» integration::gemini_ai"]
+    end
+
+    pkg_lib ..>|REST API Client| pkg_server_routes : «http_request»
+    pkg_repos ..> pkg_prisma : «prisma_client»
+    pkg_services ..> pkg_stripe : «payment_api»
+    pkg_services ..> pkg_gemini : «ai_sdk»
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Package Diagram articulates the namespace boundaries and unidirectional dependencies across the codebase. 
+        It strictly maintains layered architecture principles where routes delegate to controllers, controllers invoke services, 
+        services operate on repositories, and repositories interface with Prisma data packages without circular imports.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Unidirectional Flow</span>
+        <span class="spec-tag">Namespace Encapsulation</span>
+        <span class="spec-tag">Layer Decoupling</span>
+        <span class="spec-tag">Circular Dependency Prevention</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 6 / 7</span>
+    </div>
+  </div>
+
+  <!-- 07. PROFILE DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-structural">Structural Diagram 07 of 14</span>
+        <div class="diagram-title">Profile Diagram: Multi-Tenant Hackathon UML Extension</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Structural<br>Profile & Stereotypes</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+classDiagram
+    direction TB
+    class UML_Class {
+        <<metaclass>>
+    }
+    class UML_Property {
+        <<metaclass>>
+    }
+    class UML_Operation {
+        <<metaclass>>
+    }
+
+    class TenantScoped {
+        <<stereotype>>
+        +String tenantKey = "organizationId"
+        +Boolean strictIsolation = true
+    }
+    class RBACProtected {
+        <<stereotype>>
+        +String requiredPermission
+        +String fallbackRole = "none"
+    }
+    class AuditLogged {
+        <<stereotype>>
+        +String actionCategory
+        +Boolean capturePayload = true
+    }
+    class ImmutableLock {
+        <<stereotype>>
+        +DateTime lockedAt
+        +Boolean allowAdminUnlock = false
+    }
+    class CryptographicCredential {
+        <<stereotype>>
+        +String hashingAlgorithm = "SHA-256"
+        +Boolean publicVerifiable = true
+    }
+
+    UML_Class <|-- TenantScoped : «extend»
+    UML_Operation <|-- RBACProtected : «extend»
+    UML_Operation <|-- AuditLogged : «extend»
+    UML_Property <|-- ImmutableLock : «extend»
+    UML_Class <|-- CryptographicCredential : «extend»
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Profile Diagram provides a formal UML extension profile customized for Eventura's domain. It introduces domain-specific 
+        stereotypes (<code>«TenantScoped»</code>, <code>«RBACProtected»</code>, <code>«AuditLogged»</code>, <code>«ImmutableLock»</code>, 
+        and <code>«CryptographicCredential»</code>) with custom tagged values extending standard UML metaclasses.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Metamodel Extensions</span>
+        <span class="spec-tag">Custom Stereotypes</span>
+        <span class="spec-tag">Tagged Values</span>
+        <span class="spec-tag">Domain Policy Constraints</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Structural Diagram 7 / 7</span>
+    </div>
+  </div>
+
+  <!-- ==================== PART II: BEHAVIORAL DIAGRAMS ==================== -->
+
+  <!-- 08. USE CASE DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 08 of 14</span>
+        <div class="diagram-title">Use Case Diagram: Actors & System Capabilities</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>Stakeholder Interactions</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+graph LR
+    Hacker["«actor» Participant / Hacker"]
+    Coord["«actor» Coordinator (Student/Faculty)"]
+    Mgr["«actor» Event Manager"]
+    Judge["«actor» Competition Judge"]
+    Admin["«actor» Org / Sudo Admin"]
+    Stripe["«actor» Stripe Gateway"]
+
+    subgraph EventoraPlatformSystem ["«system» Eventura Platform Boundary"]
+        UC1(["UC-01: Authenticate & Verify TOTP MFA"])
+        UC2(["UC-02: Submit Hackathon Proposal"])
+        UC3(["UC-03: Approve Proposal & Publish Event"])
+        UC4(["UC-04: Register & Pay Entry Fee"])
+        UC5(["UC-05: Lock Problem Statement"])
+        UC6(["UC-06: Upload Deliverable Project"])
+        UC7(["UC-07: Preview Inline Document Stream"])
+        UC8(["UC-08: Grade Submissions against Rubrics"])
+        UC9(["UC-09: Scan Gate QR Code Attendance"])
+        UC10(["UC-10: Issue & Verify Verifiable Certificates"])
+    end
+
+    Hacker --> UC1
+    Coord --> UC1
+    Mgr --> UC1
+    Judge --> UC1
+    Admin --> UC1
+
+    Coord --> UC2
+    Mgr --> UC3
+    Hacker --> UC4
+    UC4 -.->|«include»| Stripe
+    Hacker --> UC5
+    Hacker --> UC6
+    Judge --> UC7
+    Judge --> UC8
+    Coord --> UC9
+    Mgr --> UC10
+
+    UC6 -.->|«extend»| UC7
+    UC8 -.->|«include»| UC10
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Use Case Diagram defines the operational interactions between external actors and system boundaries. 
+        It models key functional goals from MFA authentication and hackathon proposal approvals, to registration payments, 
+        permanent statement locking, inline evaluation preview, gate QR check-ins, and cryptographic certificate issuance.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Actor Role Mapping</span>
+        <span class="spec-tag">System Boundary</span>
+        <span class="spec-tag">«include» & «extend» Relations</span>
+        <span class="spec-tag">External Payment Gateway</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 8 / 14</span>
+    </div>
+  </div>
+
+  <!-- 09. ACTIVITY DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 09 of 14</span>
+        <div class="diagram-title">Activity Diagram: End-to-End Hackathon Workflow</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>Workflow Control Flow</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+flowchart TD
+    startNode((●)) --> draftProp[Draft Hackathon Proposal]
+    draftProp --> submitProp[Submit Proposal to Manager]
+    submitProp --> checkApproval{Proposal Approved?}
+
+    checkApproval -->|No| rejectFeedback[Provide Rejection Feedback]
+    rejectFeedback --> draftProp
+
+    checkApproval -->|Yes| publishEvt[Publish Event & Configure Tracks]
+    publishEvt --> forkReg{{Fork: Registration Phase}}
+
+    forkReg --> freeReg[Register for Free Tier]
+    forkReg --> paidReg[Checkout via Stripe Gateway]
+    paidReg --> stripeConfirm{Payment Valid?}
+    stripeConfirm -->|No| regFail[Cancel Registration]
+    stripeConfirm -->|Yes| regPass[Confirm Registration]
+    freeReg --> regPass
+
+    regPass --> joinFork{{Join}}
+    joinFork --> lockStatement[Browse & Permanently Lock Problem Statement]
+    lockStatement --> gateCheckin[Scan Signed QR at Event Gate]
+    gateCheckin --> hackingPhase[Hacking & Project Development]
+    hackingPhase --> checkDeadline{Deadline Reached?}
+
+    checkDeadline -->|No| uploadFiles[Upload Code, Slides & Demos]
+    checkDeadline -->|Yes| lockSubmissions[Lock Submissions Pipeline]
+    uploadFiles --> lockSubmissions
+
+    lockSubmissions --> judgeReview[Assigned Judges Preview Inline Files]
+    judgeReview --> scoreRubric[Submit Rubric Scores & Feedback]
+    scoreRubric --> calcRankings[Aggregate Deterministic Leaderboard]
+    calcRankings --> issueCerts[Generate & Sign Digital Certificates]
+    issueCerts --> endNode(((◉)))
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Activity Diagram models the step-by-step logic flow of a hackathon execution. It features fork/join concurrency 
+        during free vs paid registration paths, gate condition decision diamonds, deadline gates for deliverable uploads, 
+        and sequential score aggregation concluding with automated digital certificate issuance.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Fork & Join Synchronization</span>
+        <span class="spec-tag">Decision Diamonds</span>
+        <span class="spec-tag">Payment Verification Branch</span>
+        <span class="spec-tag">Deadline Constraints</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 9 / 14</span>
+    </div>
+  </div>
+
+  <!-- 10. STATE MACHINE DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 10 of 14</span>
+        <div class="diagram-title">State Machine Diagram: Dual Lifecycle State Automata</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>State Transitions</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+stateDiagram-v2
+    [*] --> EventDraft: Manager Creates Draft
+    EventDraft --> Published: Review Passed & Published
+    Published --> RegistrationOpen: Schedule Start Triggered
+    
+    state RegistrationOpen {
+        [*] --> AcceptingAttendees
+        AcceptingAttendees --> CapReached: Attendee Cap Met
+        CapReached --> AcceptingAttendees: Capacity Increased
+    }
+
+    RegistrationOpen --> RegistrationClosed: Deadline Reached
+    RegistrationClosed --> Ongoing: Kickoff & Gate Check-in
+    
+    state Ongoing {
+        [*] --> HackingActive
+        HackingActive --> SubmissionsLocked: Round Timer Ends
+    }
+
+    Ongoing --> EvaluationPhase: Submissions Ingested
+    
+    state EvaluationPhase {
+        [*] --> JudgingActive
+        JudgingActive --> ScoresTabulated: Rubric Complete
+    }
+
+    EvaluationPhase --> Completed: Winners Announced & Certs Issued
+    Completed --> Archived: 30 Days Inactive
+    Archived --> [*]
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The State Machine Diagram documents the finite state automata of the <code>Event</code> lifecycle. It specifies entry, 
+        exit, and transition triggers from initial draft and capacity-bounded registration to ongoing competition hacking, 
+        sandboxed evaluation, winner finalization, and cold archival.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Finite State Automata</span>
+        <span class="spec-tag">Nested State Machine</span>
+        <span class="spec-tag">Transition Invariants</span>
+        <span class="spec-tag">Guard Conditions</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 10 / 14</span>
+    </div>
+  </div>
+
+  <!-- 11. SEQUENCE DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 11 of 14</span>
+        <div class="diagram-title">Sequence Diagram: Submission & Judge Evaluation Pipeline</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>Temporal Message Lifelines</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Participant as Hacker (Lead)
+    participant Gateway as Security Gateway
+    participant SubCtrl as SubmissionsController
+    participant SubSvc as SubmissionsService
+    actor Judge as Assigned Judge
+    participant EvalCtrl as EvaluationController
+    participant EvalSvc as EvaluationService
+    participant DB as PostgreSQL DB
+
+    Note over Participant,DB: Phase A: Deliverable Upload Pipeline
+    Participant->>Gateway: POST /api/v1/submissions (Bearer Token + x-org-id)
+    Gateway->>Gateway: Verify JWT & Validate Active Tenant Membership
+    Gateway->>SubCtrl: Forward Authorized Request
+    SubCtrl->>SubSvc: createSubmission(teamId, files, repoUrl)
+    SubSvc->>DB: Verify Submission Deadline & Team Eligibility
+    DB-->>SubSvc: Verified (Status OK)
+    SubSvc->>DB: Save Submission & File Metadata (Status: SUBMITTED)
+    DB-->>SubSvc: Submission Record Saved
+    SubSvc-->>SubCtrl: Return SubmissionDTO
+    SubCtrl-->>Participant: HTTP 201 Created (Upload Confirmed)
+
+    Note over Judge,DB: Phase B: View-Only Preview & Rubric Grading
+    Judge->>Gateway: GET /api/v1/submissions/:id/files/:fileId/view
+    Gateway->>SubCtrl: Forward Request
+    SubCtrl->>SubSvc: getFileForView(userId, fileId)
+    SubSvc->>DB: Check Judge Assignment to Competition Round
+    DB-->>SubSvc: Assignment Confirmed
+    SubSvc-->>SubCtrl: Stream File (Content-Disposition: inline)
+    SubCtrl-->>Judge: Render In-Browser Document Preview
+    Judge->>Gateway: POST /api/v1/evaluations (Scores, Rubrics, Feedback)
+    Gateway->>EvalCtrl: Forward Score Payload
+    EvalCtrl->>EvalSvc: recordEvaluation(judgeId, subId, criteria)
+    EvalSvc->>DB: prisma.$transaction(Save Evaluation & Update Leaderboard)
+    DB-->>EvalSvc: Transaction Committed
+    EvalSvc-->>EvalCtrl: Return ScoreConfirmationDTO
+    EvalCtrl-->>Judge: HTTP 200 OK (Score Persisted)
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Sequence Diagram models the temporal message exchange between actors, security filters, controller endpoints, 
+        and database transactions. It traces deliverable upload verification, the secure <code>Content-Disposition: inline</code> 
+        file streaming authorization, and atomic rubric score persistence.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Temporal Message Ordering</span>
+        <span class="spec-tag">Lifeline Activation Bars</span>
+        <span class="spec-tag">Synchronous Request-Response</span>
+        <span class="spec-tag">Atomic Transaction Scope</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 11 / 14</span>
+    </div>
+  </div>
+
+  <!-- 12. COMMUNICATION DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 12 of 14</span>
+        <div class="diagram-title">Communication Diagram: Attendee Registration Topology</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>Object Collaboration</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+graph LR
+    UserClient["user : ParticipantClient"]
+    RegCtrl["regCtrl : RegistrationController"]
+    RegSvc["regSvc : RegistrationService"]
+    TenantSec["tenantGuard : TenantSecurityGuard"]
+    StripePay["stripeAdapt : StripePaymentGateway"]
+    AttSvc["attSvc : AttendanceService"]
+    PrismaDB["prisma : PrismaClient"]
+
+    UserClient ---|1: postRegistration(data)<br>8: renderConfirmedTicket()| RegCtrl
+    RegCtrl ---|2: validateTenantHeaders()| TenantSec
+    RegCtrl ---|3: processRegistration()| RegSvc
+    RegSvc ---|4: createCheckoutSession()| StripePay
+    RegSvc ---|5: commitRegistrationRecord()| PrismaDB
+    RegSvc ---|6: generateSignedQR()| AttSvc
+    RegSvc ---|7: returnTicketDTO()| RegCtrl
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Communication Diagram (formerly Collaboration Diagram) depicts the architectural topology of collaborating runtime 
+        objects. It emphasizes spatial object relationships with numbered messages orchestrating user ticket registration, 
+        tenant header verification, Stripe checkout session generation, database persistence, and QR attendance signing.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Object Collaboration Links</span>
+        <span class="spec-tag">Numbered Message Sequence</span>
+        <span class="spec-tag">Spatial Relationship Graph</span>
+        <span class="spec-tag">Service Orchestration</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 12 / 14</span>
+    </div>
+  </div>
+
+  <!-- 13. TIMING DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 13 of 14</span>
+        <div class="diagram-title">Timing Diagram: Linear Competition Timeline & State Transitions</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>Time-Constrained Lifelines</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+timeline
+    title 48-Hour Hackathon Execution Timeline & Lifeline States
+    section Setup (T0 - T1)
+        Hour 00 (Kickoff) : Event State -> PUBLISHED : Proposal Approved
+        Hour 06 : Registration State -> OPEN : Stripe Checkout Active
+    section Onsite (T1 - T3)
+        Hour 24 : Registration State -> CLOSED : Capacity Reached
+        Hour 25 (Gate Open) : Attendance State -> ACTIVE : QR Gate Check-in Scans
+        Hour 28 : Problem Stmt State -> LOCKED : Permanent Selection Lock
+    section Hacking (T3 - T4)
+        Hour 30 : Submission State -> DRAFT : Git Repos Linked
+        Hour 46 (Final Hour) : Submission State -> SUBMITTED : Slides & Demos Ingested
+        Hour 48 (Deadline) : Submission State -> LOCKED : Ingest Shuts Down
+    section Judging (T4 - T5)
+        Hour 49 : Judging State -> ACTIVE : View-Only Inline File Streaming
+        Hour 51 : Judging State -> COMPLETED : Rubric Tabulations Finalized
+    section Awards (T5)
+        Hour 52 : Certificate State -> ISSUED : Cryptographic SHA-256 Signatures
+        Hour 54 : Public Verify State -> READY : Verification URL Accessible
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Timing Diagram models the exact state changes of critical lifelines over a continuous 48-hour event timeline. 
+        It illustrates strict time constraints: registration closing at Hour 24, permanent statement locking at Hour 28, 
+        submission ingestion locking at Hour 48, and cryptographic certificate issuance at Hour 52.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Linear Event Timeline</span>
+        <span class="spec-tag">State Duration Constraints</span>
+        <span class="spec-tag">Synchronized Lifelines</span>
+        <span class="spec-tag">Milestone Deadlines</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 13 / 14</span>
+    </div>
+  </div>
+
+  <!-- 14. INTERACTION OVERVIEW DIAGRAM -->
+  <div class="diagram-page">
+    <div class="diagram-header">
+      <div>
+        <span class="diagram-badge badge-behavioral">Behavioral Diagram 14 of 14</span>
+        <div class="diagram-title">Interaction Overview Diagram: High-Level Process Framing</div>
+      </div>
+      <div class="diagram-meta">UML 2.5 Behavioral<br>Interaction Sequence Framing</div>
+    </div>
+    <div class="diagram-box">
+      <div class="mermaid">
+flowchart TD
+    startNode((●)) --> frameAuth[<b>sd</b> UserAuthentication & TOTP MFA]
+    frameAuth --> checkAuth{User Authenticated?}
+    
+    checkAuth -->|No| authFail[Display Login Error]
+    authFail --> frameAuth
+
+    checkAuth -->|Yes| frameReg[<b>sd</b> Registration & Stripe Payment]
+    frameReg --> checkPaid{Payment & Reg Confirmed?}
+
+    checkPaid -->|No| regAbort[Abort Entry]
+    checkPaid -->|Yes| frameStmt[<b>sd</b> Problem Statement Permanent Lock]
+
+    frameStmt --> frameGate[<b>sd</b> Onsite Signed QR Check-in]
+    frameGate --> frameSub[<b>sd</b> Deliverable Ingestion & Inline Streaming]
+    frameSub --> frameJudge[<b>sd</b> Rubric Scoring & Live Leaderboard]
+    frameJudge --> frameCert[<b>sd</b> Certificate Generation & Public Verification]
+    frameCert --> endNode(((◉)))
+      </div>
+    </div>
+    <div class="spec-details">
+      <h4>Architectural Specification & Context</h4>
+      <p>
+        The Interaction Overview Diagram coordinates high-level business flows by nesting sequence diagram frames within 
+        an activity-like decision graph. It structures the complete participant journey through sequential frames: 
+        <code>sd UserAuthentication</code>, <code>sd Registration</code>, <code>sd ProblemStatementLock</code>, 
+        <code>sd QRCheckin</code>, <code>sd Submissions</code>, and <code>sd CertificateVerification</code>.
+      </p>
+      <div class="spec-tags">
+        <span class="spec-tag">Sequence Diagram Framing</span>
+        <span class="spec-tag">Decision Invariants</span>
+        <span class="spec-tag">Macro Process Control</span>
+        <span class="spec-tag">End-to-End Orchestration</span>
+      </div>
+    </div>
+    <div class="diagram-footer">
+      <span>Eventura Enterprise UML Architecture Specification</span>
+      <span>Behavioral Diagram 14 / 14</span>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'default',
+      themeVariables: {
+        primaryColor: '#e0f2fe',
+        primaryTextColor: '#0369a1',
+        primaryBorderColor: '#0284c7',
+        lineColor: '#64748b',
+        secondaryColor: '#f8fafc',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Inter, -apple-system, sans-serif',
+        fontSize: '12px'
+      },
+      flowchart: { curve: 'basis', useMaxWidth: true, htmlLabels: true },
+      sequence: { useMaxWidth: true, mirrorActors: false, actorFontSize: '12px', messageFontSize: '11px' }
+    });
+
+    document.addEventListener("DOMContentLoaded", async function() {
+      try {
+        await mermaid.run();
+        console.log("Mermaid diagrams rendered successfully.");
+      } catch (e) {
+        console.error("Mermaid render error:", e);
+      } finally {
+        window.mermaidReady = true;
+      }
+    });
+  </script>
+</body>
+</html>

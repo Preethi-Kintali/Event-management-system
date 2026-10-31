@@ -10,12 +10,12 @@ import { format } from "date-fns";
 export const Route = createFileRoute("/notifications")({
   head: () => ({
     meta: [
-      { title: "Notifications · Eventora Platform" },
+      { title: "Notifications · Eventura Platform" },
       {
         name: "description",
         content: "Platform alerts, approvals and operational notices in one inbox.",
       },
-      { property: "og:title", content: "Notifications · Eventora Platform" },
+      { property: "og:title", content: "Notifications · Eventura Platform" },
       {
         property: "og:description",
         content: "Platform alerts, approvals and operational notices in one inbox.",

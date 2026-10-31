@@ -130,7 +130,7 @@ export class SubmissionController {
     <h1>Authorized Submission Document Viewer</h1>
     <div class="file-badge">${file.fileName}</div>
     <p>File Size: ${(file.fileSize / 1024).toFixed(1)} KB | Format: ${file.fileType}</p>
-    <p style="font-size: 12px; color: #64748b; margin-top: 16px;">This is an authorized view-only preview for Eventora participants, evaluators, and staff.</p>
+    <p style="font-size: 12px; color: #64748b; margin-top: 16px;">This is an authorized view-only preview for Eventura participants, evaluators, and staff.</p>
   </div>
 </body>
 </html>`);

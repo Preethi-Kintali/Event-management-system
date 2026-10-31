@@ -1,8 +1,8 @@
-# 🚀 Ascent Platform
+# 🚀 Eventura Platform
 
 > Enterprise Event, Competition & Innovation Management Platform
 
-Ascent is a modern, enterprise-grade platform for managing events, competitions, participants, teams, submissions, evaluations, organizations, certificates, attendance, and innovation programs.
+Eventura is a modern, enterprise-grade platform for managing events, competitions, participants, teams, submissions, evaluations, organizations, certificates, attendance, and innovation programs.
 
 The platform is designed with a scalable multi-tenant architecture and supports role-based access control, secure authentication, PostgreSQL persistence, and a reusable enterprise UI system.
 
@@ -70,7 +70,7 @@ The platform is designed with a scalable multi-tenant architecture and supports 
 
 # 🏗️ Architecture
 
-Ascent follows a modular full-stack architecture.
+Eventura follows a modular full-stack architecture.
 
 ```text
 ┌──────────────────────────────────────────────┐
@@ -160,7 +160,7 @@ Ascent follows a modular full-stack architecture.
 # 📁 Project Structure
 
 ```text
-ascent-platform/
+eventura-platform/
 │
 ├── src/
 │   ├── components/
@@ -264,7 +264,7 @@ Passwords are hashed using `bcrypt`.
 
 # 🛡️ Role-Based Access Control
 
-Ascent uses granular permission-based RBAC.
+Eventura uses granular permission-based RBAC.
 
 Example permissions:
 
@@ -297,7 +297,7 @@ The backend verifies permissions before allowing protected operations.
 
 # 🏢 Multi-Tenancy
 
-Ascent is designed as a multi-tenant platform.
+Eventura is designed as a multi-tenant platform.
 
 Each organization has isolated data.
 
@@ -507,7 +507,7 @@ Create a `.env` file in the project root.
 Example:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/ascent_db"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/eventura_db"
 
 JWT_SECRET="your-development-secret"
 
@@ -528,7 +528,7 @@ Clone the repository:
 
 ```bash
 git clone <your-repository-url>
-cd ascent-platform
+cd eventura-platform
 ```
 
 Install dependencies:
@@ -594,7 +594,7 @@ The seed script provides development-only accounts.
 ### Platform Admin
 
 ```text
-Email: admin@ascent.dev
+Email: admin@eventura.dev
 Password: password123
 ```
 
@@ -641,7 +641,7 @@ Expected response:
 ```json
 {
   "success": true,
-  "message": "Ascent API is healthy"
+  "message": "Eventura API is healthy"
 }
 ```
 
@@ -899,7 +899,7 @@ Before production deployment:
 
 # 📈 Project Vision
 
-Ascent is designed to become a unified enterprise platform for:
+Eventura is designed to become a unified enterprise platform for:
 
 ```text
 Organizations

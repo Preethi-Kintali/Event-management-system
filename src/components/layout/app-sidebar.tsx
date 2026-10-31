@@ -89,6 +89,7 @@ const judgeSections = [
       { title: "Dashboard", url: "/judge", icon: LayoutDashboard },
       { title: "Events & Competitions", url: "/judge/events", icon: CalendarDays },
       { title: "Submissions & Grading", url: "/judge/submissions", icon: FileCheck2 },
+      { title: "Evaluations Matrix", url: "/evaluations", icon: Award },
       { title: "Notifications", url: "/notifications", icon: Bell },
     ],
   },
@@ -152,31 +153,9 @@ export function AppSidebar() {
   const { user } = useAuth();
   const collapsed = !isMobile && state === "collapsed";
   const showLabels = isMobile || !collapsed;
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-
-  const isActive = (url: string) => {
-    if (url === pathname) return true;
-    const rootDashboards = [
-      "/",
-      "/platform-admin",
-      "/manager",
-      "/participant",
-      "/coordinator",
-      "/faculty-coordinator",
-      "/events",
-      "/users",
-      "/roles",
-      "/reports",
-      "/notifications",
-      "/evaluations",
-      "/teams",
-      "/volunteers",
-    ];
-    if (rootDashboards.includes(url)) {
-      return pathname === url;
-    }
-    return pathname.startsWith(url + "/");
-  };
+  const location = useRouterState({ select: (s) => s.location });
+  const pathname = location.pathname;
+  const searchStr = location.searchStr || "";
 
   const roleName = user?.memberships?.[0]?.role?.name;
   const permissions = user?.memberships?.[0]?.role?.permissions?.map(p => p.permission.action) || [];
@@ -252,6 +231,56 @@ export function AppSidebar() {
       return true;
     })
   })).filter(section => section.items.length > 0);
+
+  const isActive = (url: string) => {
+    const parts = url.split("?");
+    const targetPath = parts[0] || url;
+    const targetQuery = parts[1];
+
+    // Exact query parameter match (e.g. ?status=APPROVED)
+    if (targetQuery) {
+      if (pathname !== targetPath) return false;
+      return searchStr.includes(targetQuery);
+    }
+
+    // Root dashboard routes that should only match exactly (never sibling or child pages)
+    const rootDashboards = [
+      "/",
+      "/platform-admin",
+      "/manager",
+      "/participant",
+      "/coordinator",
+      "/faculty-coordinator",
+      "/judge",
+      "/evaluations",
+      "/teams",
+      "/volunteers",
+      "/events",
+      "/users",
+      "/roles",
+      "/reports",
+      "/notifications",
+    ];
+
+    if (rootDashboards.includes(targetPath)) {
+      return pathname === targetPath;
+    }
+
+    // If current location has an active query string, don't highlight generic route if a specific query route exists
+    if (searchStr && searchStr.length > 1) {
+      const hasSpecificQueryItem = sections.some(s =>
+        s.items.some(i => {
+          const q = i.url.split("?")[1];
+          return Boolean(q && i.url.startsWith(targetPath + "?") && searchStr.includes(q));
+        })
+      );
+      if (hasSpecificQueryItem) {
+        return false;
+      }
+    }
+
+    return pathname === targetPath || pathname.startsWith(targetPath + "/");
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">

@@ -63,11 +63,12 @@ export function Topbar() {
   const getDashboardUrl = (user: any) => {
     if (!user || !user.memberships || user.memberships.length === 0) return "/events";
     const roleName = user.memberships[0]?.role?.name;
-    if (roleName === "Platform Admin") return "/platform-admin";
-    if (roleName === "Organization Admin" || roleName === "Manager") return "/manager";
+    if (roleName === "Sudo Admin" || roleName === "Platform Admin") return "/platform-admin";
+    if (roleName === "Organization Admin" || roleName === "Admin" || roleName === "Manager") return "/manager";
     if (roleName === "Student Coordinator") return "/coordinator";
+    if (roleName === "Faculty Coordinator") return "/faculty-coordinator";
     if (roleName === "Participant") return "/participant";
-    if (roleName === "Judge") return "/evaluations";
+    if (roleName === "Judge" || roleName === "Evaluator") return "/judge";
     if (roleName === "Mentor") return "/teams";
     if (roleName === "Volunteer") return "/volunteers";
     return "/events";
@@ -94,7 +95,7 @@ export function Topbar() {
   const currentMembership = user?.memberships?.find(
     (m) => m.organization.id === activeOrganization
   );
-  const orgName = currentMembership?.organization.name || "Ascent Platform";
+  const orgName = currentMembership?.organization.name || "Eventura Platform";
 
   const switchDevUser = async (email: string) => {
     try {
@@ -168,7 +169,7 @@ export function Topbar() {
             {(orgName || "EP").slice(0, 2).toUpperCase()}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-xs font-bold leading-tight text-foreground">Eventora</p>
+            <p className="truncate text-xs font-bold leading-tight text-foreground">Eventura</p>
             <p className="truncate text-[10px] text-muted-foreground/80 leading-none">{orgName}</p>
           </div>
         </Link>

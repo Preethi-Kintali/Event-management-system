@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/coordinator/")({
   head: () => ({
-    meta: [{ title: "Coordinator Dashboard · Eventora Platform" }],
+    meta: [{ title: "Coordinator Dashboard · Eventura Platform" }],
   }),
   component: CoordinatorDashboard,
 });

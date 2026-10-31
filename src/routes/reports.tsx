@@ -14,7 +14,7 @@ import { useReportsDashboard, useEventReports, useCompetitionReports, usePartici
 export const Route = createFileRoute("/reports")({
   head: () => ({
     meta: [
-      { title: "Reports & Compliance Audit · Eventora Platform" },
+      { title: "Reports & Compliance Audit · Eventura Platform" },
       {
         name: "description",
         content: "Scheduled and on-demand operational reports and immutable compliance audit logs.",

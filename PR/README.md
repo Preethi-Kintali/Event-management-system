@@ -1,4 +1,4 @@
-# Pull Request (PR): Eventora Platform — Future Architecture & Enhancements Specification
+# Pull Request (PR): Eventura Platform — Future Architecture & Enhancements Specification
 
 ## PR Overview
 
@@ -27,7 +27,7 @@ PR/
 
 ## Executive Summary
 
-This Pull Request package establishes the blueprint and technical roadmap for scaling the **Eventora Platform** into a multi-tenant enterprise event management ecosystem.
+This Pull Request package establishes the blueprint and technical roadmap for scaling the **Eventura Platform** into a multi-tenant enterprise event management ecosystem.
 
 ### Key Enhancement Pillars
 1. **Real-Time Streaming Engine**: WebSocket & Redis Pub/Sub integration for live event leaderboards, real-time judge scoring, and interactive Q&A.

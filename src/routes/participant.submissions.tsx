@@ -8,7 +8,7 @@ const submissionsSearchSchema = z.object({
 
 export const Route = createFileRoute("/participant/submissions")({
   validateSearch: (search) => submissionsSearchSchema.parse(search),
-  head: () => ({ meta: [{ title: "ParticipantSubmissionsPage · Eventora Platform" }] }),
+  head: () => ({ meta: [{ title: "ParticipantSubmissionsPage · Eventura Platform" }] }),
   component: ParticipantSubmissionsPage,
 });
 

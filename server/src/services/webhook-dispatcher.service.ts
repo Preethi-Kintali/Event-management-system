@@ -33,7 +33,7 @@ export class WebhookDispatcherService {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "User-Agent": "Eventora-Webhook-Dispatcher/1.0"
+            "User-Agent": "Eventura-Webhook-Dispatcher/1.0"
           },
           body: JSON.stringify({
             event,

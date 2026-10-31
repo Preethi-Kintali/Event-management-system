@@ -12,6 +12,6 @@ export const Route = createFileRoute("/participant/problem-statements")({
       eventId: typeof eventIdVal === "string" ? eventIdVal : undefined,
     };
   },
-  head: () => ({ meta: [{ title: "Problem Statements · Eventora Platform" }] }),
+  head: () => ({ meta: [{ title: "Problem Statements · Eventura Platform" }] }),
   component: ParticipantProblemStatementsPage,
 });
